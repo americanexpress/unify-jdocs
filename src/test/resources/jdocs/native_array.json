@@ -1,0 +1,14 @@
+{
+  "valid_states": [
+    {
+      "country": "USA",
+      "states": [
+        "AZ",
+        "NJ",
+        "NY",
+        "GA",
+        "TX"
+      ]
+    }
+  ]
+}

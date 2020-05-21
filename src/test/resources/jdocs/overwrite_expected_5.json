@@ -1,0 +1,14 @@
+{
+  "phones": [
+    {
+      "type": "Home",
+      "number": "222222",
+      "country": "USA"
+    },
+    {
+      "type": 0,
+      "number": "333333",
+      "country": "USA"
+    }
+  ]
+}

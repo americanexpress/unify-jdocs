@@ -1,0 +1,34 @@
+{
+  "id": "id",
+  "info": {
+    "iid": "12345678"
+  },
+  "members": [
+    {
+      "first_name": "Deepak",
+      "age": 48,
+      "phones": [
+        {
+          "type": "Home",
+          "number": "11111111111",
+          "is_primary": true
+        }
+      ],
+      "index": 0
+    },
+    {
+      "type": "basic",
+      "first_name": "Deepak",
+      "last_name": "Arora",
+      "phones": [
+        {
+          "type": "Home"
+        }
+      ]
+    },
+    {
+      "type": "supp",
+      "first_name": "Nitika"
+    }
+  ]
+}

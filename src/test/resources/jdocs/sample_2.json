@@ -1,0 +1,11 @@
+{
+  "id": "id",
+  "info": {
+    "iid": null,
+    "iref": "value",
+    "block": {
+      "bid": null,
+      "bref": "value"
+    }
+  }
+}

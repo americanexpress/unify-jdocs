@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "val_1": "{\"type\":\"double\", \"regex\":\".*\"}",
+      "val_2": "{\"type\":\"double\", \"regex\":\".*\"}"
+    }
+  ]
+}

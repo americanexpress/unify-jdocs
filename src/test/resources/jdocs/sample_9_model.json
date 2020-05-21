@@ -1,0 +1,9 @@
+{
+  "docs": [
+    {
+      "key": "{\"field\":\"index\"}",
+      "index": "{\"type\":\"integer\"}",
+      "name": "{\"type\":\"string\"}"
+    }
+  ]
+}

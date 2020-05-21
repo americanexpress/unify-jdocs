@@ -1,0 +1,60 @@
+{
+  "id": "id",
+  "info": {
+    "iid": null
+  },
+  "addresses": [
+    {
+      "type": "home",
+      "line_1": "Park View Spa",
+      "line_2": "Sector",
+      "city": "Gurgaon",
+      "state": "HR",
+      "country_numeric_cd": 356,
+      "post_code": "122018"
+    },
+    {
+      "type": "business",
+      "line_1": "American Express",
+      "line_2": "One Horizon Center, Golf Course Road",
+      "city": "Gurgaon",
+      "state": "HR",
+      "country_numeric_cd": 356,
+      "post_code": "122001"
+    }
+  ],
+  "members": [
+    {
+      "index": 0,
+      "type": "basic",
+      "first_name": "Deepak",
+      "last_name": "Arora",
+      "phones": [
+        {
+          "type": "home",
+          "number": "11111111111"
+        },
+        {
+          "type": "mobile",
+          "number": "9999999999"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "type": "supp",
+      "first_name": "Nitika",
+      "last_name": "Kaushal",
+      "phones": [
+        {
+          "type": "home",
+          "number": "11111111111"
+        },
+        {
+          "type": "mobile",
+          "number": "9999999999"
+        }
+      ]
+    }
+  ]
+}

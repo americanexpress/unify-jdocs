@@ -1,0 +1,18 @@
+{
+  "application": {
+    "members": [
+      {
+        "number": 0,
+        "name": "Nitika1",
+        "contacts": {
+          "addresses": [
+            {
+              "type": "home",
+              "line1": "Greenwood City"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

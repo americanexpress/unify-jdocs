@@ -1,0 +1,44 @@
+{
+  "id": "id",
+  "info": {
+    "iid": "12345678"
+  },
+  "members": [
+    {
+      "first_name": "Deepak",
+      "phones": [
+        {
+          "type": "home",
+          "number": "9999999999",
+          "is_primary": true
+        }
+      ],
+      "index": 0
+    },
+    {
+      "sex": "male",
+      "first_name": "Deepak",
+      "last_name": "Arora",
+      "phones": [
+        {
+          "type": "home"
+        }
+      ]
+    },
+    {
+      "sex": "female",
+      "first_name": "Nitika"
+    }
+  ],
+  "addresses": [
+    {
+      "line_1": "line 1"
+    },
+    {
+      "line_1": "line 1"
+    },
+    {
+      "line_1": "line 1"
+    }
+  ]
+}

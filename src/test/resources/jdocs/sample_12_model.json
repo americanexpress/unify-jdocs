@@ -1,0 +1,20 @@
+{
+  "application": {
+    "members": [
+      {
+        "key": "{\"field\":\"number\"}",
+        "number": "{\"type\":\"integer\"}",
+        "name": "{\"type\":\"string\"}",
+        "contacts": {
+          "addresses": [
+            {
+              "key": "{\"field\":\"type\"}",
+              "type": "{\"type\":\"string\"}",
+              "line1": "{\"type\":\"string\"}"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

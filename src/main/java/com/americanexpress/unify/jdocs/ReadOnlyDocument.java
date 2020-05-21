@@ -1,0 +1,185 @@
+/*
+ * Copyright 2020 American Express Travel Related Services Company, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+package com.americanexpress.unify.jdocs;
+
+import java.util.List;
+
+/*
+ * @author Deepak Arora
+ */
+public class ReadOnlyDocument implements Document {
+
+  private Document d = null;
+
+  public ReadOnlyDocument(Document d) {
+    this.d = d;
+  }
+
+  @Override
+  public void deletePath(String path, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void empty() {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public int getArraySize(String path, String... vargs) {
+    return d.getArraySize(path, vargs);
+  }
+
+  @Override
+  public int getArrayIndex(String path, String... vargs) {
+    return d.getArrayIndex(path, vargs);
+  }
+
+  @Override
+  public Boolean getBoolean(String path, String... vargs) {
+    return d.getBoolean(path, vargs);
+  }
+
+  @Override
+  public Integer getInteger(String path, String... vargs) {
+    return d.getInteger(path, vargs);
+  }
+
+  @Override
+  public String getJson() {
+    return d.getJson();
+  }
+
+  @Override
+  public Long getLong(String path, String... vargs) {
+    return d.getLong(path, vargs);
+  }
+
+  @Override
+  public Double getDouble(String path, String... vargs) {
+    return d.getDouble(path, vargs);
+  }
+
+  @Override
+  public Boolean getArrayValueBoolean(String path, String... vargs) {
+    return d.getArrayValueBoolean(path, vargs);
+  }
+
+  @Override
+  public Integer getArrayValueInteger(String path, String... vargs) {
+    return d.getArrayValueInteger(path, vargs);
+  }
+
+  @Override
+  public String getArrayValueString(String path, String... vargs) {
+    return d.getArrayValueString(path, vargs);
+  }
+
+  @Override
+  public Long getArrayValueLong(String path, String... vargs) {
+    return d.getArrayValueLong(path, vargs);
+  }
+
+  @Override
+  public Double getArrayValueDouble(String path, String... vargs) {
+    return d.getArrayValueDouble(path, vargs);
+  }
+
+  @Override
+  public String getPrettyPrintJson() {
+    return d.getPrettyPrintJson();
+  }
+
+  @Override
+  public Object getValue(String path, String... vargs) {
+    return d.getValue(path, vargs);
+  }
+
+  @Override
+  public String getString(String path, String... vargs) {
+    return d.getString(path, vargs);
+  }
+
+  @Override
+  public boolean pathExists(String path, String... vargs) {
+    return d.pathExists(path, vargs);
+  }
+
+  @Override
+  public void setBoolean(String path, boolean value, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setContent(Document fromDoc, String fromPath, String toPath, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setInteger(String path, int value, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setLong(String path, long value, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setDouble(String path, double value, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setString(String path, String value, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setArrayValueBoolean(String path, boolean value, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setArrayValueInteger(String path, int value, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setArrayValueLong(String path, long value, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setArrayValueDouble(String path, double value, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setArrayValueString(String path, String value, String... vargs) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public Document deepCopy() {
+    return d.deepCopy();
+  }
+
+  @Override
+  public void merge(Document d, List<String> pathsToDelete) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+}

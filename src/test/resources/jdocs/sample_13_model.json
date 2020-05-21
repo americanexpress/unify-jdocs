@@ -1,0 +1,5 @@
+{
+  "id": "{\"type\":\"string\"}",
+  "master_id": "{\"type\":\"string\", \"regex\":\"\\\\w{1,17}\"}",
+  "info": "{\"type\":\"string\"}"
+}

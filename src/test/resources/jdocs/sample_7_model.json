@@ -1,0 +1,23 @@
+{
+  "id": "{\"type\":\"string\"}",
+  "info": {
+    "iid": "{\"type\":\"string\", \"regex\":\".*\", \"null_allowed\": true}"
+  },
+  "members": [
+    {
+      "index": "{\"type\":\"long\", \"regex\":\".*\"}",
+      "type": "{\"type\":\"string\"}",
+      "first_name": "{\"type\":\"string\"}",
+      "last_name": "{\"type\":\"string\"}",
+      "is_married": "{\"type\":\"boolean\"}",
+      "age": "{\"type\":\"integer\"}",
+      "phones": [
+        {
+          "type": "{\"type\":\"string\"}",
+          "number": "{\"type\":\"string\"}",
+          "is_primary": "{\"type\":\"boolean\"}"
+        }
+      ]
+    }
+  ]
+}
