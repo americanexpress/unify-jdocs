@@ -1,0 +1,55 @@
+{
+  "id": "id",
+  "header": {
+    "cid": "cid",
+    "transaction": {
+      "tid": "tid"
+    }
+  },
+  "family": {
+    "members": [
+      {
+        "index": 0,
+        "sex": "male",
+        "first_name": "Deepak",
+        "last_name": "Arora",
+        "is_married": true,
+        "home_address": {
+          "line_1": "Deepak address line 1",
+          "line_2": "Deepak address line 2"
+        },
+        "phones": [
+          {
+            "type": "home",
+            "number": "1111111111"
+          },
+          {
+            "type": "mobile",
+            "number": "2222222222"
+          }
+        ]
+      },
+      {
+        "index": 1,
+        "sex": "female",
+        "first_name": "Nitika",
+        "last_name": "Kaushal",
+        "is_married": false,
+        "home_address": {
+          "line_1": "Nitika address line 1",
+          "line_2": "Nitika address line 2"
+        },
+        "phones": [
+          {
+            "type": "home",
+            "number": "3333333333"
+          },
+          {
+            "type": "mobile",
+            "number": "4444444444"
+          }
+        ]
+      }
+    ]
+  }
+}

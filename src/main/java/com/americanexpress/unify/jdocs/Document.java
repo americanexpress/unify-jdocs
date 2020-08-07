@@ -24,6 +24,32 @@ import java.util.List;
 public interface Document {
 
   /**
+   * Returns a boolean specifying if this document is a typed document
+   */
+  boolean isTyped();
+
+  /**
+   * Returns the type of the document
+   */
+  String getType();
+
+  /**
+   * Returns the date type of the leaf node
+   */
+  LeafNodeDataType getLeafNodeDataType(String path, String... vargs);
+
+  /**
+   * Returns the date type of the leaf node
+   */
+  LeafNodeDataType getArrayValueLeafNodeDataType(String path, String... vargs);
+
+  /**
+   * Sets the type of a document. The model object needs to be already loaded. Validation against the model will
+   * be carried out an an exception thrown if a violation is found
+   */
+  void setType(String type);
+
+  /**
    * Empty the contents of the document
    */
   void empty();
@@ -232,6 +258,22 @@ public interface Document {
    * @return
    */
   boolean pathExists(String path, String... vargs);
+
+  /**
+   * Returns the content of the specified path as a new document
+   * The path can only point to a complex object or an array element. It can also point to an array only if
+   * the includeFullkPath variable is true
+   *
+   * @param path                the path in the document from which the contents are to be extracted
+   * @param returnTypedDocument only applicable if this document is a JDocument. If true, an instance of JDocument
+   *                            is returned else an instance of BaseDocument
+   * @param includeFullPath     the returned document is constructed with the full path from root else the path from root is skipped
+   * @param vargs               the values to replace the % characters in path
+   * @throws com.aexp.acq.unify.base.utils.UnifyException If the path specified does not point to a complex object
+   *                                                      If the return document is a JDocument but does not conform to the model document
+   *                                                      If path points to an array but the includeFullPath is false
+   */
+  Document getContent(String path, boolean returnTypedDocument, boolean includeFullPath, String... vargs);
 
   /**
    * Copies content from document to this document. This functionality will overwrite all content

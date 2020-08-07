@@ -33,6 +33,31 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
+  public boolean isTyped() {
+    return d.isTyped();
+  }
+
+  @Override
+  public String getType() {
+    return d.getType();
+  }
+
+  @Override
+  public LeafNodeDataType getLeafNodeDataType(String path, String... vargs) {
+    return d.getLeafNodeDataType(path, vargs);
+  }
+
+  @Override
+  public LeafNodeDataType getArrayValueLeafNodeDataType(String path, String... vargs) {
+    return d.getArrayValueLeafNodeDataType(path, vargs);
+  }
+
+  @Override
+  public void setType(String type) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
   public void empty() {
     throw new UnifyException("jdoc_err_19");
   }
@@ -115,6 +140,11 @@ public class ReadOnlyDocument implements Document {
   @Override
   public boolean pathExists(String path, String... vargs) {
     return d.pathExists(path, vargs);
+  }
+
+  @Override
+  public Document getContent(String path, boolean returnTypedDocument, boolean includeFullPath, String... vargs) {
+    return d.getContent(path, returnTypedDocument, includeFullPath, vargs);
   }
 
   @Override

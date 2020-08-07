@@ -13,6 +13,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 /**
  * The BaseUtils class contains general purpose static methods.
@@ -195,7 +196,6 @@ public class BaseUtils {
    */
   public static String fromInstant(Instant instant, String outPattern, Locale outLocale, String outTz) {
     try {
-
       ZonedDateTime zdt = instant.atZone(ZoneId.of(outTz));
       DateTimeFormatter df = DateTimeFormatter.ofPattern(outPattern).withZone(ZoneId.of(outTz)).withLocale(outLocale);
       return zdt.format(df);
@@ -345,8 +345,19 @@ public class BaseUtils {
    */
   // Given a date string, format it and return a timestamp of that date
   public static Timestamp getTimestampFromString(String strDate) {
-    ZonedDateTime zdt = getZonedDateTimeFromString(strDate, "yyyy-MMM-dd HH:mm:ss.SSS VV", Locale.ENGLISH);
+    ZonedDateTime zdt = BaseUtils.getZonedDateTimeFromString(strDate, "yyyy-MMM-dd HH:mm:ss.SSS VV", Locale.ENGLISH);
     return Timestamp.from(zdt.toInstant());
+  }
+
+  /**
+   * Creates a Timestamp object from an Instant
+   *
+   * @param instant An instant
+   * @return Timestamp object for the instant
+   */
+  // Given an instant, return a timestamp
+  public static Timestamp fromInstant(Instant instant) {
+    return new Timestamp(instant.toEpochMilli());
   }
 
   /**
@@ -556,7 +567,7 @@ public class BaseUtils {
 
     for (int i = 0; i < size; i++) {
       char c = s.charAt(i);
-      if ((compareWithMany(c, chars) == true) || (c == ec)) {
+      if ((BaseUtils.compareWithMany(c, chars) == true) || (c == ec)) {
         sb.append(ec);
       }
       sb.append(c);
@@ -587,7 +598,7 @@ public class BaseUtils {
         char c = s.charAt(i);
         if (c == ec) {
           c = s.charAt(i + 1);
-          if ((compareWithMany(c, chars) == true) || (c == ec)) {
+          if ((BaseUtils.compareWithMany(c, chars) == true) || (c == ec)) {
             // we do not need to copy the escape char
           }
           else {
@@ -797,6 +808,13 @@ public class BaseUtils {
     else {
       return false;
     }
+  }
+
+  // generate a random number between the two specified number both sides included
+  public static int getRandom(int from, int to) {
+    Random random = new Random(System.nanoTime());
+    int r = random.nextInt(to - from + 1) + from;
+    return r;
   }
 
 }

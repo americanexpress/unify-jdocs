@@ -33,13 +33,18 @@ public class DocumentTest {
 
   private String getCompressedJson(String filePath) {
     String json = BaseUtils.getResourceAsString(DocumentTest.class, filePath);
-    Document d = new BaseDocument(json);
+    Document d = new JDocument(json);
+    return d.getJson();
+  }
+
+  private String getCompressedJson1(String json) {
+    Document d = new JDocument(json);
     return d.getJson();
   }
 
   private Document getBaseDocument(String filePath) {
     String json = BaseUtils.getResourceAsString(DocumentTest.class, filePath);
-    return new BaseDocument(json);
+    return new JDocument(json);
   }
 
   private Document getTypedDocument(String type, String filePath) {
@@ -53,26 +58,26 @@ public class DocumentTest {
       json = BaseUtils.getResourceAsString(DocumentTest.class, filePath);
     }
 
-    return new TypedDocument(type, json);
+    return new JDocument(type, json);
   }
 
   private void setDocModel(String type) {
     String json = BaseUtils.getResourceAsString(DocumentTest.class, "/jdocs/" + type + ".json");
-    Document d = new BaseDocument(json);
-    TypedDocument.setDocumentModel(type, d);
+    Document d = new JDocument(json);
+    JDocument.setDocumentModel(type, d);
   }
 
   @Test
   void testMisc() {
     setDocModel("sample_1_model");
     String json = BaseUtils.getResourceAsString(DocumentTest.class, "/jdocs/sample_1.json");
-    Document d = new TypedDocument("sample_1_model", json);
+    Document d = new JDocument("sample_1_model", json);
 
     d.deletePath("$.members[index=%].first_name", "0");
     assertFalse(d.pathExists("$.members[index=%].first_name", "0"));
     assertEquals(d.getArraySize("$.members[0].phones[]"), 2);
 
-    d = new TypedDocument("sample_1_model");
+    d = new JDocument("sample_1_model", null);
     assertEquals(d.getPrettyPrintJson(), "{ }");
   }
 
@@ -122,7 +127,7 @@ public class DocumentTest {
     assertEquals((Double)45.00, d.getDouble("$.values[0].val_1"));
     assertEquals((Double)45.876, d.getDouble("$.values[0].val_2"));
 
-    d = new BaseDocument();
+    d = new JDocument();
     d.setDouble("$.value", 45.876);
     assertEquals((Double)45.876, d.getDouble("$.value"));
 
@@ -132,7 +137,7 @@ public class DocumentTest {
 
   @Test
   void testWrite() {
-    Document d = new BaseDocument();
+    Document d = new JDocument();
 
     d.setString("$.id", "id");
     d.setString("$.info.iid", "iid");
@@ -210,6 +215,8 @@ public class DocumentTest {
   void testDelete() {
     Document d = getBaseDocument("/jdocs/sample_1.json");
 
+    d.deletePath("$.laksdlkj");
+
     boolean b = d.pathExists("$.members[0].phones[0].number");
     assertEquals(true, b);
 
@@ -239,7 +246,7 @@ public class DocumentTest {
 
   @Test
   void testArraySize() {
-    Document d = new BaseDocument();
+    Document d = new JDocument();
 
     d.setString("$.members[0].name", "Deepak");
     d.setString("$.members[1].name", "Deepak");
@@ -261,6 +268,10 @@ public class DocumentTest {
 
     size = d.getArraySize("$.application[]");
     assertEquals(size, 0);
+
+    d = getTypedDocument("sample_12_model", null);
+    size = d.getArraySize("$.application.members[]");
+    assert (size == 0);
   }
 
   @Test
@@ -299,7 +310,7 @@ public class DocumentTest {
   void testCopy() {
     // test case 1
     Document fromDoc = getBaseDocument("/jdocs/sample_1.json");
-    Document toDoc = new BaseDocument();
+    Document toDoc = new JDocument();
     toDoc.setContent(fromDoc, "$.info", "$.info");
     toDoc.setContent(fromDoc, "$.members[%]", "$.members[%]", 0 + "", 0 + "");
 
@@ -319,7 +330,7 @@ public class DocumentTest {
 
     // test case 2
     fromDoc = getBaseDocument("/jdocs/sample_2.json");
-    toDoc = new BaseDocument();
+    toDoc = new JDocument();
     toDoc.setContent(fromDoc, "$.info", "$");
     expected = getCompressedJson("/jdocs/sample_2_1_expected.json");
     actual = toDoc.getJson();
@@ -327,7 +338,7 @@ public class DocumentTest {
 
     // test case 3
     fromDoc = getBaseDocument("/jdocs/sample_2.json");
-    toDoc = new BaseDocument();
+    toDoc = new JDocument();
     toDoc.setContent(fromDoc, "$", "$.members[type=basic].block");
     expected = getCompressedJson("/jdocs/sample_2_2_expected.json");
     actual = toDoc.getJson();
@@ -436,7 +447,7 @@ public class DocumentTest {
   @Test
   void testSetArray() throws IOException {
     Document d = getBaseDocument("/jdocs/sample_11.json");
-    Document master = new BaseDocument();
+    Document master = new JDocument();
     master.setContent(d, "$.members[0]", "$.members[0]");
     master.setContent(d, "$.members[0]", "$.members[1]");
     master.setContent(d, "$.members[0]", "$.members[2]");
@@ -447,12 +458,12 @@ public class DocumentTest {
 
   @Test
   void testOverwrite() {
-    Document d = new BaseDocument();
+    Document d = new JDocument();
     d.setInteger("$.members[number=0].number", 0);
     String expected = getCompressedJson("/jdocs/overwrite_expected.json");
     assertEquals(d.getJson(), expected);
 
-    d = new BaseDocument();
+    d = new JDocument();
     d.setInteger("$.members[0].number", 0);
     d.setString("$.members[0].first_name", "Deepak");
     expected = getCompressedJson("/jdocs/overwrite_expected_1.json");
@@ -490,13 +501,6 @@ public class DocumentTest {
   }
 
   @Test
-  void test() {
-    Document d = getTypedDocument("sample_12_model", null);
-    int size = d.getArraySize("$.application.members[]");
-    assert (size == 0);
-  }
-
-  @Test
   void testGetValue() {
     Document d = getBaseDocument("/jdocs/sample_14.json");
 
@@ -511,6 +515,119 @@ public class DocumentTest {
 
     o = d.getValue("$.boolean");
     assertEquals(o.getClass().getName(), Boolean.class.getName());
+  }
+
+  @Test
+  void testGetContent() {
+    JDocument d = (JDocument)getBaseDocument("/jdocs/sample_15.json");
+    String json = null;
+
+    // read a complex object
+    json = d.getContent("$.header.transaction", false, true).getJson();
+    assertEquals(json, getCompressedJson1("{\n" +
+            "  \"header\" : {\n" +
+            "    \"transaction\" : {\n" +
+            "      \"tid\" : \"tid\"\n" +
+            "    }\n" +
+            "  }\n" +
+            "}"));
+
+    // read the whole document
+    json = d.getContent("$", false, true).getJson();
+    assertEquals(json, d.getJson());
+
+    // read a complex object inside of an array
+    json = d.getContent("$.family.members[1].home_address", false, true).getJson();
+    assertEquals(json, getCompressedJson1("{\n" +
+            "  \"family\" : {\n" +
+            "    \"members\" : [ {\n" +
+            "      \"home_address\" : {\n" +
+            "        \"line_1\" : \"Nitika address line 1\",\n" +
+            "        \"line_2\" : \"Nitika address line 2\"\n" +
+            "      }\n" +
+            "    } ]\n" +
+            "  }\n" +
+            "}"));
+
+    // read an array element
+    json = d.getContent("$.family.members[0].phones[1]", false, true).getJson();
+    assertEquals(json, getCompressedJson1("{\n" +
+            "  \"family\" : {\n" +
+            "    \"members\" : [ {\n" +
+            "      \"phones\" : [ {\n" +
+            "        \"type\" : \"mobile\",\n" +
+            "        \"number\" : \"2222222222\"\n" +
+            "      } ]\n" +
+            "    } ]\n" +
+            "  }\n" +
+            "}"));
+
+    // read the whole array
+    json = d.getContent("$.family.members[0].phones[]", false, true).getJson();
+    assertEquals(json, getCompressedJson1("{\n" +
+            "  \"family\" : {\n" +
+            "    \"members\" : [ {\n" +
+            "      \"phones\" : [ {\n" +
+            "        \"type\" : \"home\",\n" +
+            "        \"number\" : \"1111111111\"\n" +
+            "      }, {\n" +
+            "        \"type\" : \"mobile\",\n" +
+            "        \"number\" : \"2222222222\"\n" +
+            "      } ]\n" +
+            "    } ]\n" +
+            "  }\n" +
+            "}"));
+
+    // read whole array but without full path -> note that this is not allowed
+    try {
+      d.getContent("$.family.members[0].phones[]", false, false).getPrettyPrintJson();
+    }
+    catch (UnifyException e) {
+      assertEquals("jdoc_err_24", e.getErrorCode());
+    }
+
+    // now we do tests on typed document
+    d = (JDocument)getTypedDocument("sample_1_model", "/jdocs/sample_1.json");
+
+    // read a complex object
+    json = d.getContent("$.info", true, true).getJson();
+    assertEquals(json, getCompressedJson1("{\n" +
+            "  \"info\" : {\n" +
+            "    \"iid\" : null\n" +
+            "  }\n" +
+            "}\n"));
+
+    // read a complex object inside of an array
+    json = d.getContent("$.members[0].phones[0]", true, true).getJson();
+    assertEquals(json, getCompressedJson1("{\n" +
+            "  \"members\" : [ {\n" +
+            "    \"phones\" : [ {\n" +
+            "      \"type\" : \"home\",\n" +
+            "      \"number\" : \"11111111111\"\n" +
+            "    } ]\n" +
+            "  } ]\n" +
+            "}\n"));
+
+    // read a complex object inside of an array without full path -> note this is not allowed
+    try {
+      d.getContent("$.members[0].phones[0]", true, false).getJson();
+    }
+    catch (UnifyException e) {
+      assertEquals("jdoc_err_28", e.getErrorCode());
+    }
+
+  }
+
+  @Test
+  void testGetLeafNodeDataType() {
+    // now we do tests on typed document
+    Document d = (JDocument)getTypedDocument("sample_1_model", "/jdocs/sample_1.json");
+
+    LeafNodeDataType ldt = d.getLeafNodeDataType("$.members[0].first_name");
+    assertEquals(ldt.toString(), "string");
+
+    ldt = d.getLeafNodeDataType("$.members[0].is_married");
+    assertEquals(ldt.toString(), "boolean");
   }
 
 }

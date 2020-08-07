@@ -27,23 +27,11 @@ public class CONSTS_JDOCS {
   // these are the fields that appear in the format string i.e. the whole string for a leaf node
   public class FORMAT_FIELDS {
 
-    public static final String KEY = "key";
+    public static final String KEY = "jdocs_arr_pk";
     public static final String TYPE = "type";
     public static final String REGEX = "regex";
     public static final String FORMAT = "format"; // used only for date
     public static final String NULL_ALLOWED = "null_allowed";
-
-  }
-
-  // these are the fields that appear in the type tag of the format string
-  public class TYPES {
-
-    public static final String STRING = "string";
-    public static final String DATE = "date";
-    public static final String BOOLEAN = "boolean";
-    public static final String INTEGER = "integer";
-    public static final String LONG = "long";
-    public static final String DOUBLE = "double";
 
   }
 
@@ -56,7 +44,7 @@ public class CONSTS_JDOCS {
     GET_ARRAY_VALUE,
     SET_ARRAY_VALUE,
     PATH_EXISTS,
-    SET_CONTENT
+    CONTENT
   }
 
 }

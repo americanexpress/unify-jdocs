@@ -21,8 +21,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.util.Scanner;
 
-import static com.americanexpress.unify.jdocs.BaseDocument.objectMapper;
-
 /*
  * @author Deepak Arora
  */
@@ -85,8 +83,8 @@ public class TestParsing {
       }
     }
 
-    JsonNode node = BaseDocument.objectMapper.readTree(json);
-    json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+    JsonNode node = JDocument.objectMapper.readTree(json);
+    json = JDocument.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
     return json;
   }
 

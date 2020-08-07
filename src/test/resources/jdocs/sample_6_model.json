@@ -10,11 +10,11 @@
     },
     "members": [
       {
-        "key": "{\"field\":\"index\"}",
+        "jdocs_arr_pk": "{\"field\":\"index\"}",
         "index": "{\"type\":\"string\"}",
         "phones": [
           {
-            "key": "{\"field\":\"type\"}",
+            "jdocs_arr_pk": "{\"field\":\"type\"}",
             "type": "{\"type\":\"string\"}",
             "country_cd": "{\"type\":\"string\"}",
             "number": "{\"type\":\"string\"}"
@@ -24,7 +24,7 @@
     ],
     "docs": [
       {
-        "key": "{\"field\":\"index\"}",
+        "jdocs_arr_pk": "{\"field\":\"index\"}",
         "index": "{\"type\":\"integer\"}",
         "name": "{\"type\":\"string\"}"
       }

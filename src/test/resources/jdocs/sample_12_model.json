@@ -2,13 +2,13 @@
   "application": {
     "members": [
       {
-        "key": "{\"field\":\"number\"}",
+        "jdocs_arr_pk": "{\"field\":\"number\"}",
         "number": "{\"type\":\"integer\"}",
         "name": "{\"type\":\"string\"}",
         "contacts": {
           "addresses": [
             {
-              "key": "{\"field\":\"type\"}",
+              "jdocs_arr_pk": "{\"field\":\"type\"}",
               "type": "{\"type\":\"string\"}",
               "line1": "{\"type\":\"string\"}"
             }

@@ -60,7 +60,7 @@ public class ERRORS_JDOCS extends ErrorMap {
     map.put("jdoc_err_35", "Cannot merge. Mismatch in source and target node types. Node name -> {0}");
     map.put("jdoc_err_36", "Null value is not allowed at this path -> {0}");
     map.put("jdoc_err_37", "Field type mismatch between model and data for path -> {0}");
-    map.put("jdoc_err_38", "Invalid path. Path does not exist in document model. Path -> {0}, model path -> {1}");
+    map.put("jdoc_err_38", "Invalid path. Path does not exist in document model. Type -> {0}, path -> {1}");
     map.put("jdoc_err_39", "Invalid source path. Last character of the path cannot be . Path -> {0}");
     map.put("jdoc_err_40", "Invalid destination path. Last character of the path cannot be . Path -> {0}");
     map.put("jdoc_err_41", "Invalid source path. Path does not exist in source document. Path -> {0}");
@@ -78,6 +78,9 @@ public class ERRORS_JDOCS extends ErrorMap {
     map.put("jdoc_err_53", "Incompatible data type for value of array filter field -> {0} in path -> {1}");
     map.put("jdoc_err_54", "Regex pattern mismatch in path -> {0}");
     map.put("jdoc_err_55", "Types of two documents do not match");
+    map.put("jdoc_err_56", "Document type is either null or empty");
+    map.put("jdoc_err_60", "This method is only applicable for typed documents");
+    map.put("jdoc_err_61", "Type value not found for model path {0}");
   }
 
 }

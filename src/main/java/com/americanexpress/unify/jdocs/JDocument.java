@@ -14,46 +14,48 @@
 
 package com.americanexpress.unify.jdocs;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import static com.americanexpress.unify.jdocs.BaseUtils.removeEscapeChars;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
  * @author Deepak Arora
  */
-public class BaseDocument implements Document {
+public class JDocument implements Document {
+
+  // a map to store the doc models in use. In future we could use an ExpiryMap
+  private static Map<String, Document> docModels = new ConcurrentHashMap<>();
+
+  // for each model document, store a map of the constraint string and the corresponding JsonNode
+  private static Map<String, Map<String, JsonNode>> docModelPaths = new ConcurrentHashMap<>();
+
+  // for each regular expression pattern, store the compiled pattern
+  private static Map<String, Pattern> compiledPatterns = new ConcurrentHashMap<>();
+
+  // type of the document
+  private String type = "";
 
   // logger
-  private static Logger logger = LogManager.getLogger(BaseDocument.class);
+  private static Logger logger = LogManager.getLogger(JDocument.class);
 
   // root json node of the document
-  /**
-   *
-   */
   protected JsonNode rootNode = null;
 
   // one and only one object mapper -> object mappers are thread safe!!!
-  /**
-   *
-   */
-  public static ObjectMapper objectMapper = new ObjectMapper();
+  protected static ObjectMapper objectMapper = new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
-  /**
-   *
-   */
-  public BaseDocument() {
+  public JDocument() {
     try {
       rootNode = objectMapper.readTree("{}");
     }
@@ -62,10 +64,7 @@ public class BaseDocument implements Document {
     }
   }
 
-  /**
-   * @param json
-   */
-  public BaseDocument(String json) {
+  public JDocument(String json) {
     try {
       rootNode = objectMapper.readTree(json);
     }
@@ -73,6 +72,91 @@ public class BaseDocument implements Document {
       throw new UnifyException("jdoc_err_1", ex);
     }
   }
+
+  public JDocument(String type, String json) {
+    if ((type == null) || (type.isEmpty())) {
+      throw new UnifyException("jdoc_err_56");
+    }
+
+    try {
+      this.type = type;
+      if (json == null) {
+        rootNode = objectMapper.readTree("{}");
+      }
+      else {
+        rootNode = objectMapper.readTree(json);
+      }
+      validate(type);
+    }
+    catch (IOException ex) {
+      throw new UnifyException("jdoc_err_1", ex);
+    }
+  }
+
+  @Override
+  public String getType() {
+    return type;
+  }
+
+  @Override
+  public LeafNodeDataType getLeafNodeDataType(String path, String... vargs) {
+    if (isTyped() == false) {
+      throw new UnifyException("jdoc_err_60");
+    }
+    path = getStaticPath(path, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    String modelPath = getModelPath(path);
+    checkPathExistsInModel(modelPath);
+    String format = getFieldFormat(path, modelPath, false);
+    Document fd = new JDocument(format);
+    String type = fd.getString("$.type");
+    if (type == null) {
+      throw new UnifyException("jdoc_err_61", modelPath);
+    }
+    return LeafNodeDataType.valueOf(type.toUpperCase());
+  }
+
+  @Override
+  public LeafNodeDataType getArrayValueLeafNodeDataType(String path, String... vargs) {
+    if (isTyped() == false) {
+      throw new UnifyException("jdoc_err_60");
+    }
+    path = getStaticPath(path, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    String modelPath = getModelPath(path);
+    checkPathExistsInModel(modelPath);
+    String format = getFieldFormat(path, modelPath, true);
+    Document fd = new JDocument(format);
+    String type = fd.getString("$.type");
+    if (type == null) {
+      throw new UnifyException("jdoc_err_61", modelPath);
+    }
+    return LeafNodeDataType.valueOf(type.toUpperCase());
+  }
+
+  @Override
+  public boolean isTyped() {
+    if (type.isEmpty()) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+
+  @Override
+  public void setType(String type) {
+    if ((type == null) || (type.isEmpty())) {
+      type = "";
+    }
+    else {
+      // validate the contents here
+      validate(type);
+      this.type = type;
+    }
+  }
+
+  // Base document methods
 
   /**
    *
@@ -85,6 +169,13 @@ public class BaseDocument implements Document {
     catch (IOException ex) {
       throw new UnifyException("jdoc_err_1", ex);
     }
+  }
+
+  private final void validate(String type) {
+    // function to validate the contents of the whole document
+    Document md = docModels.get(type);
+    List<String> errorList = validate(((JDocument)md).rootNode, rootNode, "$.", type);
+    processErrors(errorList);
   }
 
   private static JsonNode getMatchingArrayElementByField(ArrayNode node, String field, String value) {
@@ -128,7 +219,26 @@ public class BaseDocument implements Document {
 
   @Override
   public void merge(Document d, List<String> pathsToDelete) {
-    throw new UnifyException("jdoc_err_2");
+    if (isTyped()) {
+      JDocument td = (JDocument)d;
+      if (type.equals(td.type) == false) {
+        throw new UnifyException("jdoc_err_55");
+      }
+
+      // first delete the paths
+      if (pathsToDelete != null) {
+        pathsToDelete.stream().forEach(s -> deletePath(s));
+      }
+
+      // now merge
+      JsonNode modelNode = null;
+      JDocument bd = (JDocument)getDocumentModel(td.getType());
+      modelNode = bd.rootNode;
+      merge(rootNode, ((JDocument)d).rootNode, modelNode);
+    }
+    else {
+      throw new UnifyException("jdoc_err_2");
+    }
   }
 
   protected boolean pathExists(String path, List<Token> tokenList) {
@@ -160,6 +270,10 @@ public class BaseDocument implements Document {
   public boolean pathExists(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.PATH_EXISTS, PathAccessType.OBJECT, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      checkPathExistsInModel(getModelPath(path));
+    }
     return pathExists(path, tokenList);
   }
 
@@ -243,6 +357,10 @@ public class BaseDocument implements Document {
   public int getArrayIndex(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_INDEX, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      checkPathExistsInModel(getModelPath(path));
+    }
     return getArrayIndex(path, tokenList);
   }
 
@@ -270,6 +388,10 @@ public class BaseDocument implements Document {
   public int getArraySize(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_SIZE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      checkPathExistsInModel(getModelPath(path));
+    }
     return getArraySize(path, tokenList);
   }
 
@@ -503,7 +625,7 @@ public class BaseDocument implements Document {
       if (token.isArray()) {
         boolean isDefinite = isArrayTokenDefinite((ArrayToken)token);
         if ((isDefinite == false) && (token.isLeaf() == false)) {
-          throw new UnifyException("jdocs_err_11", token.getField());
+          throw new UnifyException("jdoc_err_11", token.getField());
         }
       }
     }
@@ -859,11 +981,10 @@ public class BaseDocument implements Document {
 
       if (found == false) {
         filterNode = arrayNode.addObject();
-        if (this instanceof TypedDocument) {
+        if (isTyped()) {
           // we need to create the appropriate type of the node and for this we need to get the data type from the model
-          TypedDocument td = (TypedDocument)this;
           String modelPath = tokenPath + "." + filterField;
-          td.setFilterFieldNode((ObjectNode)filterNode, filterField, filterValue, path, modelPath);
+          setFilterFieldNode((ObjectNode)filterNode, filterField, filterValue, path, modelPath);
         }
         else {
           ((ObjectNode)filterNode).put(filterField, filterValue);
@@ -972,6 +1093,9 @@ public class BaseDocument implements Document {
   public Object getValue(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return getValue(path, null, tokenList);
   }
 
@@ -979,6 +1103,9 @@ public class BaseDocument implements Document {
   public String getString(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return (String)getValue(path, String.class, tokenList);
   }
 
@@ -986,6 +1113,9 @@ public class BaseDocument implements Document {
   public Integer getInteger(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return (Integer)getValue(path, Integer.class, tokenList);
   }
 
@@ -993,6 +1123,9 @@ public class BaseDocument implements Document {
   public Boolean getBoolean(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return (Boolean)getValue(path, Boolean.class, tokenList);
   }
 
@@ -1000,6 +1133,9 @@ public class BaseDocument implements Document {
   public Long getLong(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return (Long)getValue(path, Long.class, tokenList);
   }
 
@@ -1007,6 +1143,9 @@ public class BaseDocument implements Document {
   public Double getDouble(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return (Double)getValue(path, Double.class, tokenList);
   }
 
@@ -1014,6 +1153,9 @@ public class BaseDocument implements Document {
   public String getArrayValueString(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return (String)getValue(path, String.class, tokenList);
   }
 
@@ -1021,6 +1163,9 @@ public class BaseDocument implements Document {
   public Integer getArrayValueInteger(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return (Integer)getValue(path, Integer.class, tokenList);
   }
 
@@ -1028,6 +1173,9 @@ public class BaseDocument implements Document {
   public Boolean getArrayValueBoolean(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return (Boolean)getValue(path, Boolean.class, tokenList);
   }
 
@@ -1035,6 +1183,9 @@ public class BaseDocument implements Document {
   public Long getArrayValueLong(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return (Long)getValue(path, Long.class, tokenList);
   }
 
@@ -1042,6 +1193,9 @@ public class BaseDocument implements Document {
   public Double getArrayValueDouble(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
     return (Double)getValue(path, Double.class, tokenList);
   }
 
@@ -1049,6 +1203,10 @@ public class BaseDocument implements Document {
   public void setString(String path, String value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      validateField(path, value);
+    }
     setValue(path, tokenList, value);
   }
 
@@ -1056,6 +1214,10 @@ public class BaseDocument implements Document {
   public void setInteger(String path, int value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      validateField(path, value);
+    }
     setValue(path, tokenList, value);
   }
 
@@ -1063,6 +1225,10 @@ public class BaseDocument implements Document {
   public void setBoolean(String path, boolean value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      validateField(path, value);
+    }
     setValue(path, tokenList, value);
   }
 
@@ -1070,6 +1236,10 @@ public class BaseDocument implements Document {
   public void setLong(String path, long value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      validateField(path, value);
+    }
     setValue(path, tokenList, value);
   }
 
@@ -1077,6 +1247,10 @@ public class BaseDocument implements Document {
   public void setDouble(String path, double value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      validateField(path, value);
+    }
     setValue(path, tokenList, value);
   }
 
@@ -1084,6 +1258,10 @@ public class BaseDocument implements Document {
   public void setArrayValueString(String path, String value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      validateField(path, value, true);
+    }
     setValue(path, tokenList, value);
   }
 
@@ -1091,6 +1269,10 @@ public class BaseDocument implements Document {
   public void setArrayValueInteger(String path, int value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      validateField(path, value, true);
+    }
     setValue(path, tokenList, value);
   }
 
@@ -1098,6 +1280,10 @@ public class BaseDocument implements Document {
   public void setArrayValueBoolean(String path, boolean value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      validateField(path, value, true);
+    }
     setValue(path, tokenList, value);
   }
 
@@ -1105,6 +1291,10 @@ public class BaseDocument implements Document {
   public void setArrayValueLong(String path, long value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      validateField(path, value, true);
+    }
     setValue(path, tokenList, value);
   }
 
@@ -1112,6 +1302,10 @@ public class BaseDocument implements Document {
   public void setArrayValueDouble(String path, double value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      validateField(path, value, true);
+    }
     setValue(path, tokenList, value);
   }
 
@@ -1127,6 +1321,10 @@ public class BaseDocument implements Document {
       toPath = getStaticPath(toPath, vargs1);
     }
 
+    if (isTyped()) {
+      validate(fromDoc, fromPath, toPath);
+    }
+
     // this function copies the content from document to another document
     // if the value does not exist, nothing is done
     while (true) {
@@ -1134,9 +1332,9 @@ public class BaseDocument implements Document {
       JsonNodeType fromNodeType = null;
 
       List<Token> tokenList = parse(fromPath);
-      validatePath1(fromPath, CONSTS_JDOCS.API.SET_CONTENT, tokenList, PathAccessType.OBJECT);
+      validatePath1(fromPath, CONSTS_JDOCS.API.CONTENT, tokenList, PathAccessType.OBJECT);
 
-      JsonNode fromNode = traverse(((BaseDocument)fromDoc).rootNode, tokenList, false);
+      JsonNode fromNode = traverse(((JDocument)fromDoc).rootNode, tokenList, false);
       if (fromNode == null) {
         throw new UnifyException("jdoc_err_21", fromPath);
       }
@@ -1150,7 +1348,7 @@ public class BaseDocument implements Document {
       JsonNodeType toNodeType = null;
 
       tokenList = parse(toPath);
-      validatePath1(toPath, CONSTS_JDOCS.API.SET_CONTENT, tokenList, PathAccessType.OBJECT);
+      validatePath1(toPath, CONSTS_JDOCS.API.CONTENT, tokenList, PathAccessType.OBJECT);
 
       JsonNode toNode = traverse(rootNode, tokenList, true);
       toNodeType = toNode.getNodeType();
@@ -1175,8 +1373,9 @@ public class BaseDocument implements Document {
 
   @Override
   public synchronized Document deepCopy() {
-    BaseDocument d = new BaseDocument();
+    JDocument d = new JDocument();
     d.rootNode = rootNode.deepCopy();
+    d.type = type;
     return d;
   }
 
@@ -1268,6 +1467,11 @@ public class BaseDocument implements Document {
   public void deletePath(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.DELETE_PATH, PathAccessType.OBJECT, vargs);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      checkPathExistsInModel(getModelPath(path));
+    }
+
     deletePath(path, tokenList);
   }
 
@@ -1275,245 +1479,803 @@ public class BaseDocument implements Document {
     return Parser.getTokens(path);
   }
 
-}
-
-class Token {
-
-  private String field;
-
-  private boolean isLeaf;
-
-  public Token(String field, boolean isLeaf) {
-    this.field = field;
-    this.isLeaf = isLeaf;
-  }
-
-  public String getField() {
-    return field;
-  }
-
-  public boolean isArray() {
-    return false;
-  }
-
-  public boolean isLeaf() {
-    return isLeaf;
-  }
-
-}
-
-class ArrayToken extends Token {
-
-  public enum FilterType {
-
-    NAME_VALUE, INDEX, EMPTY
-
-  }
-
-  public class Filter {
-
-    private FilterType type = null;
-
-    private String field = null;
-
-    private String value = null;
-
-    private int index = -1;
-
-    public Filter(String field, String value) {
-      this.field = field;
-      this.value = value;
-      type = FilterType.NAME_VALUE;
-    }
-
-    public Filter(int index) {
-      this.index = index;
-      type = FilterType.INDEX;
-    }
-
-    public Filter() {
-      type = FilterType.EMPTY;
-    }
-
-    public FilterType getType() {
-      return type;
-    }
-
-    public String getField() {
-      return field;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    public int getIndex() {
-      return index;
-    }
-
-  }
-
-  private Filter filter = null;
-
-  public ArrayToken(String name, String field, String value, boolean isLeaf) {
-    super(name, isLeaf);
-    filter = new Filter(field, value);
-  }
-
-  public ArrayToken(String name, int index, boolean isLeaf) {
-    super(name, isLeaf);
-    filter = new Filter(index);
-  }
-
-  public ArrayToken(String name, boolean isLeaf) {
-    super(name, isLeaf);
-    filter = new Filter();
-  }
-
   @Override
-  public boolean isArray() {
-    return true;
-  }
+  public Document getContent(String path, boolean returnTypedDocument, boolean includeFullPath, String... vargs) {
+    Document d = null;
 
-  public Filter getFilter() {
-    return filter;
-  }
+    if (vargs.length > 0) {
+      path = getStaticPath(path, vargs);
+    }
 
-}
-
-enum PathAccessType {
-
-  VALUE, OBJECT;
-
-}
-
-class Parser {
-
-  public static List<Token> getTokens(String path) {
-    List<String> strTokens = getStringTokens(path);
-    List<Token> tokens = getTokens(strTokens);
-    return tokens;
-  }
-
-  private static List<Token> getTokens(List<String> strTokens) {
-    List<Token> tokens = new ArrayList<>();
-    int size = strTokens.size();
-
-    for (int i = 0; i < size; i++) {
-      String strToken = strTokens.get(i);
-      boolean isLeaf = false;
-
-      if (i == (size - 1)) {
-        isLeaf = true;
+    while (true) {
+      JsonNodeType nodeType = null;
+      List<Token> tokenList = parse(path);
+      validatePath1(path, CONSTS_JDOCS.API.CONTENT, tokenList, PathAccessType.OBJECT);
+      JsonNode node = traverse(this.rootNode, tokenList, false);
+      if (node == null) {
+        break;
       }
 
-      int first = isPresent(strToken, '[');
-      if (first != -1) {
-        tokens.add(getArrayToken(strToken, first, isLeaf));
+      nodeType = node.getNodeType();
+      if ((nodeType != JsonNodeType.ARRAY) && (nodeType != JsonNodeType.OBJECT)) {
+        throw new UnifyException("jdoc_err_22", path);
+      }
+
+      if (isTyped() && (returnTypedDocument == true)) {
+        d = new JDocument(type, null);
       }
       else {
-        String s = removeEscapeChars(strToken, '\\', '.', '[', ']', '=');
-        tokens.add(new Token(s, isLeaf));
+        d = new JDocument();
       }
+
+      String toPath = "$";
+      if (includeFullPath == true) {
+        toPath = getToContentPath(tokenList);
+      }
+      d.setContent(this, path, toPath);
+      break;
     }
 
-    return tokens;
+    return d;
   }
 
-  private static ArrayToken getArrayToken(String s, int first, boolean isLeaf) {
-    ArrayToken at = null;
-    String name = removeEscapeChars(s.substring(0, first), '\\', '.', '[', ']', '=');
+  private String getToContentPath(List<Token> tokens) {
+    String s = "$";
+    for (Token t : tokens) {
+      if (t.isArray()) {
+        ArrayToken at = (ArrayToken)t;
+        s += "." + at.getField() + "[";
 
-    while (true) {
-      if (s.charAt(first + 1) == ']') {
-        // it is a empty array token
-        at = new ArrayToken(name, isLeaf);
-        break;
-      }
-
-      {
-        int pos = s.lastIndexOf(']');
-        s = s.substring(first + 1, pos);
-        pos = isPresent(s, '=');
-        if (pos != -1) {
-          // it is a key value pair
-          String key = removeEscapeChars(s.substring(0, pos), '\\', '.', '[', ']', '=');
-          String value = removeEscapeChars(s.substring(pos + 1), '\\', '.', '[', ']', '=');
-          at = new ArrayToken(name, key, value, isLeaf);
+        ArrayToken.FilterType ft = at.getFilter().getType();
+        if (ft == ArrayToken.FilterType.EMPTY) {
+          s += "]";
         }
-        else {
-          // it is an index
-          s = removeEscapeChars(s, '\\', '.', '[', ']', '=');
-          at = new ArrayToken(name, Integer.parseInt(s), isLeaf);
+        else if (ft == ArrayToken.FilterType.INDEX) {
+          s += "0]";
         }
-        break;
-      }
-    }
-
-    return at;
-  }
-
-  private static int isPresent(String s, char symbol) {
-    // return -1 means not present else present
-    int pos = -1;
-
-    int start = 0;
-    while (true) {
-      if (start >= s.length()) {
-        break;
-      }
-      int i = s.indexOf(symbol, start);
-      if (i != -1) {
-        if (isEscaped(s, i, '\\') == false) {
-          pos = i;
-          break;
-        }
-        else {
-          start = i + 1;
+        else if (ft == ArrayToken.FilterType.NAME_VALUE) {
+          s += "0]";
         }
       }
       else {
-        break;
+        s += "." + t.getField();
       }
     }
-
-    return pos;
+    return s;
   }
 
+  // typed document methods
 
-  private static List<String> getStringTokens(String s) {
-    List<String> paths = new ArrayList<>();
-    int from = 2;
-
-    for (int i = 2; i < s.length(); i++) {
-      char c = s.charAt(i);
-      if (c == '.') {
-        if (isEscaped(s, i, '\\') == false) {
-          paths.add(s.substring(from, i));
-          from = i + 1;
-        }
-      }
+  public static void loadDocumentModel(String type, String json) {
+    try {
+      json = insertReferredModels(json);
+    }
+    catch (IOException ex) {
+      logger.error("IO exception encountered for type {}, error message -> {}", type, ex.getMessage());
+      System.exit(-1);
     }
 
-    if (from < s.length()) {
-      paths.add(s.substring(from));
-    }
-
-    return paths;
+    Document d = new JDocument(json);
+    setDocumentModel(type, d);
+    logger.info("Successfully loaded document model -> " + type);
   }
 
-  private static boolean isEscaped(String s, int pos, char ec) {
-    if (pos == 0) {
-      return false;
-    }
+  public static void setDocumentModel(String type, Document model) {
+    docModels.put(type, model);
+  }
 
-    char c = s.charAt(pos - 1);
-    if (c == ec) {
-      return true;
+  public static void close() {
+    if (docModels != null) {
+      docModels = null;
+      logger.info("Successfully unloaded document models");
     }
     else {
-      return false;
+      logger.info("Document models have already been unloaded");
     }
   }
+
+  private static Document getDocumentModel(String type) {
+    return docModels.get(type);
+  }
+
+  private static String insertReferredModels(String json) throws IOException {
+    while (true) {
+      StringBuilder sb = new StringBuilder(1024);
+
+      try (Scanner scanner = new Scanner(json)) {
+        boolean isReferred = false;
+
+        while (scanner.hasNextLine()) {
+          String line = scanner.nextLine().trim();
+          int indexPattern = line.indexOf("\"@here\"");
+
+          if (indexPattern == 0) {
+            isReferred = true;
+
+            String tokens[] = line.split(":");
+            String rfn = tokens[1].trim();
+            int indexQuote = rfn.lastIndexOf('"');
+            rfn = rfn.substring(1, indexQuote);
+            String contents = BaseUtils.getResourceAsString(JDocument.class, rfn).trim();
+            sb.append(contents.substring(1, contents.length() - 1));
+
+            if (line.charAt(line.length() - 1) == ',') {
+              sb.append(',');
+              sb.append(CONSTS_JDOCS.NEW_LINE);
+            }
+          }
+          else {
+            sb.append(line);
+            sb.append(CONSTS_JDOCS.NEW_LINE);
+          }
+        }
+
+        json = sb.toString();
+
+        if (isReferred == false) {
+          break;
+        }
+      }
+    }
+
+    JsonNode node = objectMapper.readTree(json);
+    json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+    return json;
+  }
+
+  private String getFieldFormat(String path, String modelPath, boolean isValueArray) {
+    // get the format string from the path
+    Document md = docModels.get(type);
+    if (md == null) {
+      throw new UnifyException("jdoc_err_29", type);
+    }
+
+    String format = null;
+    if (isValueArray) {
+      format = md.getArrayValueString(modelPath);
+    }
+    else {
+      format = md.getString(modelPath);
+    }
+
+    if (format == null) {
+      throw new UnifyException("jdoc_err_38", type, path);
+    }
+
+    return format;
+  }
+
+  private void checkPathExistsInModel(String path) {
+    Document md = docModels.get(type);
+    boolean b = md.pathExists(path);
+    if (b == false) {
+      throw new UnifyException("jdoc_err_38", type, path);
+    }
+  }
+
+  private void validateField(String path, Object value) {
+    validateField(path, value, false);
+  }
+
+  private void validateField(String path, Object value, boolean isValueArray) {
+    String modelPath = getModelPath(path);
+    String format = getFieldFormat(path, modelPath, isValueArray);
+    validateField(format, value, modelPath, type);
+  }
+
+  private void processErrors(List<String> errorList) {
+    if (errorList.size() > 0) {
+      StringBuffer sb = new StringBuffer();
+      errorList.stream().forEach(s -> {
+        s = s + CONSTS_JDOCS.NEW_LINE;
+        sb.append(s);
+      });
+      throw new UnifyException("jdoc_err_28", sb.toString());
+    }
+  }
+
+  private String getModelPath(String path) {
+    String s = "";
+
+    while (true) {
+      int index = path.indexOf('[');
+      if (index == -1) {
+        s = s + path;
+        break;
+      }
+
+      s = s + path.substring(0, index + 1) + "0]";
+
+      index = path.indexOf(']');
+      path = path.substring(index + 1);
+    }
+
+    return s;
+  }
+
+  private static void mergeArray(ArrayNode toNode, ArrayNode fromNode, ArrayNode modelNode, String field) {
+    // check if it is a array value
+    JsonNode node = modelNode.get(0);
+    if (node instanceof ValueNode) {
+      // there is no key node for such cases
+      // we just append the elements
+      toNode.addAll(fromNode);
+    }
+    else {
+      // get the key field. If the key field is not defined in the model then we throw an exception
+      // this means that key fields are mandatory if we want to use merge functionality
+      String keyField = getKeyField(modelNode);
+      if (keyField == null) {
+        throw new UnifyException("jdoc_err_32", field);
+      }
+
+      // for each element of fromNode
+      // look for the field corresponding to the key field in toNode
+      // if found update that object
+      // else add to the end of the array
+      int size = fromNode.size();
+      for (int i = 0; i < size; i++) {
+        JsonNode fromElementNode = fromNode.get(i);
+        JsonNode keyNode = fromElementNode.get(keyField);
+        if (keyNode == null) {
+          throw new UnifyException("jdoc_err_33", field);
+        }
+        String keyValue = keyNode.asText();
+        JsonNode toMatchedNode = getMatchingArrayElementByKey(toNode, keyField, keyValue, field);
+        if (toMatchedNode == null) {
+          // add to the end of the array
+          toNode.add(fromElementNode);
+        }
+        else {
+          // merge into the to element
+          merge(toMatchedNode, fromElementNode, modelNode.get(0));
+        }
+      }
+    }
+  }
+
+  private static JsonNode getMatchingArrayElementByKey(ArrayNode node, String keyField, String fromKeyValue, String field) {
+    JsonNode matchedNode = null;
+
+    int size = node.size();
+    for (int i = 0; i < size; i++) {
+      JsonNode elementNode = node.get(i);
+      JsonNode keyNode = elementNode.get(keyField);
+      if (keyNode == null) {
+        throw new UnifyException("jdoc_err_34", field);
+      }
+      String keyValue = keyNode.asText();
+      if (keyValue.equals(fromKeyValue)) {
+        matchedNode = elementNode;
+        break;
+      }
+    }
+
+    return matchedNode;
+  }
+
+  private static String getKeyField(ArrayNode modelNode) {
+    String keyField = null;
+
+    JsonNode node = modelNode.get(0).get(CONSTS_JDOCS.FORMAT_FIELDS.KEY);
+    if (node != null) {
+      String json = node.asText();
+      try {
+        keyField = objectMapper.readTree(json).get("field").asText();
+      }
+      catch (IOException ex) {
+        throw new UnifyException("jdoc_err_1", ex);
+      }
+    }
+
+    return keyField;
+  }
+
+  private static void merge(JsonNode toNode, JsonNode fromNode, JsonNode modelNode) {
+    Iterator<Map.Entry<String, JsonNode>> mergeFromFieldIter = fromNode.fields();
+
+    while (mergeFromFieldIter.hasNext()) {
+      // for each field in the fromNode
+
+      // get the from node details
+      Map.Entry<String, JsonNode> entry = mergeFromFieldIter.next();
+      String field = entry.getKey();
+      JsonNode fromFieldNode = entry.getValue();
+
+      // get the model node details
+      JsonNode modelFieldNode = modelNode.get(field);
+
+      // now start to node handling
+      if (fromFieldNode.getNodeType().equals(JsonNodeType.OBJECT) || fromFieldNode.getNodeType().equals(JsonNodeType.ARRAY)) {
+        JsonNode toFieldNode = toNode.get(field);
+        if (toFieldNode == null) {
+          ((ObjectNode)toNode).replace(field, fromFieldNode);
+        }
+        else {
+          // check that the types should be the same else throw exception
+          // this is a safety check but is not expected to happen as both the documents
+          // are of the typed document type
+          if (fromFieldNode.getNodeType().equals(toFieldNode.getNodeType()) == false) {
+            throw new UnifyException("jdoc_err_35", field);
+          }
+
+          if (fromFieldNode.getNodeType().equals(JsonNodeType.OBJECT)) {
+            merge(toFieldNode, fromFieldNode, modelFieldNode);
+          }
+          else {
+            mergeArray((ArrayNode)toFieldNode, (ArrayNode)fromFieldNode, (ArrayNode)modelFieldNode, field);
+          }
+        }
+      }
+
+      ValueNode valueNode = null;
+      switch (fromFieldNode.getNodeType()) {
+        case STRING:
+          valueNode = new TextNode(fromFieldNode.textValue());
+          break;
+
+        case NUMBER:
+          if (fromFieldNode.isInt()) {
+            valueNode = new IntNode(fromFieldNode.intValue());
+          }
+          else if (fromFieldNode.isLong()) {
+            valueNode = new LongNode(fromFieldNode.longValue());
+          }
+          else if (fromFieldNode.isDouble()) {
+            valueNode = new DoubleNode(fromFieldNode.doubleValue());
+          }
+          else {
+            throw new UnifyException("jdoc_err_43", field);
+          }
+          break;
+
+        case BOOLEAN:
+          valueNode = BooleanNode.valueOf(fromFieldNode.booleanValue());
+          break;
+
+        case NULL:
+          valueNode = NullNode.getInstance();
+          break;
+
+        default:
+          // nothing to do
+          break;
+      }
+
+      if (valueNode != null) {
+        updateObject(toNode, valueNode, entry);
+      }
+    }
+  }
+
+  private static void updateObject(JsonNode mergeInTo, ValueNode valueToBePlaced, Map.Entry<String, JsonNode> toBeMerged) {
+    boolean newEntry = true;
+    Iterator<Map.Entry<String, JsonNode>> mergeIntoIter = mergeInTo.fields();
+    while (mergeIntoIter.hasNext()) {
+      Map.Entry<String, JsonNode> entry = mergeIntoIter.next();
+      if (entry.getKey().equals(toBeMerged.getKey())) {
+        newEntry = false;
+        entry.setValue(valueToBePlaced);
+      }
+    }
+    if (newEntry) {
+      ((ObjectNode)mergeInTo).replace(toBeMerged.getKey(), toBeMerged.getValue());
+    }
+  }
+
+  private static JsonNode getDocModelPathNode(String type, String path, String format) {
+    Map<String, JsonNode> map = docModelPaths.get(type);
+    if (map == null) {
+      map = new ConcurrentHashMap<>();
+      docModelPaths.put(type, map);
+    }
+
+    // get the root node
+    JsonNode node = map.get(path);
+    if (node == null) {
+      try {
+        node = objectMapper.readTree(format);
+      }
+      catch (IOException e) {
+        throw new UnifyException("jdoc_err_1", path);
+      }
+      map.put(path, node);
+    }
+
+    return node;
+  }
+
+  private static void validateField(String format, Object value, String path, String type) {
+    // "{\"field\":\"field_name\"}"
+    // "{\"type\":\"string\", \"regex\":\"\\\\w{17,17}\"}"
+    // "{\"type\":\"date\", \"format\":\"yyyy-MM-dd HH:mm:ss.SSS GMT\"}"
+    // key is optional
+    // type is mandatory
+    // format
+    //   optional for string, boolean, numeric
+    //   mandatory for date
+    // max_len is optional
+    // by default null value is not allowed. But if it is to be allowed then the property null_allowed should
+    // be set to true as shown below
+    // "{\"type\":\"string\", \"null_allowed\":true}"
+
+    // TODO only field type validation implemented for now.
+    // get the model path node
+    JsonNode node = getDocModelPathNode(type, path, format);
+
+    while (true) {
+      // if the value is null, check if nulls are allowed
+      if (value == null) {
+        JsonNode node1 = node.get(CONSTS_JDOCS.FORMAT_FIELDS.NULL_ALLOWED);
+        boolean isNullAllowed = false;
+        if (node1 != null) {
+          isNullAllowed = node.get(CONSTS_JDOCS.FORMAT_FIELDS.NULL_ALLOWED).booleanValue();
+        }
+        if (isNullAllowed == false) {
+          throw new UnifyException("jdoc_err_36", path);
+        }
+
+        break;
+      }
+
+      // check data types
+      LeafNodeDataType dataType = LeafNodeDataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
+      switch (dataType) {
+        case STRING:
+          if ((value instanceof String) == false) {
+            throw new UnifyException("jdoc_err_37", path);
+          }
+          break;
+
+        case BOOLEAN:
+          if ((value instanceof Boolean) == false) {
+            throw new UnifyException("jdoc_err_37", path);
+          }
+          break;
+
+        case DATE:
+          if ((value instanceof String) == false) {
+            throw new UnifyException("jdoc_err_37", path);
+          }
+          break;
+
+        case INTEGER:
+          if (((value instanceof Integer) == false)) {
+            throw new UnifyException("jdoc_err_37", path);
+          }
+          break;
+
+        case LONG:
+          if (((value instanceof Long) == false)) {
+            throw new UnifyException("jdoc_err_37", path);
+          }
+          break;
+
+        case DOUBLE:
+          // Couchbase stores a decimal value of 10.00 as 10 in the json document
+          // hence when we read the document and construct the typed document we
+          // will need to check against int and long data types as well
+          if (((value instanceof Double) == false) && ((value instanceof Integer) == false) && ((value instanceof Long) == false)) {
+            throw new UnifyException("jdoc_err_37", path);
+          }
+          break;
+
+        default:
+          break;
+      }
+
+      // check against regex pattern and format
+      switch (dataType) {
+        case STRING:
+        case BOOLEAN:
+        case INTEGER:
+        case LONG:
+        case DOUBLE: {
+          String s = value.toString();
+          JsonNode node1 = node.get(CONSTS_JDOCS.FORMAT_FIELDS.REGEX);
+          if (node1 != null) {
+            String regex = node1.asText();
+            Pattern pattern = compiledPatterns.get(regex);
+            if (pattern == null) {
+              pattern = Pattern.compile(regex);
+              compiledPatterns.put(regex, pattern);
+            }
+            Matcher matcher = pattern.matcher(s);
+            boolean matches = matcher.matches();
+            if (matches == false) {
+              throw new UnifyException("jdoc_err_54", path);
+            }
+          }
+          break;
+        }
+
+        case DATE:
+          // Match input date with the format provided
+          String fieldValue = node.get(CONSTS_JDOCS.FORMAT_FIELDS.FORMAT).asText();
+          if (fieldValue.isEmpty() == false) {
+            try {
+              DateTimeFormatter dfs = DateTimeFormatter.ofPattern(fieldValue);
+              if (value.toString().isEmpty() == false) {
+                dfs.parse(value.toString());
+              }
+            }
+            catch (Exception e) {
+              throw new UnifyException("jdoc_err_51", path);
+            }
+          }
+          break;
+
+        default:
+          break;
+      }
+
+      break;
+    }
+  }
+
+  private void validateFilterNames(String path, List<Token> tokenList) {
+    String tokenPath = "$";
+
+    for (int i = 0; i < tokenList.size(); i++) {
+      Token token = tokenList.get(i);
+      tokenPath = tokenPath + "." + token.getField();
+      if (token.isArray() == true) {
+        tokenPath = tokenPath + "[0]";
+        ArrayToken arrayToken = (ArrayToken)token;
+        ArrayToken.Filter filter = arrayToken.getFilter();
+        if (filter.getType() == ArrayToken.FilterType.NAME_VALUE) {
+          String fieldName = filter.getField();
+          String fieldValue = filter.getValue();
+          String modelPath = tokenPath + "." + fieldName;
+          String format = getFieldFormat(path, modelPath, false);
+
+          JsonNode node = getDocModelPathNode(type, modelPath, format);
+          LeafNodeDataType dataType = LeafNodeDataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
+
+          // this value is not used anywhere except to make sure that no exception is thrown in this method
+          Object value = null;
+
+          try {
+            switch (dataType) {
+              case STRING:
+                value = fieldValue;
+                break;
+
+              case BOOLEAN:
+                if (BaseUtils.compareWithMany(fieldValue, "true", "false") == true) {
+                  value = new Boolean(fieldValue);
+                }
+                else {
+                  throw new UnifyException("jdoc_err_53", fieldName, path);
+                }
+                break;
+
+              case DATE:
+                value = fieldValue;
+                break;
+
+              case INTEGER:
+                value = new Integer(fieldValue);
+                break;
+
+              case LONG:
+                value = new Long(fieldValue);
+                break;
+
+              case DOUBLE:
+                value = new Double(fieldValue);
+                break;
+
+              default:
+                break;
+            }
+          }
+          catch (Exception e) {
+            if ((e instanceof UnifyException) == false) {
+              throw new UnifyException("jdoc_err_53", fieldName, path);
+            }
+            else {
+              throw e;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private JsonNode validatePath(Document doc, String path) {
+    JsonNode modelNode = null;
+    JDocument jd = (JDocument)doc;
+    if (jd.isTyped()) {
+      JDocument fromTypedDoc = jd;
+      Document modelDoc = docModels.get(fromTypedDoc.type);
+      String modelPath = getModelPath(path);
+      modelNode = ((JDocument)modelDoc).getJsonNode(modelPath);
+      if (modelNode == null) {
+        throw new UnifyException("jdoc_err_38", fromTypedDoc.type, path);
+      }
+    }
+
+    return modelNode;
+  }
+
+  private void validate(Document fromDoc, String fromPath, String toPath) {
+    // check that the last character is not a .
+    if (fromPath.indexOf('.') == (fromPath.length() - 1)) {
+      throw new UnifyException("jdoc_err_39", fromPath);
+    }
+
+    if (toPath.indexOf('.') == (toPath.length() - 1)) {
+      throw new UnifyException("jdoc_err_40", toPath);
+    }
+
+    // the function to validate the setContents call
+    String toBasePath = toPath + ".";
+
+    // validate the path that we want to write to
+    JsonNode toModelNode = validatePath(this, toPath);
+
+    // now validate the path we want to read from
+    validatePath(fromDoc, fromPath);
+
+    // get the node to copy
+    JsonNode fromDocNode = ((JDocument)fromDoc).getJsonNode(fromPath);
+    if (fromDocNode == null) {
+      throw new UnifyException("jdoc_err_41", fromPath);
+    }
+
+    // validate the contents now
+    List<String> errorList = validate(toModelNode, fromDocNode, toBasePath, type);
+
+    processErrors(errorList);
+  }
+
+  private static List<String> validate(JsonNode modelNode, JsonNode docNode, String basePath, String type) {
+    // function that invokes the recursive validation
+    List<String> errorList = new ArrayList<>();
+    validate(modelNode, docNode, basePath, errorList, type);
+    return errorList;
+  }
+
+  private static void validate(JsonNode modelNode, JsonNode docNode, String basePath, List<String> errorList, String type) {
+    // if the docNode is an array node then it will not have any fields and we need to handle it differently
+    if (docNode.getNodeType() == JsonNodeType.ARRAY) {
+      // running a loop for all elements of the updated ArrayNode
+      for (int i = 0; i < docNode.size(); i++) {
+        JsonNode docChildNode = docNode.get(i);
+        JsonNode dmChildNode = modelNode;
+        validate(dmChildNode, docChildNode, basePath + "[0]" + ".", errorList, type);
+      }
+    }
+    else {
+      // recursive function to validate the document
+      Iterator<String> fieldNames = docNode.fieldNames();
+
+      while (fieldNames.hasNext()) {
+        String docFieldName = fieldNames.next();
+        JsonNode docFieldNode = docNode.get(docFieldName);
+        JsonNode modelFieldNode = modelNode.get(docFieldName);
+
+        loop:
+        while (true) {
+          if (modelFieldNode == null) {
+            // means that the field is not found in the data model
+            errorList.add(basePath + docFieldName + " -> path not found in data model -> " + type);
+            break loop;
+          }
+
+          // if node is an @ArrayNode
+          if (docFieldNode.isArray() && modelFieldNode.isArray()) {
+            // running a loop for all elements of the updated ArrayNode
+            for (int i = 0; i < docFieldNode.size(); i++) {
+              JsonNode docChildNode = docFieldNode.get(i);
+              JsonNode dmChildNode = modelFieldNode.get(0);
+              validate(dmChildNode, docChildNode, basePath + docFieldName + "[0]" + ".", errorList, type);
+            }
+            break loop;
+          }
+
+          if (docFieldNode.isObject() && modelFieldNode.isObject()) {
+            validate(modelFieldNode, docFieldNode, basePath + docFieldName + ".", errorList, type);
+            break loop;
+          }
+
+          if (docFieldNode instanceof ValueNode) {
+            // we have reached a property object
+            switch (docFieldNode.getNodeType()) {
+              case BOOLEAN:
+                validateField(modelFieldNode.asText(), docFieldNode.asBoolean(), basePath + docFieldName, type);
+                break;
+
+              case NUMBER:
+                if (docFieldNode.isInt()) {
+                  validateField(modelFieldNode.asText(), docFieldNode.asInt(), basePath + docFieldName, type);
+                }
+                else if (docFieldNode.isLong()) {
+                  validateField(modelFieldNode.asText(), docFieldNode.asLong(), basePath + docFieldName, type);
+                }
+                else if (docFieldNode.isDouble()) {
+                  validateField(modelFieldNode.asText(), docFieldNode.asDouble(), basePath + docFieldName, type);
+                }
+                else {
+                  throw new UnifyException("jdoc_err_44", basePath + docFieldName, docFieldNode.toString());
+                }
+                break;
+
+              case STRING:
+                validateField(modelFieldNode.asText(), docFieldNode.asText(), basePath + docFieldName, type);
+                break;
+
+              case NULL:
+                validateField(modelFieldNode.asText(), null, basePath + docFieldName, type);
+                break;
+
+              default:
+                throw new UnifyException("jdoc_err_42", type, basePath + docFieldName);
+            }
+
+            break loop;
+          }
+
+          errorList.add(basePath + docFieldName + " -> mismatch in object type between document and data model -> " + type);
+          break loop;
+        }
+      }
+    }
+  }
+
+  // protected as this method is called from the base class
+  private void setFilterFieldNode(ObjectNode filterNode, String filterField, String filterValue, String path, String modelPath) {
+    String format = getFieldFormat(path, modelPath, false);
+    JsonNode node = getDocModelPathNode(type, modelPath, format);
+    LeafNodeDataType dataType = LeafNodeDataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
+
+    try {
+      switch (dataType) {
+        case STRING:
+          filterNode.put(filterField, filterValue);
+          break;
+
+        case BOOLEAN:
+          if (BaseUtils.compareWithMany(filterValue, "true", "false") == true) {
+            filterNode.put(filterField, new Boolean(filterValue));
+          }
+          else {
+            throw new UnifyException("jdoc_err_53", filterField, path);
+          }
+          break;
+
+        case DATE:
+          filterNode.put(filterField, filterValue);
+          break;
+
+        case INTEGER:
+          filterNode.put(filterField, new Integer(filterValue));
+          break;
+
+        case LONG:
+          filterNode.put(filterField, new Long(filterValue));
+          break;
+
+        case DOUBLE:
+          filterNode.put(filterField, new Double(filterValue));
+          break;
+
+        default:
+          // we will not come here
+          break;
+      }
+    }
+    catch (Exception e) {
+      if ((e instanceof UnifyException) == false) {
+        throw new UnifyException("jdoc_err_53", filterField, path);
+      }
+      else {
+        throw e;
+      }
+    }
+
+  }
+
 
 }

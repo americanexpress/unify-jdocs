@@ -1,4 +1,5 @@
 {
+  // this is a test comment
   "id": "{\"type\":\"string\"}",
   "info": {
     "iid": "{\"type\":\"string\", \"regex\":\".*\", \"null_allowed\": true}"
