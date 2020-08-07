@@ -1,5 +1,6 @@
 ## JDocs - A new way of working with JSON documents
 
+---
 JDocs (JSON Documents) is a JSON manipulation library.
 It completely eliminates the need to have model classes and objects and instead works directly
 on the JSON document. Once you use this library, you may never ever
@@ -13,22 +14,8 @@ JDocs is packaged as a jar file which can be included in your application using 
 ````pom
 <groupId>com.americanexpress.unify.jdocs</groupId>
 <artifactId>unify-jdocs</artifactId>
-<version>x.x.x</version>
+<version>0.0.1</version>
 ````
-
----
-
-#### Prerequisites
-JDocs is compatible with Java 8 and later.
-
-Initialize JDocs with the following code:
-
-```java
-ERRORS_JDOCS.load(); // will load the error strings
-``` 
-
-Make sure that log4j configuration file is found in the class path.
-
 ---
 
 #### Primer on model classes, marshalling and unmarshalling
@@ -186,7 +173,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return the size of the array. If the path is not found in the document, a value of 0 is returned
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the path specified does not contain empty square brackets in the end i.e. []
    *                                                      If the node in the json document corresponding to the path is not of an array type
    */
@@ -213,7 +200,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the Boolean value stored at the path else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified does not point to a leaf node
@@ -226,7 +213,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the Boolean value stored at the path else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified does not point to a leaf node
@@ -239,7 +226,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the Boolean value stored at the path else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified does not point to a leaf node
@@ -252,7 +239,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the Boolean value stored at the path else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified does not point to a leaf node
@@ -265,7 +252,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the Double value stored at the path else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified does not point to a leaf node
@@ -278,7 +265,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the value stored at the path as an object of the type Integer / Long / Double / String / Boolean else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified does not point to a leaf node
@@ -291,7 +278,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the Boolean value stored at the path else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified does not point to a leaf node
@@ -304,7 +291,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the Boolean value stored at the path else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
@@ -317,7 +304,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the Boolean value stored at the path else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
@@ -330,7 +317,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the Boolean value stored at the path else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
@@ -343,7 +330,7 @@ public interface Document {
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return For a base document, the Boolean value stored at the path else null
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
@@ -383,7 +370,7 @@ public interface Document {
    *                            is returned else an instance of BaseDocument
    * @param includeFullPath     the returned document is constructed with the full path from root else the path from root is skipped
    * @param vargs               the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the path specified does not point to a complex object
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the path specified does not point to a complex object
    *                                                      If the return document is a JDocument but does not conform to the model document
    *                                                      If path points to an array but the includeFullPath is false
    */
@@ -397,7 +384,7 @@ public interface Document {
    * @param fromPath the path in the document to copy from (may contain % placeholders)
    * @param toPath   the path in this document to copy to (may contain % placeholders)
    * @param vargs    the values to replace the % characters in from path and to path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the from document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the from document is a typed document and the path is not found in the associated model document
    *                                                      If the types of the from and to documents do not match
    *                                                      If either of the paths point to a leaf node
    *                                                      If the to document is a typed document and if any of the resulting paths is not present in the model document
@@ -410,7 +397,7 @@ public interface Document {
    * @param path  the path
    * @param value the value to set in the path
    * @param vargs the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the path specified does not point to a leaf node
    */
@@ -422,7 +409,7 @@ public interface Document {
    * @param path  the path
    * @param value the value to set in the path
    * @param vargs the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the path specified does not point to a leaf node
    */
@@ -434,7 +421,7 @@ public interface Document {
    * @param path  the path
    * @param value the value to set in the path
    * @param vargs the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the path specified does not point to a leaf node
    */
@@ -446,7 +433,7 @@ public interface Document {
    * @param path  the path
    * @param value the value to set in the path
    * @param vargs the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the path specified does not point to a leaf node
    */
@@ -458,7 +445,7 @@ public interface Document {
    * @param path  the path
    * @param value the value to set in the path
    * @param vargs the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the path specified does not point to a leaf node
    */
@@ -470,7 +457,7 @@ public interface Document {
    * @param path  the path
    * @param value the value to set
    * @param vargs the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
@@ -483,7 +470,7 @@ public interface Document {
    * @param path  the path
    * @param value the value to set
    * @param vargs the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
@@ -496,7 +483,7 @@ public interface Document {
    * @param path  the path
    * @param value the value to set
    * @param vargs the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
@@ -509,7 +496,7 @@ public interface Document {
    * @param path  the path
    * @param value the value to set
    * @param vargs the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
@@ -522,7 +509,7 @@ public interface Document {
    * @param path  the path
    * @param value the value to set
    * @param vargs the values to replace the % characters in path
-   * @throws com.aexp.acq.unify.base.utils.UnifyException If the document is a typed document and the path is not found in the associated model document
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
@@ -552,7 +539,6 @@ public interface Document {
 
 ---
 
-
 #### JDocs in Action
 
 Lets start with a sample JSON document as below:
@@ -575,7 +561,7 @@ The first step is to get a `Document` by so:
 
 ```java
 String json = "<contents of the example json file>"; 
-Document d = new BaseDocument(json);
+Document d = new JDocument(json);
 ```
 
 Reading and writing can be done using get and set methods of the API:
@@ -628,7 +614,7 @@ This can be used to create complex objects or objects inside objects.
 Consider an empty JSON document on which the following commands are run:
 
 ```java
-Document d = new BaseDocument();
+Document d = new JDocument();
 d.setString("$.person.first_name", "John");
 d.setString("$.person.last_name", "Ryan");
 d.setString("$.person.middle_name", "Smith");
@@ -675,7 +661,7 @@ Consider the following JSON document. Lets refer to it as snippet 1:
 ```
 
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 1
+Document d = new JDocument(json); // assuming json is a string containing snippet 1
 String s = d.getString("$.phones[0].type"); // will return Home
 s = getString("$.phones[0].number"); // will return 123456
 ```
@@ -692,7 +678,7 @@ d.getString("$.phones[type=Home].number"); // will return 123456
 A similar construct could be used to set the contents of an array. Consider the following statements:
 
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 1
+Document d = new JDocument(json); // assuming json is a string containing snippet 1
 d.setString("$.phones[0].number", "222222");
 d.setString("$.phones[0].country", "USA");
 d.setString("$.phones[1].type", "Cell");
@@ -724,7 +710,7 @@ Would result in the following value of `s`:
 Note that a new element has been created in the array. The same effect could also have been achieved by the following:
 
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 1
+Document d = new JDocument(json); // assuming json is a string containing snippet 1
 d.setString("$.phones[type=Home].number", "222222")
 d.setString("$.phones[type=Home].country", "USA")
 d.setString("$.phones[type=Cell].number", "333333")
@@ -737,7 +723,7 @@ By default, since the value of the field `type` is not being set explicitly, it 
 If you had not wanted that, you could very well have used something like below:
  
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 1
+Document d = new JDocument(json); // assuming json is a string containing snippet 1
 d.setString("$.phones[type=Home].number", "222222")
 d.setString("$.phones[type=Home].country", "USA")
 d.setInteger("$.phones[type=0].type", 0)
@@ -769,7 +755,7 @@ The above would result in the following value of `s`:
 Now for some interesting scenarios. You may ask what if I do the following?
 
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 1
+Document d = new JDocument(json); // assuming json is a string containing snippet 1
 d.setInteger("$.phones[type=Home].type", 0);
 String s = d.getPrettyPrintJson();
 ```
@@ -794,7 +780,7 @@ The following will be the value in `s`:
 Now what if you were to do the following?
 
 ```java
-Document d = new BaseDocument(); // creating an empty document
+Document d = new JDocument(); // creating an empty document
 d.setInteger("$.phones[1].type", 0); // specifying array index as 1 without the element at 0 being present
 String s = d.getPrettyPrintJson();
 ```
@@ -802,7 +788,7 @@ String s = d.getPrettyPrintJson();
 In this case, JDocs would throw an out of bounds exception as below:
 
 ```java
-com.aexp.acq.unify.base.utils.UnifyException: Array index out of bounds -> phones
+com.americanexpress.unify.jdocs.UnifyException: Array index out of bounds -> phones
 ``` 
 
 JDocs realized that an element was being attempted to be added at an index which did not have an element
@@ -815,7 +801,7 @@ You could use this same notation to create new arrays, create complex objects wi
 create arrays within arrays etc. An example of this is below:
 
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 1
+Document d = new JDocument(json); // assuming json is a string containing snippet 1
 d.setString("$.addresses[0].type", "Home")
 d.setString("$.addresses[0].line_1", "Greenway Pkwy")
 String s = d.getPrettyPrintJson();
@@ -884,7 +870,7 @@ Consider the following JSON sample. Lets call it snippet 2.
 
 You can find the size of an array as below:
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 2
+Document d = new JDocument(json); // assuming json is a string containing snippet 2
 int size = d.getArraySize("$.phones[]"); // will contain the value 2
 ``` 
 
@@ -899,7 +885,7 @@ which is the ability to carry out an exhaustive impact analysis of any JSON path
 Lets see the traversal first. Continuing from the above Java snippet:
 
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 2
+Document d = new JDocument(json); // assuming json is a string containing snippet 2
 int size = d.getArraySize("$.phones[]"); // will contain the value 2
 for (int i = 0; i < size; i++) {
   String index = i + "";
@@ -925,7 +911,7 @@ USA
 Setting the elements while traversing is on exactly similar lines as below:
 
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 2
+Document d = new JDocument(json); // assuming json is a string containing snippet 2
 int size = d.getArraySize("$.phones[]"); // will contain the value 2
 for (int i = 0; i < size; i++) {
   String index = i + "";
@@ -955,7 +941,7 @@ USA
 
 Now lets discuss why deviating from the above technique is not be a good idea. See the code below:
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 2
+Document d = new JDocument(json); // assuming json is a string containing snippet 2
 int size = d.getArraySize("$.phones[]"); // will contain the value 2
 for (int i = 0; i < size; i++) {
   String index = i + "";
@@ -1018,7 +1004,7 @@ Consider the following JSON snippet 3:
 The method is straightforward as below:
 
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 3
+Document d = new JDocument(json); // assuming json is a string containing snippet 3
 d.deletePath("$.first_name"); // will delete the first_name field
 d.deletePath("$.national_ids"); // will delete the whole complex object national_ids
 d.deletePath("$.phones[]"); // will delete the whole phones array
@@ -1028,7 +1014,7 @@ d.deletePath("$.phones[type=Home]"); // will delete that element of the array wh
 
 The method also takes variable length argument so as to be able to use it for arrays like so:
 ```java
-Document d = new BaseDocument(json); // assuming json is a string containing snippet 3
+Document d = new JDocument(json); // assuming json is a string containing snippet 3
 d.deletePath("$.phones[type=%]", "Home"); // will delete that element of the array which has a type field equal to Home value
 d.deletePath("$.phones[%]", 0 + ""); // will delete the first element
 ```
@@ -1104,7 +1090,7 @@ It is mandatory for a model to be loaded before a typed document of that type is
 Model documents can be loaded using the following:
 
 ```java
-TypedDocument.loadDocumentTypes(type, json);
+JDocument.loadDocumentTypes(type, json);
 ``` 
 
 `String type` specifies the type of the document
@@ -1115,7 +1101,7 @@ TypedDocument.loadDocumentTypes(type, json);
 **Creating typed documents**
 
 ```java
-Document d = new TypedDocument("model");
+Document d = new JDocument("model");
 ```
 
 The above creates an empty document which is tied to a model document named as `model`
@@ -1123,10 +1109,10 @@ The above creates an empty document which is tied to a model document named as `
 
 ```java
 String s = "..."; // s contains the contents of a JSON document
-Document d = new TypedDocument(s, "model");
+Document d = new JDocument(s, "model");
 ```
 
-The above creates a `TypedDocument` from an existing JSON document stored in the string `s`.
+The above creates a typed `JDocument` from an existing JSON document stored in the string `s`.
 JDocs, while loading this document, will run the validations on the document against the model
 and if the structure / constraints do not match, the appropriate exception will be thrown.
 
@@ -1136,7 +1122,7 @@ For example, for snippet 4 above, the following calls will succeed as the paths 
 constraints on the elements are all valid:
 
 ```java
-Document d = new TypedDocument("model");
+Document d = new JDocument("model");
 d.setString("$.first_name", "Deepak1");
 d.setString("$.phones[0].type", "Home");
 d.setInteger("$.phones[0].number", 333333);
@@ -1160,6 +1146,104 @@ S. No. | Field Name | Description | Type | Mandatory?
 2 | null_allowed | Specifies if null is a valid value for the field. If not specified, default is no null allowed | boolean | No
 3 | regex | The pattern against which the value will be validated | string | No
 4 | format | Only applicable for date type. Specification is as per DateTimeFormatter | string | Yes only for date type
+
+---
+
+##### Fetching content from a document
+
+Given a document, it is possible to extract content from it as a new document. Consider the snippet below:
+
+```json
+{
+  "id": "id",
+  "family" : {
+    "number_of_members": 2,
+    "members": [
+      {
+        "name": "Deepak Arora",
+        "phones": [
+          {
+            "type": "Home",
+            "number": "1111111111"
+          },
+          {
+            "type": "Cell",
+            "number": "2222222222"
+          }
+        ]
+      },
+      {
+        "name": "Nitika Kaushal",
+        "phones": [
+          {
+            "type": "Home",
+            "number": "3333333333"
+          },
+          {
+            "type": "Cell",
+            "number": "4444444444"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+We can extract content like below:
+
+```java
+Document d = new JDocument(json); // assuming json is a string containing above snippet
+Document d1 = d.getContent("$.family.members[1].phones[0]", false, true);
+String s = d1.getPrettyPrintJson();
+```
+
+The value of `s` will contain:
+
+```json
+{
+  "family" : {
+    "members": [
+      {
+        "phones": [
+          {
+            "type": "Home",
+            "number": "3333333333"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Note that the third parameter (`includeFullPath`) is specified as `true`. This means that return the full path in the document. Had we set
+that to `false`, the following would have been returned:
+
+```json
+{
+    "type": "Home",
+    "number": "3333333333"
+}
+```
+
+The path specified in this method has to point to either:
+* a complex object
+* an array element (which also needs to be a complex object)
+* an array (like `phones[]`). In this case, the `includeFullPath` parameter has to be false else the API
+will throw an exception
+
+In case the document we are extracting content from is a `TypedDocument`, then we have the option of returning
+a `BaseDocument` or a `TypedDocument`. This is specified using the second parameter `returnTypedDocument`. If this
+parameter is set to `true` and if the document from which content is being extracted is a `TypedDocument`, then
+the return document will also be a `TypedDocument` of the same type. In case the document we are extracting content from
+is not a `TypedDocument`, this parameter is ignored.
+
+Of course, if a `TypedDocument` is being returned, its needs to conform to the structure of the model document. In
+this situation, if we specify `includeFullPath = false`, it is possible that the returned document when constructed
+will not conform to the model document in which case the API will throw an exception. 
+
+As with other methods in the API, the path can contain `%` and the value specified in the last variable arguments parameter.
 
 ---
 
@@ -1203,8 +1287,8 @@ and the following as snippet 6:
 
 The following is am example of copying content:
 ```java
-Document to = new BaseDocument(json); // assuming json is a string containing snippet 5
-Document from = new BaseDocument(json1); // assuming json1 is a string containing snippet 6
+Document to = new JDocument(json); // assuming json is a string containing snippet 5
+Document from = new JDocument(json1); // assuming json1 is a string containing snippet 6
 to.setContent(from, "$.addresses[]", "$.addresses[]");
 String s = to.getPrettyPrintJson();
 ```
@@ -1259,14 +1343,14 @@ Consider the following snippet 6:
 ```
 
 Here, the type field in each of the elements of the phones array can be used as an array key.
-This field is defined in the model document using the reserved keyword "key" as below:
+This field is defined in the model document using the reserved keyword "jdocs_arr_pk" as below:
 
 ```json
 {
   "first_name": "{\"type\":\"string\"}",
   "phones": [
     {
-      "key": "{\"field\":\"phone_type\"}",
+      "jdocs_arr_pk": "{\"field\":\"phone_type\"}",
       "phone_type": "{\"type\":\"string\"}",
       "number": "{\"type\":\"string\"}",
       "country": "{\"type\":\"string\"}"
@@ -1275,7 +1359,7 @@ This field is defined in the model document using the reserved keyword "key" as 
 }
 ```
 
-Hence, for elements in arrays in typed documents, "key" becomes a reserved value and cannot be used
+Hence, for elements in arrays in typed documents, "jdocs_arr_pk" becomes a reserved value and cannot be used
 to define a field name.
 
 The concept of array key fields is used while merging typed documents into one another as
@@ -1292,8 +1376,8 @@ documents need to be typed documents having the same model.
 Lets take snippet 6 as the starting point for understanding. Consider the following code:
 
 ```java
-Document to = new TypedDocument(fromJson, "model"); // fromJson contains snippet 6 json
-Document from = new TypedDocument("model"); // create an empty document of type model
+Document to = new JDocument(fromJson, "model"); // fromJson contains snippet 6 json
+Document from = new JDocument("model"); // create an empty document of type model
 from.setString("$.phones[0].phone_type", "Office");
 from.setString("$.phones[0].number", "888888");
 from.setString("$.phones[0].country", "USA");
@@ -1347,7 +1431,7 @@ Consider the following application model document:
   "last_name": "{\"type\":\"string\"}",
   "phones": [
     {
-      "key": "{\"field\":\"phone_type\"}",
+      "jdocs_arr_pk": "{\"field\":\"phone_type\"}",
       "phone_type": "{\"type\":\"string\"}",
       "number": "{\"type\":\"string\"}",
       "country": "{\"type\":\"string\"}"
@@ -1369,7 +1453,7 @@ would look like:
     "last_name": "{\"type\":\"string\"}",
     "phones": [
       {
-        "key": "{\"field\":\"phone_type\"}",
+        "jdocs_arr_pk": "{\"field\":\"phone_type\"}",
         "phone_type": "{\"type\":\"string\"}",
         "number": "{\"type\":\"string\"}",
         "country": "{\"type\":\"string\"}"
@@ -1408,7 +1492,7 @@ can refer to any field in the element and the index of the match of the first oc
 case it is required to read further, an iteration as described previously is recommended. 
 
 ```java
-Document d = new BaseDocument(s); // s contains a valid JSON string
+Document d = new JDocument(s); // s contains a valid JSON string
 int i = 0;
 int index = d.getArrayIndex("$.applicants[%].phones[type=home]", i + "");
 ```
@@ -1477,7 +1561,7 @@ Read the API documentation of Document class to get into API levels details.
 
 Go through the unit test cases in the source code. Unit test cases are available in the location `src/test`
 
-Provide us feedback. We would love to hear from you. We can be reached here:
+Provide us feedback. We would love to hear from you.
 
 ##### Author and lead maintainer:
 Deepak Arora, deepak.arora5@aexp.com, GitHub: @deepakarora3
@@ -1493,9 +1577,6 @@ Shailendra Bade, shailendra.bade@aexp.com, GitHub: finaspirant
 
 Phil Lundrigan, phil.lundrigan@aexp.com, GitHub: lundriganp 
 
-##### Special mention:
-A special thanks to Phil Lundrigan for his tremendous leadership, support and encouragement.
-
 ## Contributing
 
 We welcome Your interest in the American Express Open Source Community on Github. Any Contributor to
@@ -1503,7 +1584,7 @@ any Open Source Project managed by the American Express Open Source Community mu
 an Agreement indicating agreement to the terms below. Except for the rights granted in this 
 Agreement to American Express and to recipients of software distributed by American Express, You
 reserve all right, title, and interest, if any, in and to Your Contributions. Please
-[fill out the Agreement](https://cla-assistant.io/americanexpress/unify-jdocs).
+[fill out the Agreement](https://cla-assistant.io/americanexpress/unify-amexdeus).
 
 ## License
 
