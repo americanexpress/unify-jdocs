@@ -14,6 +14,8 @@
 
 package com.americanexpress.unify.jdocs;
 
+
+import java.math.BigDecimal;
 import java.util.List;
 
 /*
@@ -93,8 +95,8 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
-  public Double getDouble(String path, String... vargs) {
-    return d.getDouble(path, vargs);
+  public BigDecimal getBigDecimal(String path, String... vargs) {
+    return d.getBigDecimal(path, vargs);
   }
 
   @Override
@@ -118,8 +120,8 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
-  public Double getArrayValueDouble(String path, String... vargs) {
-    return d.getArrayValueDouble(path, vargs);
+  public BigDecimal getArrayValueBigDecimal(String path, String... vargs) {
+    return d.getArrayValueBigDecimal(path, vargs);
   }
 
   @Override
@@ -168,7 +170,7 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
-  public void setDouble(String path, double value, String... vargs) {
+  public void setBigDecimal(String path, BigDecimal value, String... vargs) {
     throw new UnifyException("jdoc_err_19");
   }
 
@@ -193,7 +195,7 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
-  public void setArrayValueDouble(String path, double value, String... vargs) {
+  public void setArrayValueBigDecimal(String path, BigDecimal value, String... vargs) {
     throw new UnifyException("jdoc_err_19");
   }
 

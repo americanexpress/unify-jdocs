@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -122,17 +123,21 @@ public class DocumentTest {
   }
 
   @Test
-  void testDouble() {
+  void testBigDecimal() {
+    // do not use new BigDecimal constructor as it gives unpredicable results. Read java documentation
     Document d = getTypedDocument("sample_8_model", "/jdocs/sample_8.json");
-    assertEquals((Double)45.00, d.getDouble("$.values[0].val_1"));
-    assertEquals((Double)45.876, d.getDouble("$.values[0].val_2"));
+    assertEquals(BigDecimal.valueOf(45), d.getBigDecimal("$.values[0].val_1"));
+
+    BigDecimal bd1 = BigDecimal.valueOf(45.876);
+    BigDecimal bd2 = d.getBigDecimal("$.values[0].val_2");
+    assertEquals(bd1, bd2);
 
     d = new JDocument();
-    d.setDouble("$.value", 45.876);
-    assertEquals((Double)45.876, d.getDouble("$.value"));
+    d.setBigDecimal("$.value", BigDecimal.valueOf(45.876));
+    assertEquals(BigDecimal.valueOf(45.876), d.getBigDecimal("$.value"));
 
     d.setInteger("$.value", 10);
-    assertEquals((Double)10.00, d.getDouble("$.value"));
+    assertEquals(BigDecimal.valueOf(10), d.getBigDecimal("$.value"));
   }
 
   @Test
@@ -507,8 +512,8 @@ public class DocumentTest {
     Object o = d.getValue("$.int");
     assertEquals(o.getClass().getName(), Integer.class.getName());
 
-    o = d.getValue("$.double");
-    assertEquals(o.getClass().getName(), Double.class.getName());
+    o = d.getValue("$.decimal");
+    assertEquals(o.getClass().getName(), BigDecimal.class.getName());
 
     o = d.getValue("$.string");
     assertEquals(o.getClass().getName(), String.class.getName());

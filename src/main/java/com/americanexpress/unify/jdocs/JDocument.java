@@ -23,6 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -720,7 +721,7 @@ public class JDocument implements Document {
             }
 
             if (node.isDouble()) {
-              value = node.asDouble();
+              value = node.decimalValue();
               break;
             }
 
@@ -737,8 +738,8 @@ public class JDocument implements Document {
             break;
           }
 
-          if (clazz == Double.class) {
-            value = node.asDouble();
+          if (clazz == BigDecimal.class) {
+            value = node.decimalValue();
             break;
           }
 
@@ -795,8 +796,8 @@ public class JDocument implements Document {
     else if (value instanceof Long) {
       node.put(field, (Long)value);
     }
-    else if (value instanceof Double) {
-      node.put(field, (Double)value);
+    else if (value instanceof BigDecimal) {
+      node.put(field, (BigDecimal)value);
     }
     else if (value instanceof Boolean) {
       node.put(field, (Boolean)value);
@@ -826,8 +827,8 @@ public class JDocument implements Document {
         else if (value instanceof Long) {
           node.insert(index, (Long)value);
         }
-        else if (value instanceof Double) {
-          node.insert(index, (Double)value);
+        else if (value instanceof BigDecimal) {
+          node.insert(index, (BigDecimal)value);
         }
         else if (value instanceof Boolean) {
           node.insert(index, (Boolean)value);
@@ -850,8 +851,8 @@ public class JDocument implements Document {
         else if (value instanceof Long) {
           node.add((Long)value);
         }
-        else if (value instanceof Double) {
-          node.add((Double)value);
+        else if (value instanceof BigDecimal) {
+          node.add((BigDecimal)value);
         }
         else if (value instanceof Boolean) {
           node.add((Boolean)value);
@@ -954,8 +955,8 @@ public class JDocument implements Document {
               }
             }
             else if (fieldNode.isDouble()) {
-              double doubleValue = fieldNode.asDouble();
-              if (doubleValue == Double.valueOf(filterValue)) {
+              BigDecimal bigDecimalValue = fieldNode.decimalValue();
+              if (bigDecimalValue == new BigDecimal(filterValue)) {
                 found = true;
                 break outer;
               }
@@ -1140,13 +1141,13 @@ public class JDocument implements Document {
   }
 
   @Override
-  public Double getDouble(String path, String... vargs) {
+  public BigDecimal getBigDecimal(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
-    return (Double)getValue(path, Double.class, tokenList);
+    return (BigDecimal)getValue(path, BigDecimal.class, tokenList);
   }
 
   @Override
@@ -1190,13 +1191,13 @@ public class JDocument implements Document {
   }
 
   @Override
-  public Double getArrayValueDouble(String path, String... vargs) {
+  public BigDecimal getArrayValueBigDecimal(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
-    return (Double)getValue(path, Double.class, tokenList);
+    return (BigDecimal)getValue(path, BigDecimal.class, tokenList);
   }
 
   @Override
@@ -1244,7 +1245,7 @@ public class JDocument implements Document {
   }
 
   @Override
-  public void setDouble(String path, double value, String... vargs) {
+  public void setBigDecimal(String path, BigDecimal value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
     if (isTyped()) {
@@ -1299,7 +1300,7 @@ public class JDocument implements Document {
   }
 
   @Override
-  public void setArrayValueDouble(String path, double value, String... vargs) {
+  public void setArrayValueBigDecimal(String path, BigDecimal value, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
     if (isTyped()) {
@@ -1822,7 +1823,7 @@ public class JDocument implements Document {
             valueNode = new LongNode(fromFieldNode.longValue());
           }
           else if (fromFieldNode.isDouble()) {
-            valueNode = new DoubleNode(fromFieldNode.doubleValue());
+            valueNode = new DecimalNode(fromFieldNode.decimalValue());
           }
           else {
             throw new UnifyException("jdoc_err_43", field);
@@ -1899,7 +1900,6 @@ public class JDocument implements Document {
     // be set to true as shown below
     // "{\"type\":\"string\", \"null_allowed\":true}"
 
-    // TODO only field type validation implemented for now.
     // get the model path node
     JsonNode node = getDocModelPathNode(type, path, format);
 
@@ -1951,11 +1951,11 @@ public class JDocument implements Document {
           }
           break;
 
-        case DOUBLE:
+        case DECIMAL:
           // Couchbase stores a decimal value of 10.00 as 10 in the json document
           // hence when we read the document and construct the typed document we
           // will need to check against int and long data types as well
-          if (((value instanceof Double) == false) && ((value instanceof Integer) == false) && ((value instanceof Long) == false)) {
+          if (((value instanceof BigDecimal) == false) && ((value instanceof Integer) == false) && ((value instanceof Long) == false)) {
             throw new UnifyException("jdoc_err_37", path);
           }
           break;
@@ -1970,7 +1970,7 @@ public class JDocument implements Document {
         case BOOLEAN:
         case INTEGER:
         case LONG:
-        case DOUBLE: {
+        case DECIMAL: {
           String s = value.toString();
           JsonNode node1 = node.get(CONSTS_JDOCS.FORMAT_FIELDS.REGEX);
           if (node1 != null) {
@@ -2062,8 +2062,8 @@ public class JDocument implements Document {
                 value = new Long(fieldValue);
                 break;
 
-              case DOUBLE:
-                value = new Double(fieldValue);
+              case DECIMAL:
+                value = new BigDecimal(fieldValue);
                 break;
 
               default:
@@ -2195,7 +2195,7 @@ public class JDocument implements Document {
                   validateField(modelFieldNode.asText(), docFieldNode.asLong(), basePath + docFieldName, type);
                 }
                 else if (docFieldNode.isDouble()) {
-                  validateField(modelFieldNode.asText(), docFieldNode.asDouble(), basePath + docFieldName, type);
+                  validateField(modelFieldNode.asText(), docFieldNode.decimalValue(), basePath + docFieldName, type);
                 }
                 else {
                   throw new UnifyException("jdoc_err_44", basePath + docFieldName, docFieldNode.toString());
@@ -2257,8 +2257,8 @@ public class JDocument implements Document {
           filterNode.put(filterField, new Long(filterValue));
           break;
 
-        case DOUBLE:
-          filterNode.put(filterField, new Double(filterValue));
+        case DECIMAL:
+          filterNode.put(filterField, new BigDecimal(filterValue));
           break;
 
         default:

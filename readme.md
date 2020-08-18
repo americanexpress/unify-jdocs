@@ -247,24 +247,24 @@ public interface Document {
   Long getLong(String path, String... vargs);
 
   /**
-   * Gets the value stored in the given path as a Double
+   * Gets the value stored in the given path as a BigDecimal
    *
    * @param path  the path
    * @param vargs the values to replace the % characters in path
-   * @return For a base document, the Double value stored at the path else null
+   * @return For a base document, the BigDecimal value stored at the path else null
    * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified does not point to a leaf node
    */
-  Double getDouble(String path, String... vargs);
+  BigDecimal getBigDecimal(String path, String... vargs);
 
   /**
    * Gets the value stored in the given path as an Object
    *
    * @param path  the path
    * @param vargs the values to replace the % characters in path
-   * @return For a base document, the value stored at the path as an object of the type Integer / Long / Double / String / Boolean else null
+   * @return For a base document, the value stored at the path as an object of the type Integer / Long / BigDecimal / String / Boolean else null
    * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the type of the value specified in the path in the document does not match
@@ -325,7 +325,7 @@ public interface Document {
   Long getArrayValueLong(String path, String... vargs);
 
   /**
-   * Gets the value stored in the array element in the given path as a Double
+   * Gets the value stored in the array element in the given path as a BigDecimal
    *
    * @param path  the path
    * @param vargs the values to replace the % characters in path
@@ -335,7 +335,7 @@ public interface Document {
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
    */
-  Double getArrayValueDouble(String path, String... vargs);
+  BigDecimal getArrayValueBigDecimal(String path, String... vargs);
 
   /**
    * Get the JSON string for the document in a compressed format
@@ -437,7 +437,7 @@ public interface Document {
    *                                                      If the document is a typed document and the type of the path in the model document does not match
    *                                                      If the path specified does not point to a leaf node
    */
-  void setDouble(String path, double value, String... vargs);
+  void setBigDecimal(String path, BigDecimal value, String... vargs);
 
   /**
    * Set the specified value in the specified path
@@ -501,7 +501,7 @@ public interface Document {
    *                                                      If the type of the value specified in the path in the document does not match
    *                                                      If the path specified is not of array element type
    */
-  void setArrayValueDouble(String path, double value, String... vargs);
+  void setArrayValueBigDecimal(String path, BigDecimal value, String... vargs);
 
   /**
    * Sets the specified value in the specified array element in the given path
@@ -1142,7 +1142,7 @@ The following attributes are implemented as part of specifying a constraint on a
 
 S. No. | Field Name | Description | Type | Mandatory?
 ------ | --------------- | ------------| ---- | ----------
-1 | type | Defines the type of the field. Possible values are string, integer, long, double, boolean, date | String | Yes
+1 | type | Defines the type of the field. Possible values are string, integer, long, BigDecimal, boolean, date | String | Yes
 2 | null_allowed | Specifies if null is a valid value for the field. If not specified, default is no null allowed | boolean | No
 3 | regex | The pattern against which the value will be validated | string | No
 4 | format | Only applicable for date type. Specification is as per DateTimeFormatter | string | Yes only for date type
@@ -1519,12 +1519,12 @@ are similar to getXXX and setXXX methods and are listed below:
   Integer getArrayValueInteger(String path, String... vargs);
   String getArrayValueString(String path, String... vargs);
   Long getArrayValueLong(String path, String... vargs);
-  Double getArrayValueDouble(String path, String... vargs);
+  BigDecimal getArrayValueBigDecimal(String path, String... vargs);
   
   void setArrayValueBoolean(String path, boolean value, String... vargs);
   void setArrayValueInteger(String path, int value, String... vargs);
   void setArrayValueLong(String path, long value, String... vargs);
-  void setArrayValueDouble(String path, double value, String... vargs);
+  void setArrayValueBigDecimal(String path, BigDecimal value, String... vargs);
   void setArrayValueString(String path, String value, String... vargs);
 ```
 

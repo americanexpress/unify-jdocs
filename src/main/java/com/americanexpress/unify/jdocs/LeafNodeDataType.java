@@ -20,7 +20,7 @@ public enum LeafNodeDataType {
   BOOLEAN("boolean"),
   INTEGER("integer"),
   LONG("long"),
-  DOUBLE("double");
+  DECIMAL("decimal");
 
   private String dataType;
 
