@@ -1142,7 +1142,7 @@ The following attributes are implemented as part of specifying a constraint on a
 
 S. No. | Field Name | Description | Type | Mandatory?
 ------ | --------------- | ------------| ---- | ----------
-1 | type | Defines the type of the field. Possible values are string, integer, long, BigDecimal, boolean, date | String | Yes
+1 | type | Defines the type of the field. Possible values are string, integer, long, decimal, boolean, date | String | Yes
 2 | null_allowed | Specifies if null is a valid value for the field. If not specified, default is no null allowed | boolean | No
 3 | regex | The pattern against which the value will be validated | string | No
 4 | format | Only applicable for date type. Specification is as per DateTimeFormatter | string | Yes only for date type
