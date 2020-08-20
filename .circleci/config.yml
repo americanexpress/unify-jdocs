@@ -1,10 +1,26 @@
-version: 2
+version: 2.1
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+        context: gradle
+
 jobs:
   build:
     docker:
       - image: circleci/openjdk:8-jdk-stretch
+
     steps:
       - checkout
-      - run:
-          name: Publish Release
-          command: MAVEN_REPO_URL="https://api.bintray.com/maven/americanexpress/maven/com.americanexpress.unify.jdocs/;publish=0" mvn clean deploy --settings=".circle.settings.xml"
+
+      - restore_cache:
+          key: unify-jdocs-{{ checksum "pom.xml" }}
+
+      - run: MAVEN_REPO_URL="https://api.bintray.com/maven/americanexpress/maven/com.americanexpress.unify.jdocs/;publish=0" mvn clean deploy --settings=".circle.settings.xml"
+
+      - save_cache: # saves the project dependencies
+          paths:
+            - ~/.m2
+          key: unify-jdocs-{{ checksum "pom.xml" }}
