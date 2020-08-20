@@ -1,25 +1,8 @@
 version: 2
-
-executors:
-  unify_jdocs_executor:
+jobs:
+  build:
     docker:
       - image: circleci/openjdk:8-jdk-stretch
-
-anchors:
-  - &common_job_config
-    executor: unify_jdocs_executor
-
-workflows_setup:
-  - &context
-    context: gradle
-
-  - &default_branch
-      "master"
-
-jobs:
-
-  publish-release:
-    <<: *common_job_config
     steps:
       - checkout
       - run:
