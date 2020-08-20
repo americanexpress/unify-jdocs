@@ -18,7 +18,7 @@ jobs:
       - restore_cache:
           key: unify-jdocs-{{ checksum "pom.xml" }}
 
-      - run: MAVEN_REPO_URL="https://api.bintray.com/maven/americanexpress/maven/com.americanexpress.unify.jdocs/;publish=0" mvn clean deploy --settings=".circle.settings.xml"
+      - run: mvn clean deploy --settings=".circle.settings.xml"
 
       - save_cache: # saves the project dependencies
           paths:
