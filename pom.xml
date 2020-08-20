@@ -16,6 +16,41 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>https://github.com/americanexpress/unify-jdocs/LICENSE.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Deepak Arora</name>
+            <email>deepak.arora5@aexp.com</email>
+            <organization>American Express</organization>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/americanexpress/unify-jdocs</url>
+        <connection>scm:git:git://github.com/americanexpress/unify-jdocs.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/americanexpress/unify-jdocs.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/americanexpress/unify-jdocs/issues</url>
+    </issueManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-americanexpress-maven</id>
+            <name>americanexpress-maven</name>
+            <url>https://api.bintray.com/maven/americanexpress/maven/com.americanexpress.unify.jdocs/;publish=0</url>
+        </repository>
+    </distributionManagement>
+
     <dependencies>
 
         <dependency>

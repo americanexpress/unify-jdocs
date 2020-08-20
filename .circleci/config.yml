@@ -1,9 +1,27 @@
-version: 2.1
+version: 2
 
-orbs:
-  maven: circleci/maven@0.0.12
+executors:
+  unify_jdocs_executor:
+    docker:
+      - image: circleci/openjdk:8-jdk-stretch
 
-workflows:
-  maven_test:
-    jobs:
-      - maven/test # checkout, build, test, and upload test results
+anchors:
+  - &common_job_config
+    executor: unify_jdocs_executor
+
+workflows_setup:
+  - &context
+    context: gradle
+
+  - &default_branch
+      "master"
+
+jobs:
+
+  publish-release:
+    <<: *common_job_config
+    steps:
+      - checkout
+      - run:
+          name: Publish Release
+          command: MAVEN_REPO_URL="https://api.bintray.com/maven/americanexpress/maven/com.americanexpress.unify.jdocs/;publish=0" mvn clean deploy --settings=".travis.settings.xml"
