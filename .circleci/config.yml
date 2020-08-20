@@ -18,9 +18,12 @@ jobs:
       - restore_cache:
           key: unify-jdocs-{{ checksum "pom.xml" }}
 
-      - run: mvn clean deploy --settings=".circle.settings.xml"
+      - run: mvn dependency:go-offline
 
       - save_cache: # saves the project dependencies
           paths:
             - ~/.m2
           key: unify-jdocs-{{ checksum "pom.xml" }}
+
+      - run: mvn clean install
+
