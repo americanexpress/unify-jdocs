@@ -7,4 +7,4 @@ jobs:
       - checkout
       - run:
           name: Publish Release
-          command: MAVEN_REPO_URL="https://api.bintray.com/maven/americanexpress/maven/com.americanexpress.unify.jdocs/;publish=0" mvn clean deploy --settings=".travis.settings.xml"
+          command: MAVEN_REPO_URL="https://api.bintray.com/maven/americanexpress/maven/com.americanexpress.unify.jdocs/;publish=0" mvn clean deploy --settings=".circle.settings.xml"
