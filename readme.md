@@ -9,6 +9,9 @@ want to return to using Java model classes or using JSON schema for JSON documen
 ---
 
 #### Getting JDocs package
+
+[ ![Download](https://api.bintray.com/packages/americanexpress/maven/com.americanexpress.unify.jdocs/images/download.svg) ](https://bintray.com/americanexpress/maven/com.americanexpress.unify.jdocs/_latestVersion)
+
 JDocs is available as a jar file in Bintray JCenter with the following Maven coordinates. The latest
 version is available in the version badge on this page:
 
