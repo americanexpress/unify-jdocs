@@ -2,20 +2,71 @@
 
 ---
 JDocs (JSON Documents) is a JSON manipulation library.
-It completely eliminates the need to have model classes and objects and instead works directly
-on the JSON document. Once you use this library, you may never ever
+It completely eliminates the need to have model / POJO classes and instead works directly
+on the JSON document. Once you use this library, you may never 
 want to return to using Java model classes or using JSON schema for JSON document validation.
 
 ---
 
-#### JDocs Maven Coordinates
-JDocs is packaged as a jar file which can be included in your application using the below Maven coordinates:
+#### Getting JDocs package
+JDocs is available as a jar file in Bintray JCenter with the following Maven coordinates. The latest
+version is available in the version badge on this page:
 
 ````pom
 <groupId>com.americanexpress.unify.jdocs</groupId>
 <artifactId>unify-jdocs</artifactId>
-<version>0.0.1</version>
+<version>x.y.z</version>
+<type>pom</type>
 ````
+
+In order to fetch JDocs from JCenter using Maven, include the following in your Maven settings.xml file
+as shown below.
+
+````pom
+<?xml version="1.0" encoding="UTF-8" ?>
+<settings xsi:schemaLocation='http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd'
+          xmlns='http://maven.apache.org/SETTINGS/1.0.0' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+    
+    <profiles>
+        <profile>
+            <repositories>
+                <repository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>central</id>
+                    <name>bintray</name>
+                    <url>https://jcenter.bintray.com</url>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>central</id>
+                    <name>bintray-plugins</name>
+                    <url>https://jcenter.bintray.com</url>
+                </pluginRepository>
+            </pluginRepositories>
+            <id>bintray</id>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>bintray</activeProfile>
+    </activeProfiles>
+</settings>
+````
+
+For Gradle, please use the following:
+````gradle
+repositories {
+    maven {
+        url  "https://jcenter.bintray.com" 
+    }
+}
+````
+
 ---
 
 #### Primer on model classes, marshalling and unmarshalling
@@ -1563,19 +1614,12 @@ Go through the unit test cases in the source code. Unit test cases are available
 
 Provide us feedback. We would love to hear from you.
 
+---
+
 ##### Author and lead maintainer:
-Deepak Arora, deepak.arora5@aexp.com, GitHub: @deepakarora3
+Deepak Arora, deepak.arora5@aexp.com, GitHub: @deepakarora3, Twitter: @DeepakAroraHi
 
-##### Other maintainers:
-Shamanth B Chandrashekar, shamanth.b.chandrashekar@aexp.com, GitHub: shamanth9
-
-Deepika Sidana, deepika.sidana3@aexp.com, GitHub: deepikasidana89
-
-Jyotsna Gandhi, jyotsna.gandhi1@aexp.com, GitHub: jodube21
-
-Shailendra Bade, shailendra.bade@aexp.com, GitHub: finaspirant
-
-Phil Lundrigan, phil.lundrigan@aexp.com, GitHub: lundriganp 
+---
 
 ## Contributing
 
