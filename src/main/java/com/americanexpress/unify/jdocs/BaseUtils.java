@@ -539,7 +539,7 @@ public class BaseUtils {
   /**
    * Returns the class name without the package names
    *
-   * @param canonicalName the full name of the class for example com.aexp.acq.Class1
+   * @param canonicalName the full name of the class for example com.example.Class1
    * @return The class name. For the above Class1
    */
   public static String getSimpleClassName(String canonicalName) {
