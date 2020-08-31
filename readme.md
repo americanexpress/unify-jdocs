@@ -1155,7 +1155,7 @@ JDocument.loadDocumentTypes(type, json);
 **Creating typed documents**
 
 ```java
-Document d = new JDocument("model");
+Document d = new JDocument("model", null);
 ```
 
 The above creates an empty document which is tied to a model document named as `model`
@@ -1163,7 +1163,7 @@ The above creates an empty document which is tied to a model document named as `
 
 ```java
 String s = "..."; // s contains the contents of a JSON document
-Document d = new JDocument(s, "model");
+Document d = new JDocument("model", s);
 ```
 
 The above creates a typed `JDocument` from an existing JSON document stored in the string `s`.
@@ -1176,7 +1176,7 @@ For example, for snippet 4 above, the following calls will succeed as the paths 
 constraints on the elements are all valid:
 
 ```java
-Document d = new JDocument("model");
+Document d = new JDocument("model", null);
 d.setString("$.first_name", "Deepak1");
 d.setString("$.phones[0].type", "Home");
 d.setInteger("$.phones[0].number", 333333);
@@ -1430,8 +1430,8 @@ documents need to be typed documents having the same model.
 Lets take snippet 6 as the starting point for understanding. Consider the following code:
 
 ```java
-Document to = new JDocument(fromJson, "model"); // fromJson contains snippet 6 json
-Document from = new JDocument("model"); // create an empty document of type model
+Document to = new JDocument("model", fromJson); // fromJson contains snippet 6 json
+Document from = new JDocument("model", null); // create an empty document of type model
 from.setString("$.phones[0].phone_type", "Office");
 from.setString("$.phones[0].number", "888888");
 from.setString("$.phones[0].country", "USA");
