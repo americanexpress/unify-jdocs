@@ -1,0 +1,10 @@
+Unify-jdocs changes
+
+Changes in 1.1.0
+  * Implemented flatten and flattenWithValues API
+  * Implemented getDifference API to compare two json documents
+  * Updated readme.md
+  * Updated unit test cases
+  * Renamed class LeafNodeDataType to DataType - this is a breaking change.
+    Consumers need to change the name of the class in their usage
+

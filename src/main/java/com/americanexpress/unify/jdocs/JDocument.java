@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /*
  * @author Deepak Arora
@@ -39,7 +40,7 @@ public class JDocument implements Document {
   private static Map<String, Document> docModels = new ConcurrentHashMap<>();
 
   // for each model document, store a map of the constraint string and the corresponding JsonNode
-  private static Map<String, Map<String, JsonNode>> docModelPaths = new ConcurrentHashMap<>();
+  private static Map<String, JsonNode> docModelPaths = new ConcurrentHashMap<>();
 
   // for each regular expression pattern, store the compiled pattern
   private static Map<String, Pattern> compiledPatterns = new ConcurrentHashMap<>();
@@ -100,7 +101,7 @@ public class JDocument implements Document {
   }
 
   @Override
-  public LeafNodeDataType getLeafNodeDataType(String path, String... vargs) {
+  public DataType getLeafNodeDataType(String path, String... vargs) {
     if (isTyped() == false) {
       throw new UnifyException("jdoc_err_60");
     }
@@ -109,16 +110,16 @@ public class JDocument implements Document {
     String modelPath = getModelPath(path);
     checkPathExistsInModel(modelPath);
     String format = getFieldFormat(path, modelPath, false);
-    Document fd = new JDocument(format);
-    String type = fd.getString("$.type");
+    JsonNode node = getFormatNode(type, path, format);
+    String type = node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText();
     if (type == null) {
       throw new UnifyException("jdoc_err_61", modelPath);
     }
-    return LeafNodeDataType.valueOf(type.toUpperCase());
+    return DataType.valueOf(type.toUpperCase());
   }
 
   @Override
-  public LeafNodeDataType getArrayValueLeafNodeDataType(String path, String... vargs) {
+  public DataType getArrayValueLeafNodeDataType(String path, String... vargs) {
     if (isTyped() == false) {
       throw new UnifyException("jdoc_err_60");
     }
@@ -127,12 +128,12 @@ public class JDocument implements Document {
     String modelPath = getModelPath(path);
     checkPathExistsInModel(modelPath);
     String format = getFieldFormat(path, modelPath, true);
-    Document fd = new JDocument(format);
-    String type = fd.getString("$.type");
+    JsonNode node = getFormatNode(type, path, format);
+    String type = node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText();
     if (type == null) {
       throw new UnifyException("jdoc_err_61", modelPath);
     }
-    return LeafNodeDataType.valueOf(type.toUpperCase());
+    return DataType.valueOf(type.toUpperCase());
   }
 
   @Override
@@ -1864,23 +1865,16 @@ public class JDocument implements Document {
     }
   }
 
-  private static JsonNode getDocModelPathNode(String type, String path, String format) {
-    Map<String, JsonNode> map = docModelPaths.get(type);
-    if (map == null) {
-      map = new ConcurrentHashMap<>();
-      docModelPaths.put(type, map);
-    }
-
-    // get the root node
-    JsonNode node = map.get(path);
+  private static JsonNode getFormatNode(String type, String path, String format) {
+    JsonNode node = docModelPaths.get(format);
     if (node == null) {
       try {
         node = objectMapper.readTree(format);
+        docModelPaths.put(format, node);
       }
       catch (IOException e) {
-        throw new UnifyException("jdoc_err_1", path);
+        throw new UnifyException("jdoc_err_63", type, path, format);
       }
-      map.put(path, node);
     }
 
     return node;
@@ -1901,7 +1895,7 @@ public class JDocument implements Document {
     // "{\"type\":\"string\", \"null_allowed\":true}"
 
     // get the model path node
-    JsonNode node = getDocModelPathNode(type, path, format);
+    JsonNode node = getFormatNode(type, path, format);
 
     while (true) {
       // if the value is null, check if nulls are allowed
@@ -1919,7 +1913,7 @@ public class JDocument implements Document {
       }
 
       // check data types
-      LeafNodeDataType dataType = LeafNodeDataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
+      DataType dataType = DataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
       switch (dataType) {
         case STRING:
           if ((value instanceof String) == false) {
@@ -2029,8 +2023,8 @@ public class JDocument implements Document {
           String modelPath = tokenPath + "." + fieldName;
           String format = getFieldFormat(path, modelPath, false);
 
-          JsonNode node = getDocModelPathNode(type, modelPath, format);
-          LeafNodeDataType dataType = LeafNodeDataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
+          JsonNode node = getFormatNode(type, modelPath, format);
+          DataType dataType = DataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
 
           // this value is not used anywhere except to make sure that no exception is thrown in this method
           Object value = null;
@@ -2227,8 +2221,8 @@ public class JDocument implements Document {
   // protected as this method is called from the base class
   private void setFilterFieldNode(ObjectNode filterNode, String filterField, String filterValue, String path, String modelPath) {
     String format = getFieldFormat(path, modelPath, false);
-    JsonNode node = getDocModelPathNode(type, modelPath, format);
-    LeafNodeDataType dataType = LeafNodeDataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
+    JsonNode node = getFormatNode(type, modelPath, format);
+    DataType dataType = DataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
 
     try {
       switch (dataType) {
@@ -2274,8 +2268,212 @@ public class JDocument implements Document {
         throw e;
       }
     }
-
   }
 
+  public List<String> flatten() {
+    // this function will provide a list of all paths in the document
+    List<PathValue> list = new LinkedList<>();
+    List<String> list1 = new LinkedList<>();
+    getJsonPaths(list, rootNode, "$", false);
+    list.stream().forEach(s -> list1.add(s.getPath()));
+    return list1;
+  }
+
+  public List<PathValue> flattenWithValues() {
+    // this function will provide a list of all paths in the document along with the value as a string
+    List<PathValue> list = new LinkedList<>();
+    getJsonPaths(list, rootNode, "$", true);
+    return list;
+  }
+
+  private void getJsonPaths(List<PathValue> list, JsonNode rootNode, String path, boolean getValue) {
+    JsonNodeType nodeType = rootNode.getNodeType();
+    if ((nodeType != JsonNodeType.ARRAY) && (nodeType != JsonNodeType.OBJECT)) {
+      // it is an array value node
+      processValueNode(list, path, "", rootNode, getValue);
+    }
+    else {
+      Iterator<Map.Entry<String, JsonNode>> iter = rootNode.fields();
+      while (iter.hasNext()) {
+        Map.Entry<String, JsonNode> entry = iter.next();
+        String fieldName = entry.getKey();
+        JsonNode fieldNode = entry.getValue();
+
+        switch (fieldNode.getNodeType()) {
+          case ARRAY: {
+            int size = fieldNode.size();
+            for (int i = 0; i < size; i++) {
+              JsonNode node = fieldNode.get(i);
+              // recurse
+              getJsonPaths(list, node, path + "." + fieldName + "[" + i + "]", getValue);
+            }
+          }
+          break;
+
+          case OBJECT:
+            // recurse
+            getJsonPaths(list, fieldNode, path + "." + fieldName, getValue);
+            break;
+
+          default:
+            processValueNode(list, path, fieldName, fieldNode, getValue);
+            break;
+        }
+      }
+    }
+  }
+
+  private void processValueNode(List<PathValue> list, String path, String fieldName, JsonNode fieldNode, boolean getValue) {
+    Object value = null;
+    DataType dt = null;
+
+    if (fieldName.isEmpty() != true) {
+      path = path + "." + fieldName;
+    }
+
+    if (getValue == true) {
+      if (isTyped() == true) {
+        String mp = getModelPath(path);
+        boolean isValueArray = false;
+        if (path.charAt(path.length() - 1) == ']') {
+          isValueArray = true;
+        }
+        String format = getFieldFormat(path, mp, isValueArray);
+        JsonNode node = getFormatNode(type, path, format);
+        String type = node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText();
+        dt = DataType.valueOf(type.toUpperCase());
+      }
+      else {
+        switch (fieldNode.getNodeType()) {
+          case BOOLEAN:
+            value = fieldNode.asBoolean();
+            dt = DataType.BOOLEAN;
+            break;
+
+          case NULL:
+            break;
+
+          case NUMBER:
+            if (fieldNode.isDouble() == true) {
+              value = fieldNode.asDouble();
+              dt = DataType.DECIMAL;
+            }
+            else if (fieldNode.isLong()) {
+              value = fieldNode.asLong();
+              dt = DataType.LONG;
+            }
+            else {
+              value = fieldNode.asInt();
+              dt = DataType.INTEGER;
+            }
+            break;
+
+          case STRING:
+            value = fieldNode.asText();
+            dt = DataType.STRING;
+            break;
+
+          default:
+            throw new UnifyException("jdoc_err_62", path);
+        }
+      }
+    }
+
+    list.add(new PathValue(path, value, dt));
+  }
+
+  private DiffInfo comparePaths(PathValue left, PathValue right) {
+    PathDiffResult res = null;
+
+    if ((left != null) && (right != null)) {
+      // both paths exist
+      Object ls = left.getValue();
+      Object rs = right.getValue();
+      if ((ls != null) && (rs != null)) {
+        if (ls.equals(rs)) {
+          res = PathDiffResult.EQUAL;
+        }
+        else {
+          res = PathDiffResult.DIFFERENT;
+        }
+      }
+      else if ((ls == null) && (rs != null)) {
+        res = PathDiffResult.DIFFERENT;
+      }
+      else if ((ls != null) && (rs == null)) {
+        res = PathDiffResult.DIFFERENT;
+      }
+      else {
+        res = PathDiffResult.EQUAL;
+      }
+    }
+    else if ((left == null) || (right != null)) {
+      // left path does not exist
+      Object rs = right.getValue();
+      if (rs == null) {
+        res = PathDiffResult.EQUAL;
+      }
+      else {
+        res = PathDiffResult.ONLY_IN_RIGHT;
+      }
+    }
+    else if ((left != null) && (right == null)) {
+      // right path does not exist
+      Object ls = left.getValue();
+      if (ls == null) {
+        res = PathDiffResult.EQUAL;
+      }
+      else {
+        res = PathDiffResult.ONLY_IN_LEFT;
+      }
+    }
+    else {
+      // both values not present
+      // cannot happen
+    }
+    return new DiffInfo(res, left, right);
+  }
+
+  public List<DiffInfo> getDifferences(Document right, boolean onlyDifferences) {
+    List<DiffInfo> diffInfoList = new LinkedList<>();
+    List<PathValue> leftPaths = flattenWithValues();
+    List<PathValue> rightPaths = right.flattenWithValues();
+
+    Map<String, PathValue> rightMap = new HashMap<>();
+    rightPaths.stream().forEach(pv -> rightMap.put(pv.getPath(), pv));
+
+    for (PathValue leftPv : leftPaths) {
+      PathValue rightPv = rightMap.get(leftPv.getPath());
+      DiffInfo di = comparePaths(leftPv, rightPv);
+      if (onlyDifferences == true) {
+        if (di.getDiffResult() != PathDiffResult.EQUAL) {
+          diffInfoList.add(di);
+        }
+      }
+      else {
+        diffInfoList.add(di);
+      }
+      rightMap.remove(leftPv.getPath());
+    }
+
+    // now see if any right paths remain and process them if so
+    if (rightMap.size() > 0) {
+      rightPaths = rightMap.values().stream().collect(Collectors.toList());
+      DiffInfo di = null;
+      for (PathValue rightPv : rightPaths) {
+        di = comparePaths(null, rightPv);
+        if (onlyDifferences == true) {
+          if (di.getDiffResult() != PathDiffResult.EQUAL) {
+            diffInfoList.add(di);
+          }
+        }
+        else {
+          diffInfoList.add(di);
+        }
+      }
+    }
+
+    return diffInfoList;
+  }
 
 }

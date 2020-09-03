@@ -1,0 +1,36 @@
+{
+  "id": "id",
+  "header": {
+    "cid": "cid",
+    "transaction": {
+      "tid": "tid"
+    }
+  },
+  "family": {
+    "members": [
+      {
+        "index": 0,
+        "sex": "male",
+        "first_name": "Deepak",
+        "last_name": "Arora",
+        "is_married": true,
+        "home_address": {
+          "line_1": "Deepak address line 1",
+          "line_2": "Deepak address line 2"
+        }
+      }
+    ]
+  },
+  "cars": [
+    {
+      "index": 0,
+      "make": "Honda",
+      "model": null
+    }
+  ],
+  "vendors": [
+    "v1",
+    "v2",
+    "v3"
+  ]
+}

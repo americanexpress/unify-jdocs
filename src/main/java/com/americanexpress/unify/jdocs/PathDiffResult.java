@@ -14,23 +14,12 @@
 
 package com.americanexpress.unify.jdocs;
 
-public enum LeafNodeDataType {
-  STRING("string"),
-  DATE("date"),
-  BOOLEAN("boolean"),
-  INTEGER("integer"),
-  LONG("long"),
-  DECIMAL("decimal");
-
-  private String dataType;
-
-  LeafNodeDataType(String dataType) {
-    this.dataType = dataType;
-  }
-
-  public String toString() {
-    return dataType;
-  }
-
-
+/*
+ * @author Deepak Arora
+ */
+public enum PathDiffResult {
+  EQUAL,
+  DIFFERENT,
+  ONLY_IN_LEFT,
+  ONLY_IN_RIGHT
 }

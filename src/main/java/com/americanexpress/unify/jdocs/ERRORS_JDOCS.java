@@ -81,6 +81,8 @@ public class ERRORS_JDOCS extends ErrorMap {
     map.put("jdoc_err_56", "Document type is either null or empty");
     map.put("jdoc_err_60", "This method is only applicable for typed documents");
     map.put("jdoc_err_61", "Type value not found for model path {0}");
+    map.put("jdoc_err_62", "Invalid value encountered in path -> {0}");
+    map.put("jdoc_err_63", "Error encountered while loading format string. Type -> {0}, path -> {1}, format string -> {2}");
   }
 
 }

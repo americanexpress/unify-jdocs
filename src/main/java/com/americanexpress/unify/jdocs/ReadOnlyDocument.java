@@ -45,12 +45,12 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
-  public LeafNodeDataType getLeafNodeDataType(String path, String... vargs) {
+  public DataType getLeafNodeDataType(String path, String... vargs) {
     return d.getLeafNodeDataType(path, vargs);
   }
 
   @Override
-  public LeafNodeDataType getArrayValueLeafNodeDataType(String path, String... vargs) {
+  public DataType getArrayValueLeafNodeDataType(String path, String... vargs) {
     return d.getArrayValueLeafNodeDataType(path, vargs);
   }
 
@@ -212,6 +212,21 @@ public class ReadOnlyDocument implements Document {
   @Override
   public void merge(Document d, List<String> pathsToDelete) {
     throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public List<String> flatten() {
+    return d.flatten();
+  }
+
+  @Override
+  public List<PathValue> flattenWithValues() {
+    return d.flattenWithValues();
+  }
+
+  @Override
+  public List<DiffInfo> getDifferences(Document right, boolean onlyDifferences) {
+    return d.getDifferences(right, onlyDifferences);
   }
 
 }

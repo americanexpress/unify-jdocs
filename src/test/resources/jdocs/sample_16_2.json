@@ -1,0 +1,42 @@
+{
+  "id": "id_nitika",
+  "header": {
+    "cid": "cid",
+    "transaction": {
+      "tid": "tid_nitika"
+    }
+  },
+  "family": {
+    "members": [
+      {
+        "index": 0,
+        "sex": "male",
+        "first_name": "Deepak",
+        "last_name": "Arora1",
+        "is_married": true,
+        "home_address": {
+          "line_1": "Deepak address line 1",
+          "line_2": "Deepak address line 2"
+        }
+      },
+      {
+        "index": 1,
+        "sex": "female",
+        "first_name": "Nitika",
+        "last_name": "Arora",
+        "is_married": true,
+        "home_address": {
+          "line_1": "Deepak address line 1",
+          "line_2": "Deepak address line 2",
+          "line_3": "A175"
+        }
+      }
+    ]
+  },
+  "vendors": [
+    "v1",
+    "v2",
+    "v4",
+    "v5"
+  ]
+}

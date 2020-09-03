@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -626,13 +627,138 @@ public class DocumentTest {
   @Test
   void testGetLeafNodeDataType() {
     // now we do tests on typed document
-    Document d = (JDocument)getTypedDocument("sample_1_model", "/jdocs/sample_1.json");
+    Document d = getTypedDocument("sample_1_model", "/jdocs/sample_1.json");
 
-    LeafNodeDataType ldt = d.getLeafNodeDataType("$.members[0].first_name");
+    DataType ldt = d.getLeafNodeDataType("$.members[0].first_name");
     assertEquals(ldt.toString(), "string");
 
     ldt = d.getLeafNodeDataType("$.members[0].is_married");
     assertEquals(ldt.toString(), "boolean");
+  }
+
+  @Test
+  void testGetDifferences() {
+    JDocument ld = (JDocument)getBaseDocument("/jdocs/sample_16_1.json");
+    JDocument rd = (JDocument)getBaseDocument("/jdocs/sample_16_2.json");
+    List<DiffInfo> diList = ld.getDifferences(rd, true);
+    String s = "";
+    for (DiffInfo di : diList) {
+      s = s + printDiffInfo(di);
+    }
+
+    String expected = BaseUtils.getResourceAsString(DocumentTest.class, "/jdocs/sample_16_expected.txt");
+    assertEquals(s, expected);
+  }
+
+  private String printDiffInfo(DiffInfo di) {
+    PathValue lpv = di.getLeft();
+    PathValue rpv = di.getRight();
+    String lpath = (lpv == null) ? null : lpv.getPath();
+    String rpath = (rpv == null) ? null : rpv.getPath();
+    Object lval = (lpv == null) ? null : lpv.getValue();
+    Object rval = (rpv == null) ? null : rpv.getValue();
+    String s = "Result = " + di.getDiffResult() +
+            ", lpath = " + lpath + " (" + lval + ")" +
+            ", rpath = " + rpath + " (" + rval + ")";
+    s = s + "\n";
+    return s;
+  }
+
+  @Test
+  void testGetDifferences1() {
+    String left = "{\n" +
+            "  \"id\": \"id_1\",\n" +
+            "  \"family\": {\n" +
+            "    \"members\": [\n" +
+            "      {\n" +
+            "        \"first_name\": \"Deepak\"\n" +
+            "      }\n" +
+            "    ]\n" +
+            "  },\n" +
+            "  \"cars\": [\n" +
+            "    {\n" +
+            "      \"make\": \"Honda\",\n" +
+            "      \"model\": null\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"vendors\": [\n" +
+            "    \"v1\",\n" +
+            "    \"v2\"\n" +
+            "  ]\n" +
+            "}\n";
+    JDocument ld = new JDocument(left);
+
+    String right = "{\n" +
+            "  \"id\": \"id_2\",\n" +
+            "  \"family\": {\n" +
+            "    \"members\": [\n" +
+            "      {\n" +
+            "        \"first_name\": \"Deepak\"\n" +
+            "      },\n" +
+            "      {\n" +
+            "        \"first_name\": \"Nitika\"\n" +
+            "      }\n" +
+            "    ]\n" +
+            "  },\n" +
+            "  \"vendors\": [\n" +
+            "    \"v1\",\n" +
+            "    \"v3\"\n" +
+            "  ]\n" +
+            "}\n";
+    JDocument rd = new JDocument(right);
+
+    List<DiffInfo> diList = ld.getDifferences(rd, true);
+    String s = "";
+    for (DiffInfo di : diList) {
+      String lpath = (di.getLeft() == null) ? "null" : di.getLeft().getPath();
+      String rpath = (di.getRight() == null) ? "null" : di.getRight().getPath();
+      s = s + di.getDiffResult() + ", " + lpath + ", " + rpath + "\n";
+    }
+
+    String expected = "DIFFERENT, $.id, $.id\n" +
+            "ONLY_IN_LEFT, $.cars[0].make, null\n" +
+            "DIFFERENT, $.vendors[1], $.vendors[1]\n" +
+            "ONLY_IN_RIGHT, null, $.family.members[1].first_name\n";
+    System.out.println(expected);
+    assertEquals(s, expected);
+  }
+
+  @Test
+  void testFlatten() {
+    JDocument d = (JDocument)getBaseDocument("/jdocs/native_array.json");
+    List<String> list = d.flatten();
+    String s = "";
+    String expected = "$.valid_states[0].country\n" +
+            "$.valid_states[0].states[0]\n" +
+            "$.valid_states[0].states[1]\n" +
+            "$.valid_states[0].states[2]\n" +
+            "$.valid_states[0].states[3]\n" +
+            "$.valid_states[0].states[4]\n";
+
+    for (String path : list) {
+      s = s + path + "\n";
+    }
+
+    assertEquals(s, expected);
+  }
+
+  @Test
+  void testFlattenWithValues() {
+    JDocument d = (JDocument)getBaseDocument("/jdocs/native_array.json");
+    List<PathValue> list = d.flattenWithValues();
+    String s = "";
+    String expected = "$.valid_states[0].country, USA, string\n" +
+            "$.valid_states[0].states[0], AZ, string\n" +
+            "$.valid_states[0].states[1], NJ, string\n" +
+            "$.valid_states[0].states[2], NY, string\n" +
+            "$.valid_states[0].states[3], GA, string\n" +
+            "$.valid_states[0].states[4], TX, string\n";
+
+    for (PathValue pv : list) {
+      s = s + pv.getPath() + ", " + pv.getValue() + ", " + pv.getDataType() + "\n";
+    }
+
+    assertEquals(s, expected);
   }
 
 }

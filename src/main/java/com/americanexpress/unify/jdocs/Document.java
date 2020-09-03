@@ -37,12 +37,12 @@ public interface Document {
   /**
    * Returns the date type of the leaf node
    */
-  LeafNodeDataType getLeafNodeDataType(String path, String... vargs);
+  DataType getLeafNodeDataType(String path, String... vargs);
 
   /**
    * Returns the date type of the leaf node
    */
-  LeafNodeDataType getArrayValueLeafNodeDataType(String path, String... vargs);
+  DataType getArrayValueLeafNodeDataType(String path, String... vargs);
 
   /**
    * Sets the type of a document. The model object needs to be already loaded. Validation against the model will
@@ -256,7 +256,8 @@ public interface Document {
    *
    * @param path  the path
    * @param vargs the values to replace the % characters in path
-   * @return
+   * @return true if the path exists else false
+   * @throws UnifyException If the document is a typed document and the path is not found in the associated model document
    */
   boolean pathExists(String path, String... vargs);
 
@@ -270,9 +271,9 @@ public interface Document {
    *                            is returned else an instance of BaseDocument
    * @param includeFullPath     the returned document is constructed with the full path from root else the path from root is skipped
    * @param vargs               the values to replace the % characters in path
-   * @throws com.americanexpress.unify.jdocs.UnifyException If the path specified does not point to a complex object
-   *                                                      If the return document is a JDocument but does not conform to the model document
-   *                                                      If path points to an array but the includeFullPath is false
+   * @throws UnifyException If the path specified does not point to a complex object
+   *                        If the return document is a JDocument but does not conform to the model document
+   *                        If path points to an array but the includeFullPath is false
    */
   Document getContent(String path, boolean returnTypedDocument, boolean includeFullPath, String... vargs);
 
@@ -432,5 +433,24 @@ public interface Document {
    * @param pathsToDelete the list of paths to delete from this document before merge
    */
   void merge(Document d, List<String> pathsToDelete);
+
+  /**
+   * Get the list of paths existing in the document
+   */
+  List<String> flatten();
+
+  /**
+   * Get the list of paths existing in the document along with the value in each path as a string
+   */
+  List<PathValue> flattenWithValues();
+
+  /**
+   * Compares two documents and return the results in a list. The document on which the method is
+   * invoked is assumed to be the left document
+   *
+   * @param right           the right document to compare
+   * @param onlyDifferences specifies if only difference results are to be returned or all
+   */
+  List<DiffInfo> getDifferences(Document right, boolean onlyDifferences);
 
 }
