@@ -19,7 +19,6 @@ version is available in the version badge on this page:
 <groupId>com.americanexpress.unify.jdocs</groupId>
 <artifactId>unify-jdocs</artifactId>
 <version>x.y.z</version>
-<type>pom</type>
 ````
 
 In order to fetch JDocs from JCenter using Maven, include the following in your Maven settings.xml file
