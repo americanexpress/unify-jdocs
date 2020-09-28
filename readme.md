@@ -190,12 +190,12 @@ public interface Document {
   /**
    * Returns the date type of the leaf node
    */
-  LeafNodeDataType getLeafNodeDataType(String path, String... vargs);
+  DataType getLeafNodeDataType(String path, String... vargs);
 
   /**
    * Returns the date type of the leaf node
    */
-  LeafNodeDataType getArrayValueLeafNodeDataType(String path, String... vargs);
+  DataType getArrayValueLeafNodeDataType(String path, String... vargs);
 
   /**
    * Sets the type of a document. The model object needs to be already loaded. Validation against the model will
@@ -585,6 +585,25 @@ public interface Document {
    * @param pathsToDelete the list of paths to delete from this document before merge
    */
   void merge(Document d, List<String> pathsToDelete);
+
+  /**
+   * Get the list of paths existing in the document
+   */
+  List<String> flatten();
+
+  /**
+   * Get the list of paths existing in the document along with the value in each path as a string
+   */
+  List<PathValue> flattenWithValues();
+
+  /**
+   * Compares two documents and return the results in a list. The document on which the method is
+   * invoked is assumed to be the left document
+   *
+   * @param right           the right document to compare
+   * @param onlyDifferences specifies if only difference results are to be returned or all
+   */
+  List<DiffInfo> getDifferences(Document right, boolean onlyDifferences);
 
 }
 
@@ -1591,6 +1610,151 @@ The model document for the above would be defined as:
 }
 ```
 
+**Flattening a JSON document**
+
+Consider the following JSON snippet:
+
+```json
+{
+  "id": "id_1",
+  "family": {
+    "members": [
+      {
+        "sex": "male",
+        "first_name": "Deepak",
+        "last_name": "Arora",
+        "number_of_dependents": 3
+      }
+    ]
+  }
+}
+```
+
+The flatten API of JDocs gives us a list of all the paths present in the document with or without values.
+The following gets the list of paths without values: 
+
+```java
+Document d = new JDocument(json); // assuming json is a string containing above snippet
+List<String> paths = d.flatten();
+paths.stream.forEach(s -> System.out.println(s));
+```
+
+The above code will print the following:
+
+```text
+$.id
+$.family.members[0].sex
+$.family.members[0].first_name
+$.family.members[0].last_name
+$.family.members[0].number_of_dependents
+```
+
+In case we wanted to get the flattened paths and also the values, we would use the `flattenWithValues` API as below:
+
+```java
+Document d = new JDocument(json); // assuming json is a string containing above snippet
+List<PathValue> paths = d.flatten();
+paths.stream.forEach(pv -> System.out.println(pv.getPath() + ", " + pv.getValue() + ", " + pv.getDataType()));
+```
+
+The above code will print the following:
+
+```text
+$.id, id_1, string
+$.family.members[0].sex, male, string
+$.family.members[0].first_name, Deepak, string
+$.family.members[0].last_name, Arora, string
+$.family.members[0].number_of_dependents, 3, integer
+```
+
+**Comparing two JSON documents**
+
+We can use the `getDifferences` API to compare one JSON document with another. Consider the following
+JSON documents:
+
+JSON snippet 1:
+
+```json
+{
+  "id": "id_1",
+  "family": {
+    "members": [
+      {
+        "first_name": "Deepak"
+      }
+    ]
+  },
+  "cars": [
+    {
+      "make": "Honda",
+      "model": null
+    }
+  ],
+  "vendors": [
+    "v1",
+    "v2"
+  ]
+}
+```
+
+JSON snippet 2:
+```json
+{
+  "id": "id_2",
+  "family": {
+    "members": [
+      {
+        "first_name": "Deepak"
+      },
+      {
+        "first_name": "Nitika"
+      }
+    ]
+  },
+  "vendors": [
+    "v1",
+    "v3"
+  ]
+}
+```
+
+The comparison can be done as below:
+
+```java
+Document ld = new JDocument(jsonLeft); // assuming jsonLeft is a string containing above snippet 1
+Document rd = new JDocument(jsonRight); // assuming jsonRight is a string containing above snippet 2
+List<DiffInfo> diList = ld.getDifferences(rd, true);
+String s = "";
+for (DiffInfo di : diList) {
+  String lpath = (di.getLeft() == null) ? "null" : di.getLeft().getPath();
+  String rpath = (di.getRight() == null) ? "null" : di.getRight().getPath();
+  s = s + di.getDiffResult() + ", " + lpath + ", " + rpath + "\n";
+}
+System.out.println(s);
+```
+
+The above would print:
+
+```text
+DIFFERENT, $.id, $.id
+ONLY_IN_LEFT, $.cars[0].make, null
+DIFFERENT, $.vendors[1], $.vendors[1]
+ONLY_IN_RIGHT, null, $.family.members[1].first_name
+````
+
+Of course, if we wanted to also get the values, we could always use `getValue` method of `PathValue`
+object returned from the call `di.getLeft()` or `di.getRight`. We could also use the method
+`getDataType` in case we wanted to get the data type of the value.
+
+Please note the following regarding comparing JSON documents:
+1. JDocs does a logical comparison of the documents. When fields with null values are encountered, they
+are treated as being equivalent to the field not being present in the document. In the above example,
+in the left document, `$.cars[0].model` has null value while this path is not present in the right document.
+JDocs comparison assumes that these are equivalent. In other words a JSON path leaf node having a null values
+is assumed to be the same as the path not existing at all.
+1. If any one of the documents being compared is a typed document, the data type of the path will be determined
+from the model document
+ 
 ---
 
 ##### What is unique about JDocs?
