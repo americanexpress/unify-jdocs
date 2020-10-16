@@ -221,7 +221,10 @@ public class DocumentTest {
   void testDelete() {
     Document d = getBaseDocument("/jdocs/sample_1.json");
 
-    d.deletePath("$.laksdlkj");
+    UnifyException e = assertThrows(UnifyException.class, () -> {
+      d.deletePath("$.laksdlkj");
+    });
+    assertEquals("jdoc_err_41", e.getErrorCode());
 
     boolean b = d.pathExists("$.members[0].phones[0].number");
     assertEquals(true, b);
@@ -244,10 +247,26 @@ public class DocumentTest {
     assertEquals(expected, actual);
 
     // exception scenarios
-    UnifyException e = assertThrows(UnifyException.class, () -> {
+    e = assertThrows(UnifyException.class, () -> {
       d.deletePath("$.members[2]");
     });
-    assertEquals("jdoc_err_17", e.getErrorCode());
+    assertEquals("jdoc_err_41", e.getErrorCode());
+
+    e = assertThrows(UnifyException.class, () -> {
+      d.deletePath("$.members[0].phones[1]");
+    });
+    assertEquals("jdoc_err_41", e.getErrorCode());
+  }
+
+  @Test
+  void testDelete1() {
+    Document d = getBaseDocument("/jdocs/sample_1.json");
+    d.deletePath("$.members[]");
+    d.deletePath("$.id");
+    d.deletePath("$.info");
+    String expected = "{ }";
+    String actual = d.getPrettyPrintJson();
+    assertEquals(expected, actual);
   }
 
   @Test

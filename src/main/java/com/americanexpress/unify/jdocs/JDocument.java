@@ -250,7 +250,7 @@ public class JDocument implements Document {
         break;
       }
 
-      JsonNode node = traverse(rootNode, tokenList, false);
+      JsonNode node = traverse(rootNode, tokenList, false, false);
 
       if (node == null) {
         break;
@@ -474,6 +474,10 @@ public class JDocument implements Document {
   }
 
   private static JsonNode traverseArrayIndex(JsonNode node, ArrayToken token, boolean createNode) {
+    return traverseArrayIndex(node, token, createNode, true);
+  }
+
+  private static JsonNode traverseArrayIndex(JsonNode node, ArrayToken token, boolean createNode, boolean throwException) {
     JsonNode retNode = null;
     int index = token.getFilter().getIndex();
 
@@ -493,7 +497,13 @@ public class JDocument implements Document {
       }
       else {
         if (index >= arrayNode.size()) {
-          throw new UnifyException("jdoc_err_8", token.getField());
+          if (throwException == true) {
+            throw new UnifyException("jdoc_err_8", token.getField());
+          }
+          else {
+            retNode = null;
+            break;
+          }
         }
       }
 
@@ -550,7 +560,7 @@ public class JDocument implements Document {
     return retNode;
   }
 
-  private static JsonNode traverse(JsonNode rootNode, List<Token> tokenList, boolean createNode) {
+  private static JsonNode traverse(JsonNode rootNode, List<Token> tokenList, boolean createNode, boolean throwException) {
     JsonNode node = rootNode;
 
     for (Token token : tokenList) {
@@ -570,7 +580,7 @@ public class JDocument implements Document {
 
         // handle index node
         if (arrayToken.getFilter().getType() == ArrayToken.FilterType.INDEX) {
-          node = traverseArrayIndex(node, arrayToken, createNode);
+          node = traverseArrayIndex(node, arrayToken, createNode, throwException);
           break;
         }
 
@@ -589,6 +599,10 @@ public class JDocument implements Document {
     }
 
     return node;
+  }
+
+  private static JsonNode traverse(JsonNode rootNode, List<Token> tokenList, boolean createNode) {
+    return traverse(rootNode, tokenList, createNode, true);
   }
 
   private static boolean isArrayTokenDefinite(ArrayToken arrayToken) {
@@ -1474,7 +1488,13 @@ public class JDocument implements Document {
       checkPathExistsInModel(getModelPath(path));
     }
 
-    deletePath(path, tokenList);
+    // we first check if the path exists in the document only then do we go ahead to delete it
+    if (pathExists(path) == true) {
+      deletePath(path, tokenList);
+    }
+    else {
+      throw new UnifyException("jdoc_err_41", path);
+    }
   }
 
   protected List<Token> parse(String path) {
