@@ -221,10 +221,10 @@ public class DocumentTest {
   void testDelete() {
     Document d = getBaseDocument("/jdocs/sample_1.json");
 
-    UnifyException e = assertThrows(UnifyException.class, () -> {
-      d.deletePath("$.laksdlkj");
-    });
-    assertEquals("jdoc_err_41", e.getErrorCode());
+    UnifyException e = null;
+
+    // nothing should happen
+    d.deletePath("$.laksdlkj");
 
     boolean b = d.pathExists("$.members[0].phones[0].number");
     assertEquals(true, b);
@@ -246,16 +246,12 @@ public class DocumentTest {
 
     assertEquals(expected, actual);
 
-    // exception scenarios
-    e = assertThrows(UnifyException.class, () -> {
-      d.deletePath("$.members[2]");
-    });
-    assertEquals("jdoc_err_41", e.getErrorCode());
+    // nothing should happen
+    d.deletePath("$.members[2]");
+    d.deletePath("$.members[0].phones[1]");
 
-    e = assertThrows(UnifyException.class, () -> {
-      d.deletePath("$.members[0].phones[1]");
-    });
-    assertEquals("jdoc_err_41", e.getErrorCode());
+    // just to show that we can specify [] to denote we are deleting an array block
+    d.deletePath("$.members[]");
   }
 
   @Test

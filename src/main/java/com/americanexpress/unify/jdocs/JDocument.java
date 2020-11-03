@@ -1493,7 +1493,7 @@ public class JDocument implements Document {
       deletePath(path, tokenList);
     }
     else {
-      throw new UnifyException("jdoc_err_41", path);
+      // nothing to do
     }
   }
 
