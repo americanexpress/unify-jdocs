@@ -1,13 +1,14 @@
 package com.americanexpress.unify.jdocs;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Deepak Arora
  */
 public class ErrorTuple {
-  private static Logger logger = LogManager.getLogger(ErrorTuple.class);
+
+  private static Logger logger = LoggerFactory.getLogger(ErrorTuple.class);
 
   private String errorCode = "";
   private String errorMessage = "";

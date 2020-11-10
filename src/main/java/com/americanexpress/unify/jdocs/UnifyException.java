@@ -1,7 +1,7 @@
 package com.americanexpress.unify.jdocs;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 
@@ -10,7 +10,7 @@ import java.text.MessageFormat;
  */
 public class UnifyException extends RuntimeException {
 
-  private static Logger logger = LogManager.getLogger(UnifyException.class);
+  private static Logger logger = LoggerFactory.getLogger(UnifyException.class);
 
   private ErrorTuple et = new ErrorTuple();
   private Throwable cause = null;
@@ -23,7 +23,7 @@ public class UnifyException extends RuntimeException {
     }
     else {
       if (vargs.length != 0) {
-        msg = MessageFormat.format(msg, vargs);
+        msg = MessageFormat.format(msg, (Object[])vargs);
       }
     }
 
