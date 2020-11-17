@@ -740,6 +740,11 @@ public class JDocument implements Document {
               break;
             }
 
+            if (node.isBigDecimal()) {
+              value = node.decimalValue();
+              break;
+            }
+
             throw new UnifyException("jdoc_err_13", path);
           }
 
@@ -818,6 +823,15 @@ public class JDocument implements Document {
       node.put(field, (Boolean)value);
     }
     else {
+      // do this in case we want to allow nulls to be stored
+      //      if (value == null) {
+      //        node.set(field, null);
+      //      }
+      //      else {
+      //        throw new UnifyException("jdoc_err_15", value.getClass().getCanonicalName());
+      //      }
+
+      // at present just throw an exception
       throw new UnifyException("jdoc_err_15", value.getClass().getCanonicalName());
     }
 
@@ -976,6 +990,13 @@ public class JDocument implements Document {
                 break outer;
               }
             }
+            else if (fieldNode.isBigDecimal()) {
+              BigDecimal bigDecimalValue = fieldNode.decimalValue();
+              if (bigDecimalValue == new BigDecimal(filterValue)) {
+                found = true;
+                break outer;
+              }
+            }
             else {
               throw new UnifyException("jdoc_err_45", filterField, fieldNode.toString(), filterValue);
             }
@@ -1014,10 +1035,6 @@ public class JDocument implements Document {
   protected final void setValue(String path, List<Token> tokenList, Object value) {
     JsonNode node = rootNode;
     String tokenPath = "$";
-
-    if (value == null) {
-      throw new UnifyException("jdoc_err_20", path);
-    }
 
     // traverse the document. If we find a node corresponding to the path token and it matches the type
     // i.e. array or object or value node we go inside
@@ -1846,6 +1863,9 @@ public class JDocument implements Document {
           else if (fromFieldNode.isDouble()) {
             valueNode = new DecimalNode(fromFieldNode.decimalValue());
           }
+          else if (fromFieldNode.isBigDecimal()) {
+            valueNode = new DecimalNode(fromFieldNode.decimalValue());
+          }
           else {
             throw new UnifyException("jdoc_err_43", field);
           }
@@ -2211,6 +2231,9 @@ public class JDocument implements Document {
                 else if (docFieldNode.isDouble()) {
                   validateField(modelFieldNode.asText(), docFieldNode.decimalValue(), basePath + docFieldName, type);
                 }
+                else if (docFieldNode.isBigDecimal()) {
+                  validateField(modelFieldNode.asText(), docFieldNode.decimalValue(), basePath + docFieldName, type);
+                }
                 else {
                   throw new UnifyException("jdoc_err_44", basePath + docFieldName, docFieldNode.toString());
                 }
@@ -2375,6 +2398,10 @@ public class JDocument implements Document {
 
           case NUMBER:
             if (fieldNode.isDouble() == true) {
+              value = fieldNode.asDouble();
+              dt = DataType.DECIMAL;
+            }
+            else if (fieldNode.isBigDecimal()) {
               value = fieldNode.asDouble();
               dt = DataType.DECIMAL;
             }

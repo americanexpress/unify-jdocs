@@ -139,6 +139,11 @@ public class DocumentTest {
 
     d.setInteger("$.value", 10);
     assertEquals(BigDecimal.valueOf(10), d.getBigDecimal("$.value"));
+
+    Document d1 = getTypedDocument("sample_8_model", null);
+    Document d2 = getTypedDocument("sample_8_model", null);
+    d2.setBigDecimal("$.decimal_value", BigDecimal.valueOf(45.876));
+    d1.merge(d2, null);
   }
 
   @Test

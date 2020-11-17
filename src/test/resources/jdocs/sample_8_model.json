@@ -4,5 +4,6 @@
       "val_1": "{\"type\":\"decimal\", \"regex\":\".*\"}",
       "val_2": "{\"type\":\"decimal\", \"regex\":\".*\"}"
     }
-  ]
+  ],
+  "decimal_value": "{\"type\":\"decimal\", \"regex\":\".*\"}"
 }
