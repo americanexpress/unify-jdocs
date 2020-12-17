@@ -173,6 +173,19 @@ public interface Document {
   Object getValue(String path, String... vargs);
 
   /**
+   * Gets the value stored in the given array vaalue path as an Object
+   *
+   * @param path  the path
+   * @param vargs the values to replace the % characters in path
+   * @return For a base document, the value stored at the path as an object of the type Integer / Long / BigDecimal / String / Boolean else null
+   * @throws com.americanexpress.unify.jdocs.UnifyException If the document is a typed document and the path is not found in the associated model document
+   *                                                        If the document is a typed document and the type of the path in the model document does not match
+   *                                                        If the type of the value specified in the path in the document does not match
+   *                                                        If the path specified does not point to a leaf node
+   */
+  Object getArrayValue(String path, String... vargs);
+
+  /**
    * Gets the value stored in the array element in the given path as a Boolean
    *
    * @param path  the path

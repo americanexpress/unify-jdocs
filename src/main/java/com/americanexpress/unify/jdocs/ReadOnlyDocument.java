@@ -135,6 +135,11 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
+  public Object getArrayValue(String path, String... vargs) {
+    return d.getArrayValue(path, vargs);
+  }
+
+  @Override
   public String getString(String path, String... vargs) {
     return d.getString(path, vargs);
   }

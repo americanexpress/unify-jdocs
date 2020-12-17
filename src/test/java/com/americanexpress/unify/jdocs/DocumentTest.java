@@ -333,6 +333,16 @@ public class DocumentTest {
   }
 
   @Test
+  void testNativeArrayValue() {
+    Document d = getBaseDocument("/jdocs/native_array2.json");
+    String s = (String)d.getArrayValue("$.valid_states[0].states[0]");
+    assertEquals(s, "AZ");
+
+    Integer code = (Integer)d.getArrayValue("$.valid_states[0].codes[0]");
+    assertEquals(code, new Integer(1));
+  }
+
+  @Test
   void testCopy() {
     // test case 1
     Document fromDoc = getBaseDocument("/jdocs/sample_1.json");
@@ -467,6 +477,11 @@ public class DocumentTest {
     b = d.pathExists("$.members");
     assertEquals(b, true);
     b = d.pathExists("$.apdsfgplicants");
+    assertEquals(b, false);
+
+    b = d.pathExists("$.members[3].phones");
+    assertEquals(b, false);
+    b = d.pathExists("$.members[0].laskdjfh");
     assertEquals(b, false);
   }
 

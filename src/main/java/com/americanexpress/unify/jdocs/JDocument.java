@@ -1036,6 +1036,10 @@ public class JDocument implements Document {
     JsonNode node = rootNode;
     String tokenPath = "$";
 
+    if (value == null) {
+      //      throw new UnifyException("jdoc_err_20", path);
+    }
+
     // traverse the document. If we find a node corresponding to the path token and it matches the type
     // i.e. array or object or value node we go inside
     // if we do not find the token in the document, we create it and move inside
@@ -1180,6 +1184,16 @@ public class JDocument implements Document {
       checkPathExistsInModel(getModelPath(path));
     }
     return (BigDecimal)getValue(path, BigDecimal.class, tokenList);
+  }
+
+  @Override
+  public Object getArrayValue(String path, String... vargs) {
+    path = getStaticPath(path, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    if (isTyped()) {
+      checkPathExistsInModel(getModelPath(path));
+    }
+    return getValue(path, null, tokenList);
   }
 
   @Override
