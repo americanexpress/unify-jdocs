@@ -466,4 +466,15 @@ public interface Document {
    */
   List<DiffInfo> getDifferences(Document right, boolean onlyDifferences);
 
+  /**
+   * Compares two subdocuments and return the results in a list. The document on which the method is
+   * invoked is assumed to be the left document
+   *
+   * @param leftPath        the subdocument inside of the specified path
+   * @param right           the right document to compare
+   * @param rightPath       the subdocument inside of the specified path
+   * @param onlyDifferences specifies if only difference results are to be returned or all
+   */
+  public List<DiffInfo> getDifferences(String leftPath, Document right, String rightPath, boolean onlyDifferences);
+
 }

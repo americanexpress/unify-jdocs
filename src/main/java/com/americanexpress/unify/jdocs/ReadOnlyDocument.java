@@ -234,4 +234,9 @@ public class ReadOnlyDocument implements Document {
     return d.getDifferences(right, onlyDifferences);
   }
 
+  @Override
+  public List<DiffInfo> getDifferences(String leftPath, Document right, String rightPath, boolean onlyDifferences) {
+    return d.getDifferences(leftPath, right, rightPath, onlyDifferences);
+  }
+
 }

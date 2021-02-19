@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Scanner;
 
+import static com.americanexpress.unify.jdocs.JDocument.objectMapper;
+
 /*
  * @author Deepak Arora
  */
@@ -83,8 +85,8 @@ public class TestParsing {
       }
     }
 
-    JsonNode node = JDocument.objectMapper.readTree(json);
-    json = JDocument.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+    JsonNode node = objectMapper.readTree(json);
+    json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
     return json;
   }
 

@@ -286,6 +286,9 @@ public class DocumentTest {
     int size = d.getArraySize("$.members[]");
     assertEquals(size, 5);
 
+    size = d.getArraySize("$.membasdfsdfers[]");
+    assertEquals(size, 0);
+
     size = d.getArraySize("$.members[0].phones[]");
     assertEquals(size, 2);
 
@@ -537,6 +540,10 @@ public class DocumentTest {
 
   @Test
   void testRegex() {
+    //    Document d1 = getBaseDocument("/jdocs/sample_13_model.json");
+    //    String s = d1.getString("$.city");
+    //    Document d2 = new JDocument(s);
+    //    System.out.println(d2.getString("$.regex"));
     Document d = getTypedDocument("sample_13_model", "/jdocs/sample_13.json");
     assert (d != null);
   }

@@ -106,7 +106,7 @@ public class JDocument implements Document {
       throw new UnifyException("jdoc_err_60");
     }
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     String modelPath = getModelPath(path);
     checkPathExistsInModel(modelPath);
     String format = getFieldFormat(path, modelPath, false);
@@ -124,7 +124,7 @@ public class JDocument implements Document {
       throw new UnifyException("jdoc_err_60");
     }
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     String modelPath = getModelPath(path);
     checkPathExistsInModel(modelPath);
     String format = getFieldFormat(path, modelPath, true);
@@ -271,7 +271,7 @@ public class JDocument implements Document {
   @Override
   public boolean pathExists(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.PATH_EXISTS, PathAccessType.OBJECT, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.PATH_EXISTS, PathAccessType.OBJECT);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       checkPathExistsInModel(getModelPath(path));
@@ -358,7 +358,7 @@ public class JDocument implements Document {
   @Override
   public int getArrayIndex(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_INDEX, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_INDEX, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       checkPathExistsInModel(getModelPath(path));
@@ -389,7 +389,7 @@ public class JDocument implements Document {
   @Override
   public int getArraySize(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_SIZE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_SIZE, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       checkPathExistsInModel(getModelPath(path));
@@ -1120,7 +1120,7 @@ public class JDocument implements Document {
     return sb.toString();
   }
 
-  protected List<Token> validatePath(String path, CONSTS_JDOCS.API api, PathAccessType pat, String... vargs) {
+  protected List<Token> validatePath(String path, CONSTS_JDOCS.API api, PathAccessType pat) {
     List<Token> tokenList = parse(path);
     validatePath1(path, api, tokenList, pat);
     return tokenList;
@@ -1129,7 +1129,7 @@ public class JDocument implements Document {
   @Override
   public Object getValue(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1139,7 +1139,7 @@ public class JDocument implements Document {
   @Override
   public String getString(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1149,7 +1149,7 @@ public class JDocument implements Document {
   @Override
   public Integer getInteger(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1159,7 +1159,7 @@ public class JDocument implements Document {
   @Override
   public Boolean getBoolean(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1169,7 +1169,7 @@ public class JDocument implements Document {
   @Override
   public Long getLong(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1179,7 +1179,7 @@ public class JDocument implements Document {
   @Override
   public BigDecimal getBigDecimal(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1189,7 +1189,7 @@ public class JDocument implements Document {
   @Override
   public Object getArrayValue(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1199,7 +1199,7 @@ public class JDocument implements Document {
   @Override
   public String getArrayValueString(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1209,7 +1209,7 @@ public class JDocument implements Document {
   @Override
   public Integer getArrayValueInteger(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1219,7 +1219,7 @@ public class JDocument implements Document {
   @Override
   public Boolean getArrayValueBoolean(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1229,7 +1229,7 @@ public class JDocument implements Document {
   @Override
   public Long getArrayValueLong(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1239,7 +1239,7 @@ public class JDocument implements Document {
   @Override
   public BigDecimal getArrayValueBigDecimal(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       checkPathExistsInModel(getModelPath(path));
     }
@@ -1249,7 +1249,7 @@ public class JDocument implements Document {
   @Override
   public void setString(String path, String value, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       validateField(path, value);
@@ -1260,7 +1260,7 @@ public class JDocument implements Document {
   @Override
   public void setInteger(String path, int value, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       validateField(path, value);
@@ -1271,7 +1271,7 @@ public class JDocument implements Document {
   @Override
   public void setBoolean(String path, boolean value, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       validateField(path, value);
@@ -1282,7 +1282,7 @@ public class JDocument implements Document {
   @Override
   public void setLong(String path, long value, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       validateField(path, value);
@@ -1293,7 +1293,7 @@ public class JDocument implements Document {
   @Override
   public void setBigDecimal(String path, BigDecimal value, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       validateField(path, value);
@@ -1304,7 +1304,7 @@ public class JDocument implements Document {
   @Override
   public void setArrayValueString(String path, String value, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       validateField(path, value, true);
@@ -1315,7 +1315,7 @@ public class JDocument implements Document {
   @Override
   public void setArrayValueInteger(String path, int value, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       validateField(path, value, true);
@@ -1326,7 +1326,7 @@ public class JDocument implements Document {
   @Override
   public void setArrayValueBoolean(String path, boolean value, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       validateField(path, value, true);
@@ -1337,7 +1337,7 @@ public class JDocument implements Document {
   @Override
   public void setArrayValueLong(String path, long value, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       validateField(path, value, true);
@@ -1348,7 +1348,7 @@ public class JDocument implements Document {
   @Override
   public void setArrayValueBigDecimal(String path, BigDecimal value, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.SET_ARRAY_VALUE, PathAccessType.VALUE);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       validateField(path, value, true);
@@ -1513,7 +1513,7 @@ public class JDocument implements Document {
   @Override
   public void deletePath(String path, String... vargs) {
     path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.DELETE_PATH, PathAccessType.OBJECT, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.DELETE_PATH, PathAccessType.OBJECT);
     if (isTyped()) {
       validateFilterNames(path, tokenList);
       checkPathExistsInModel(getModelPath(path));
@@ -2535,6 +2535,14 @@ public class JDocument implements Document {
     }
 
     return diffInfoList;
+  }
+
+  public List<DiffInfo> getDifferences(String leftPath, Document right, String rightPath, boolean onlyDifferences) {
+    validatePath(leftPath, CONSTS_JDOCS.API.CONTENT, PathAccessType.OBJECT);
+    validatePath(rightPath, CONSTS_JDOCS.API.CONTENT, PathAccessType.OBJECT);
+    Document newLeft = getContent(leftPath, false, false);
+    Document newRight = right.getContent(rightPath, false, false);
+    return newLeft.getDifferences(newRight, onlyDifferences);
   }
 
 }
