@@ -824,15 +824,15 @@ public class JDocument implements Document {
     }
     else {
       // do this in case we want to allow nulls to be stored
-      //      if (value == null) {
-      //        node.set(field, null);
-      //      }
-      //      else {
-      //        throw new UnifyException("jdoc_err_15", value.getClass().getCanonicalName());
-      //      }
+      if (value == null) {
+        node.set(field, null);
+      }
+      else {
+        throw new UnifyException("jdoc_err_15", value.getClass().getCanonicalName());
+      }
 
       // at present just throw an exception
-      throw new UnifyException("jdoc_err_15", value.getClass().getCanonicalName());
+      // throw new UnifyException("jdoc_err_15", value.getClass().getCanonicalName());
     }
 
   }
@@ -846,6 +846,11 @@ public class JDocument implements Document {
       if (index < size) {
         // remove and insert
         node.remove(index);
+
+        if (value == null) {
+          node.insertNull(index);
+          break;
+        }
 
         if (value instanceof String) {
           node.insert(index, (String)value);
@@ -871,6 +876,11 @@ public class JDocument implements Document {
 
       if (index == size) {
         // add at the end
+        if (value == null) {
+          node.insertNull(index);
+          break;
+        }
+
         if (value instanceof String) {
           node.add((String)value);
         }
@@ -1037,7 +1047,7 @@ public class JDocument implements Document {
     String tokenPath = "$";
 
     if (value == null) {
-      //      throw new UnifyException("jdoc_err_20", path);
+      // throw new UnifyException("jdoc_err_20", path);
     }
 
     // traverse the document. If we find a node corresponding to the path token and it matches the type
@@ -1364,6 +1374,7 @@ public class JDocument implements Document {
       String[] vargs1 = new String[vargs.length - count];
       for (int i = 0; i < vargs1.length; i++) {
         vargs1[i] = vargs[count];
+        count++;
       }
       toPath = getStaticPath(toPath, vargs1);
     }
@@ -1615,6 +1626,10 @@ public class JDocument implements Document {
 
   public static void setDocumentModel(String type, Document model) {
     docModels.put(type, model);
+  }
+
+  public static boolean isDocumentModelLoaded(String type) {
+    return docModels.containsKey(type);
   }
 
   public static void close() {

@@ -300,7 +300,7 @@ public class DocumentTest {
 
     d = getTypedDocument("sample_12_model", null);
     size = d.getArraySize("$.application.members[]");
-    assert (size == 0);
+    assertEquals(size, 0);
   }
 
   @Test
@@ -406,6 +406,16 @@ public class DocumentTest {
     expected = getCompressedJson("/jdocs/sample_6_4_expected.json");
     actual = toDoc.getJson();
     assertEquals(expected, actual);
+
+    // test case 6
+    fromDoc = getTypedDocument("sample_6_model", null);
+    fromDoc.setInteger("$.application.members[0].phones[0].docs[0].index", 0);
+    fromDoc.setString("$.application.members[0].phones[0].docs[0].name", "Deepak");
+    toDoc = getTypedDocument("sample_6_model", null);
+    toDoc.setContent(fromDoc, "$.application.members[0].phones[0].docs[%]", "$.application.members[%].phones[%].docs[%]", 0 + "", 0 + "", 0 + "", 0 + "");
+    expected = getCompressedJson("/jdocs/sample_6_5_expected.json");
+    actual = toDoc.getJson();
+    assertEquals(expected, actual);
   }
 
   @Test
@@ -498,6 +508,18 @@ public class DocumentTest {
     String expected = getCompressedJson("/jdocs/sample_11_expected.json");
     String actual = master.getJson();
     assertEquals(expected, actual);
+  }
+
+  @Test
+  void testSetArrayNull() throws IOException {
+    Document d = getTypedDocument("sample_17_model", null);
+    d.setString("$.version", null);
+    d.setArrayValueString("$.names[0]", null);
+    d.setArrayValueString("$.names[1]", null);
+    d.setArrayValueString("$.names[2]", "deepak");
+
+    d = new JDocument();
+    d.setString("$.version", null);
   }
 
   @Test
