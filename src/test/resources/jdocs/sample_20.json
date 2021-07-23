@@ -1,0 +1,24 @@
+[
+  {
+    "first_name": "Deepak",
+    "last_name": "Arora",
+    "address": {
+      "line_1": "Happening road",
+      "city": "Happening city"
+    },
+    "cars": [
+      {
+        "brand": "Honda",
+        "model": "Accord"
+      },
+      {
+        "brand": "Toyota",
+        "model": "Camry"
+      }
+    ]
+  },
+  {
+    "first_name": "Nitika",
+    "last_name": "Kaushal"
+  }
+]

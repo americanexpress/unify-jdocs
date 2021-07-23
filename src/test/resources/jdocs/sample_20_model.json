@@ -1,0 +1,16 @@
+[
+  {
+    "first_name": "{\"type\":\"string\"}",
+    "last_name": "{\"type\":\"string\"}",
+    "address": {
+      "line_1": "{\"type\":\"string\"}",
+      "city": "{\"type\":\"string\"}"
+    },
+    "cars": [
+      {
+        "brand": "{\"type\":\"string\"}",
+        "model": "{\"type\":\"string\"}"
+      }
+    ]
+  }
+]

@@ -1,0 +1,40 @@
+{
+  "id": "{\"type\":\"string\"}",
+  "type": "{\"type\":\"string\"}",
+  "application": {
+    "id": "{\"type\":\"string\"}",
+    "type": "{\"type\":\"string\"}",
+    "ref": "{\"type\":\"string\"}",
+    "ti": {
+      "id": "{\"type\":\"integer\"}"
+    },
+    "members": [
+      {
+        "jdocs_arr_pk": "{\"field\":\"index\"}",
+        "index": "{\"type\":\"string\", \"regex\":\"\\\\w{2,2}\"}",
+        "phones": [
+          {
+            "jdocs_arr_pk": "{\"field\":\"type\"}",
+            "type": "{\"type\":\"string\", \"regex\":\"\\\\w{5,5}\"}",
+            "country_cd": "{\"type\":\"string\"}",
+            "number": "{\"type\":\"string\"}",
+            "docs": [
+              {
+                "jdocs_arr_pk": "{\"field\":\"index\"}",
+                "index": "{\"type\":\"integer\"}",
+                "name": "{\"type\":\"string\"}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "docs": [
+      {
+        "jdocs_arr_pk": "{\"field\":\"index\"}",
+        "index": "{\"type\":\"integer\"}",
+        "name": "{\"type\":\"string\"}"
+      }
+    ]
+  }
+}

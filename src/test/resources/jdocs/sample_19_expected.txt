@@ -1,0 +1,7 @@
+$.type_err -> path not found in data model -> sample_19_model
+Regex pattern mismatch in path -> $.application.members[0].index
+Regex pattern mismatch in path -> $.application.members[0].phones[0].type
+Regex pattern mismatch in path -> $.application.members[0].index
+$.application.members[0].phones_err -> path not found in data model -> sample_19_model
+Regex pattern mismatch in path -> $.application.members[0].index
+Regex pattern mismatch in path -> $.application.members[0].phones[0].type

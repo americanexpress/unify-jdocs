@@ -1,0 +1,10 @@
+{
+  "ts": "{\"type\":\"date\",\"format\":\"yyyy-MMM-dd\"}",
+  "addresses": [
+    {
+      "jdocs_arr_pk": "{\"field\":\"type\"}",
+      "type": "{\"type\":\"string\"}",
+      "number": "{\"type\":\"integer\"}"
+    }
+  ]
+}

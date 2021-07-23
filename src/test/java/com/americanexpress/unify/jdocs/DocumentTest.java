@@ -144,6 +144,13 @@ public class DocumentTest {
     Document d2 = getTypedDocument("sample_8_model", null);
     d2.setBigDecimal("$.decimal_value", BigDecimal.valueOf(45.876));
     d1.merge(d2, null);
+
+    // test out of bound
+    UnifyException e = assertThrows(UnifyException.class, () -> {
+      Document td = getTypedDocument("sample_8_model", "/jdocs/sample_8.json");
+      td.getBigDecimal("$.values[10].val_1");
+    });
+
   }
 
   @Test
@@ -698,6 +705,77 @@ public class DocumentTest {
 
     ldt = d.getLeafNodeDataType("$.members[0].is_married");
     assertEquals(ldt.toString(), "boolean");
+  }
+
+  @Test
+  void testEmptyDate() {
+    Document d = getTypedDocument("sample_18_model", null);
+    d.setString("$.ts", "2021-Jan-30");
+    d.setString("$.ts", "");
+    assertEquals("", d.getString("$.ts"));
+  }
+
+  @Test
+  void testEmptyArray() {
+    Document d = getTypedDocument("sample_18_model", "/jdocs/sample_18_1.json");
+    Integer number = d.getInteger("$.addresses[0].number");
+    assertEquals(number, null);
+  }
+
+  @Test
+  void testRootArray() {
+    Document d = getBaseDocument("/jdocs/sample_20.json");
+    int size = d.getArraySize("$.[]");
+    assertEquals(size, 2);
+
+    d = getTypedDocument("sample_20_model", "/jdocs/sample_20.json");
+    size = d.getArraySize("$.[]");
+    assertEquals(size, 2);
+
+    String s = d.getString("$.[0].address.line_1");
+    assertEquals(s, "Happening road");
+
+    s = d.getString("$.[0].cars[0].model");
+    assertEquals(s, "Accord");
+
+    s = d.getString("$.[0].cars[1].model");
+    assertEquals(s, "Camry");
+
+    s = d.getString("$.[1].cars[1].model");
+    assertEquals(s, null);
+  }
+
+  @Test
+  void testRootNativeArray() {
+    Document d = getBaseDocument("/jdocs/sample_21.json");
+    int size = d.getArraySize("$.[]");
+    assertEquals(size, 3);
+
+    d = getTypedDocument("sample_21_model", "/jdocs/sample_21.json");
+    size = d.getArraySize("$.[]");
+    assertEquals(size, 3);
+
+    String s = d.getArrayValueString("$.[0]");
+    assertEquals(s, "code_1");
+
+    s = d.getArrayValueString("$.[1]");
+    assertEquals(s, "code_2");
+
+    UnifyException e = assertThrows(UnifyException.class, () -> {
+      Document td = getTypedDocument("sample_21_model", "/jdocs/sample_21.json");
+      td.getArrayValueString("$.[6]");
+    });
+  }
+
+  @Test
+  void testErrorCollection() {
+    String expected = BaseUtils.getResourceAsString(DocumentTest.class, "/jdocs/sample_19_expected.txt");
+    try {
+      Document d = getTypedDocument("sample_19_model", "/jdocs/sample_19.json");
+    }
+    catch (UnifyException e) {
+      assertEquals(e.getMessage(), expected);
+    }
   }
 
   @Test

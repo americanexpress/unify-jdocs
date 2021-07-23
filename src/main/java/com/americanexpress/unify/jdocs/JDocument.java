@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -448,7 +449,17 @@ public class JDocument implements Document {
 
   private static JsonNode traverseArrayEmpty(JsonNode node, ArrayToken token, boolean createNode) {
     JsonNode retNode = null;
-    JsonNode arrayNode = node.get(token.getField());
+    JsonNode arrayNode = null;
+
+    // special handling for document that starts with an array
+    String fieldName = token.getField();
+    if (fieldName.isEmpty() == true) {
+      arrayNode = node;
+    }
+    else {
+      arrayNode = node.get(fieldName);
+    }
+
 
     while (true) {
       if (arrayNode == null) {
@@ -496,7 +507,8 @@ public class JDocument implements Document {
         }
       }
       else {
-        if (index >= arrayNode.size()) {
+        int size = arrayNode.size();
+        if ((size > 0) && (index >= size)) {
           if (throwException == true) {
             throw new UnifyException("jdoc_err_8", token.getField());
           }
@@ -1728,7 +1740,7 @@ public class JDocument implements Document {
   private void validateField(String path, Object value, boolean isValueArray) {
     String modelPath = getModelPath(path);
     String format = getFieldFormat(path, modelPath, isValueArray);
-    validateField(format, value, modelPath, type);
+    validateField(format, value, modelPath, null, type);
   }
 
   private void processErrors(List<String> errorList) {
@@ -1945,11 +1957,27 @@ public class JDocument implements Document {
         throw new UnifyException("jdoc_err_63", type, path, format);
       }
     }
-
     return node;
   }
 
-  private static void validateField(String format, Object value, String path, String type) {
+  private static void throwExceptionOrSetErrorList(String errorCode, String path, List<String> errorList) {
+    if (errorList == null) {
+      throw new UnifyException(errorCode, path);
+    }
+    else {
+      String msg = ERRORS_JDOCS.getErrorMessage(errorCode);
+      if (msg == null) {
+        logger.error("Error code {} not found in ErrorMap", errorCode);
+        msg = "";
+      }
+      else {
+        msg = MessageFormat.format(msg, path);
+      }
+      errorList.add(msg);
+    }
+  }
+
+  private static void validateField(String format, Object value, String path, List<String> errorList, String type) {
     // "{\"field\":\"field_name\"}"
     // "{\"type\":\"string\", \"regex\":\"\\\\w{17,17}\"}"
     // "{\"type\":\"date\", \"format\":\"yyyy-MM-dd HH:mm:ss.SSS GMT\"}"
@@ -1975,7 +2003,7 @@ public class JDocument implements Document {
           isNullAllowed = node.get(CONSTS_JDOCS.FORMAT_FIELDS.NULL_ALLOWED).booleanValue();
         }
         if (isNullAllowed == false) {
-          throw new UnifyException("jdoc_err_36", path);
+          throwExceptionOrSetErrorList("jdoc_err_36", path, errorList);
         }
 
         break;
@@ -1986,31 +2014,31 @@ public class JDocument implements Document {
       switch (dataType) {
         case STRING:
           if ((value instanceof String) == false) {
-            throw new UnifyException("jdoc_err_37", path);
+            throwExceptionOrSetErrorList("jdoc_err_37", path, errorList);
           }
           break;
 
         case BOOLEAN:
           if ((value instanceof Boolean) == false) {
-            throw new UnifyException("jdoc_err_37", path);
+            throwExceptionOrSetErrorList("jdoc_err_37", path, errorList);
           }
           break;
 
         case DATE:
           if ((value instanceof String) == false) {
-            throw new UnifyException("jdoc_err_37", path);
+            throwExceptionOrSetErrorList("jdoc_err_37", path, errorList);
           }
           break;
 
         case INTEGER:
           if (((value instanceof Integer) == false)) {
-            throw new UnifyException("jdoc_err_37", path);
+            throwExceptionOrSetErrorList("jdoc_err_37", path, errorList);
           }
           break;
 
         case LONG:
           if (((value instanceof Long) == false)) {
-            throw new UnifyException("jdoc_err_37", path);
+            throwExceptionOrSetErrorList("jdoc_err_37", path, errorList);
           }
           break;
 
@@ -2019,7 +2047,7 @@ public class JDocument implements Document {
           // hence when we read the document and construct the typed document we
           // will need to check against int and long data types as well
           if (((value instanceof BigDecimal) == false) && ((value instanceof Integer) == false) && ((value instanceof Long) == false)) {
-            throw new UnifyException("jdoc_err_37", path);
+            throwExceptionOrSetErrorList("jdoc_err_37", path, errorList);
           }
           break;
 
@@ -2046,7 +2074,7 @@ public class JDocument implements Document {
             Matcher matcher = pattern.matcher(s);
             boolean matches = matcher.matches();
             if (matches == false) {
-              throw new UnifyException("jdoc_err_54", path);
+              throwExceptionOrSetErrorList("jdoc_err_54", path, errorList);
             }
           }
           break;
@@ -2063,7 +2091,7 @@ public class JDocument implements Document {
               }
             }
             catch (Exception e) {
-              throw new UnifyException("jdoc_err_51", path);
+              throwExceptionOrSetErrorList("jdoc_err_51", path, errorList);
             }
           }
           break;
@@ -2201,6 +2229,11 @@ public class JDocument implements Document {
   }
 
   private static void validate(JsonNode modelNode, JsonNode docNode, String basePath, List<String> errorList, String type) {
+    // special handling in case the document starts with an array
+    if ((modelNode.getNodeType().equals(JsonNodeType.ARRAY) == true) && (basePath.equals("$."))) {
+      modelNode = modelNode.get(0);
+    }
+
     // if the docNode is an array node then it will not have any fields and we need to handle it differently
     if (docNode.getNodeType() == JsonNodeType.ARRAY) {
       // running a loop for all elements of the updated ArrayNode
@@ -2247,21 +2280,21 @@ public class JDocument implements Document {
             // we have reached a property object
             switch (docFieldNode.getNodeType()) {
               case BOOLEAN:
-                validateField(modelFieldNode.asText(), docFieldNode.asBoolean(), basePath + docFieldName, type);
+                validateField(modelFieldNode.asText(), docFieldNode.asBoolean(), basePath + docFieldName, errorList, type);
                 break;
 
               case NUMBER:
                 if (docFieldNode.isInt()) {
-                  validateField(modelFieldNode.asText(), docFieldNode.asInt(), basePath + docFieldName, type);
+                  validateField(modelFieldNode.asText(), docFieldNode.asInt(), basePath + docFieldName, errorList, type);
                 }
                 else if (docFieldNode.isLong()) {
-                  validateField(modelFieldNode.asText(), docFieldNode.asLong(), basePath + docFieldName, type);
+                  validateField(modelFieldNode.asText(), docFieldNode.asLong(), basePath + docFieldName, errorList, type);
                 }
                 else if (docFieldNode.isDouble()) {
-                  validateField(modelFieldNode.asText(), docFieldNode.decimalValue(), basePath + docFieldName, type);
+                  validateField(modelFieldNode.asText(), docFieldNode.decimalValue(), basePath + docFieldName, errorList, type);
                 }
                 else if (docFieldNode.isBigDecimal()) {
-                  validateField(modelFieldNode.asText(), docFieldNode.decimalValue(), basePath + docFieldName, type);
+                  validateField(modelFieldNode.asText(), docFieldNode.decimalValue(), basePath + docFieldName, errorList, type);
                 }
                 else {
                   throw new UnifyException("jdoc_err_44", basePath + docFieldName, docFieldNode.toString());
@@ -2269,11 +2302,11 @@ public class JDocument implements Document {
                 break;
 
               case STRING:
-                validateField(modelFieldNode.asText(), docFieldNode.asText(), basePath + docFieldName, type);
+                validateField(modelFieldNode.asText(), docFieldNode.asText(), basePath + docFieldName, errorList, type);
                 break;
 
               case NULL:
-                validateField(modelFieldNode.asText(), null, basePath + docFieldName, type);
+                validateField(modelFieldNode.asText(), null, basePath + docFieldName, errorList, type);
                 break;
 
               default:
