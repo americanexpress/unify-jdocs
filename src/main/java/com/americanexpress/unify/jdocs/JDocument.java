@@ -1623,6 +1623,7 @@ public class JDocument implements Document {
   // typed document methods
 
   public static void loadDocumentModel(String type, String json) {
+    logger.info("Loading document model -> " + type);
     try {
       json = insertReferredModels(json);
     }
@@ -1633,7 +1634,6 @@ public class JDocument implements Document {
 
     Document d = new JDocument(json);
     setDocumentModel(type, d);
-    logger.info("Successfully loaded document model -> " + type);
   }
 
   public static void setDocumentModel(String type, Document model) {
@@ -1646,8 +1646,8 @@ public class JDocument implements Document {
 
   public static void close() {
     if (docModels != null) {
+      logger.info("Unloading document models");
       docModels = null;
-      logger.info("Successfully unloaded document models");
     }
     else {
       logger.info("Document models have already been unloaded");
@@ -2240,7 +2240,7 @@ public class JDocument implements Document {
       for (int i = 0; i < docNode.size(); i++) {
         JsonNode docChildNode = docNode.get(i);
         JsonNode dmChildNode = modelNode;
-        validate(dmChildNode, docChildNode, basePath + "[0]" + ".", errorList, type);
+        validate(dmChildNode, docChildNode, basePath + "[" + i + "]" + ".", errorList, type);
       }
     }
     else {
@@ -2266,7 +2266,7 @@ public class JDocument implements Document {
             for (int i = 0; i < docFieldNode.size(); i++) {
               JsonNode docChildNode = docFieldNode.get(i);
               JsonNode dmChildNode = modelFieldNode.get(0);
-              validate(dmChildNode, docChildNode, basePath + docFieldName + "[0]" + ".", errorList, type);
+              validate(dmChildNode, docChildNode, basePath + docFieldName + "[" + i + "]" + ".", errorList, type);
             }
             break loop;
           }
