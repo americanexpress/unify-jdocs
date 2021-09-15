@@ -1007,14 +1007,14 @@ public class JDocument implements Document {
             }
             else if (fieldNode.isDouble()) {
               BigDecimal bigDecimalValue = fieldNode.decimalValue();
-              if (bigDecimalValue == new BigDecimal(filterValue)) {
+              if (bigDecimalValue.equals(new BigDecimal(filterValue))) {
                 found = true;
                 break outer;
               }
             }
             else if (fieldNode.isBigDecimal()) {
               BigDecimal bigDecimalValue = fieldNode.decimalValue();
-              if (bigDecimalValue == new BigDecimal(filterValue)) {
+              if (bigDecimalValue.equals(new BigDecimal(filterValue))) {
                 found = true;
                 break outer;
               }
