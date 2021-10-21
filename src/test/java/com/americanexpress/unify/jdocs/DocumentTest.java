@@ -708,9 +708,13 @@ public class DocumentTest {
   }
 
   @Test
-  void testEmptyDate() {
+  void testDate() {
     Document d = getTypedDocument("sample_18_model", null);
-    d.setString("$.ts", "2021-Jan-30");
+
+    UnifyException e = assertThrows(UnifyException.class, () -> {
+      d.setString("$.ts", "1981-Feb-29");
+    });
+
     d.setString("$.ts", "");
     assertEquals("", d.getString("$.ts"));
   }

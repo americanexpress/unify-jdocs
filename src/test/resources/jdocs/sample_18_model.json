@@ -1,5 +1,5 @@
 {
-  "ts": "{\"type\":\"date\",\"format\":\"yyyy-MMM-dd\"}",
+  "ts": "{\"type\":\"date\",\"format\":\"uuuu-MMM-dd\"}",
   "addresses": [
     {
       "jdocs_arr_pk": "{\"field\":\"type\"}",

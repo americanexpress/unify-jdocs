@@ -35,7 +35,7 @@ public interface Document {
   String getType();
 
   /**
-   * Returns the date type of the leaf node
+   * Returns the data type of the leaf node
    */
   DataType getLeafNodeDataType(String path, String... vargs);
 
@@ -476,5 +476,14 @@ public interface Document {
    * @param onlyDifferences specifies if only difference results are to be returned or all
    */
   public List<DiffInfo> getDifferences(String leftPath, Document right, String rightPath, boolean onlyDifferences);
+
+  /**
+   * validates a document as per a model and throws an exception if not met
+   * All validation errors are collected and returned in the exception
+   *
+   * @param type the type of the document
+   * @throws com.aexp.acq.unify.base.utils.UnifyException exception containing the list of errors encountered
+   */
+  public void validate(String type);
 
 }

@@ -239,4 +239,9 @@ public class ReadOnlyDocument implements Document {
     return d.getDifferences(leftPath, right, rightPath, onlyDifferences);
   }
 
+  @Override
+  public void validate(String type) {
+    d.validate(type);
+  }
+
 }

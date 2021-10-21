@@ -16,8 +16,11 @@ package com.americanexpress.unify.jdocs;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -50,13 +54,14 @@ public class JDocument implements Document {
   private String type = "";
 
   // logger
-  private static Logger logger = LoggerFactory.getLogger(JDocument.class);
-
+  private static final Logger logger = LoggerFactory.getLogger(JDocument.class);
   // root json node of the document
   protected JsonNode rootNode = null;
 
   // one and only one object mapper -> object mappers are thread safe!!!
-  protected static ObjectMapper objectMapper = new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+  protected static final ObjectMapper objectMapper = new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+
+  private static final ObjectWriter objectWriter = objectMapper.writer(new DefaultPrettyPrinter().withObjectIndenter(new DefaultIndenter().withLinefeed("\n")));
 
   public JDocument() {
     try {
@@ -94,6 +99,9 @@ public class JDocument implements Document {
     catch (IOException ex) {
       throw new UnifyException("jdoc_err_1", ex);
     }
+  }
+
+  public static void initDocumentTypes(String doc_models, String s) {
   }
 
   @Override
@@ -174,7 +182,8 @@ public class JDocument implements Document {
     }
   }
 
-  private final void validate(String type) {
+  @Override
+  public final void validate(String type) {
     // function to validate the contents of the whole document
     Document md = docModels.get(type);
     List<String> errorList = validate(((JDocument)md).rootNode, rootNode, "$.", type);
@@ -416,7 +425,7 @@ public class JDocument implements Document {
     String s = null;
 
     try {
-      s = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
+      s = objectWriter.writeValueAsString(rootNode);
     }
     catch (JsonProcessingException ex) {
       throw new UnifyException("jdoc_err_1", ex);
@@ -1980,7 +1989,7 @@ public class JDocument implements Document {
   private static void validateField(String format, Object value, String path, List<String> errorList, String type) {
     // "{\"field\":\"field_name\"}"
     // "{\"type\":\"string\", \"regex\":\"\\\\w{17,17}\"}"
-    // "{\"type\":\"date\", \"format\":\"yyyy-MM-dd HH:mm:ss.SSS GMT\"}"
+    // "{\"type\":\"date\", \"format\":\"uuuu-MM-dd HH:mm:ss.SSS GMT\"}"
     // key is optional
     // type is mandatory
     // format
@@ -2085,7 +2094,7 @@ public class JDocument implements Document {
           String fieldValue = node.get(CONSTS_JDOCS.FORMAT_FIELDS.FORMAT).asText();
           if (fieldValue.isEmpty() == false) {
             try {
-              DateTimeFormatter dfs = DateTimeFormatter.ofPattern(fieldValue);
+              DateTimeFormatter dfs = DateTimeFormatter.ofPattern(fieldValue).withResolverStyle(ResolverStyle.STRICT);
               if (value.toString().isEmpty() == false) {
                 dfs.parse(value.toString());
               }
