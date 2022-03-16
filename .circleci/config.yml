@@ -21,4 +21,4 @@ jobs:
             - ~/.m2
           key: unify-jdocs-{{ checksum "pom.xml" }}
       - run: mvn install
-      # - run: mvn --settings ".circleci/settings.xml" deploy
+      - run: mvn --settings ".circleci/settings.xml" -DskipTests clean deploy

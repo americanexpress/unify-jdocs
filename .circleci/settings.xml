@@ -7,5 +7,28 @@
             <username>${env.MAVEN_CENTRAL_USERNAME}</username>
             <password>${env.MAVEN_CENTRAL_PASSWORD}</password>
         </server>
+        <server>
+            <id>github</id>
+            <username>${env.GITHUB_USERNAME}</username>
+            <password>${env.GITHUB_EMAIL}</password>
+        </server>
+        <server>
+            <id>sign-artifacts</id>
+            <privateKey>${env.ORG_GRADLE_PROJECT_signingKey_base64}</privateKey>
+            <passphrase>${env.ORG_GRADLE_PROJECT_signingPassword}</passphrase>
+        </server>
     </servers>
+    <profiles>
+        <profile>
+            <id>ossrh</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.executable>gpg2</gpg.executable>
+                <gpg.privatekey>${env.ORG_GRADLE_PROJECT_signingKey_base64}</gpg.privatekey>
+                <gpg.passphrase>${env.ORG_GRADLE_PROJECT_signingPassword}</gpg.passphrase>
+            </properties>
+        </profile>
+    </profiles>
 </settings>
