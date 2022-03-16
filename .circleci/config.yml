@@ -13,6 +13,11 @@ jobs:
       - image: circleci/openjdk:8-jdk-stretch
     steps:
       - checkout
+      - run:
+          name: Configure Git
+          command: |
+            git config user.email "balraj.goel@aexp.com"
+            git config user.name "Balraj Goel"
       - restore_cache:
           key: unify-jdocs-{{ checksum "pom.xml" }}
       - run: mvn dependency:go-offline
