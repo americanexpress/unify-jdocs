@@ -20,7 +20,7 @@ jobs:
             git config user.name "Balraj Goel"
       - add_ssh_keys:
           fingerprints:
-            - "ba:ae:74:70:45:63:a9:33:de:a7:1e:85:b9:a7:c0:ac"
+            - "55:4d:82:b5:74:a7:d6:ee:cf:d7:8a:48:09:7c:82:5d"
       - restore_cache:
           key: unify-jdocs-{{ checksum "pom.xml" }}
       - run: mvn dependency:go-offline
