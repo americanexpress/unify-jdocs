@@ -18,7 +18,7 @@
 
     <groupId>com.americanexpress.unify.jdocs</groupId>
     <artifactId>unify-jdocs</artifactId>
-    <version>1.1.32-SNAPSHOT</version>
+    <version>1.1.32</version>
     <packaging>jar</packaging>
 
     <name>unify-jdocs</name>
@@ -48,7 +48,7 @@
         <url>https://github.com/americanexpress/unify-jdocs</url>
         <connection>scm:git:git://github.com/americanexpress/unify-jdocs.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/americanexpress/unify-jdocs.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>unify-jdocs-1.1.32</tag>
     </scm>
 
     <issueManagement>
