@@ -18,6 +18,9 @@ jobs:
           command: |
             git config user.email "balraj.goel@aexp.com"
             git config user.name "Balraj Goel"
+      - add_ssh_keys:
+          fingerprints:
+            - "ba:ae:74:70:45:63:a9:33:de:a7:1e:85:b9:a7:c0:ac"
       - restore_cache:
           key: unify-jdocs-{{ checksum "pom.xml" }}
       - run: mvn dependency:go-offline
@@ -27,3 +30,5 @@ jobs:
           key: unify-jdocs-{{ checksum "pom.xml" }}
       - run: mvn install
       - run: mvn --settings ".circleci/settings.xml" -B release:clean release:prepare release:perform -P release
+
+
