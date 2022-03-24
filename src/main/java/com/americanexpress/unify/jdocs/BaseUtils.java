@@ -817,4 +817,21 @@ public class BaseUtils {
     return r;
   }
 
+  public static String getWithoutCarriageReturn(String s) {
+    byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+    ByteArrayOutputStream result = new ByteArrayOutputStream();
+    for (int i = 0; i < bytes.length; i++) {
+      if ((bytes[i] == '\r') == false) {
+        result.write(bytes[i]);
+      }
+    }
+    String s1 = result.toString();
+    try {
+      result.close();
+    }
+    catch (IOException e) {
+    }
+    return s1;
+  }
+
 }
