@@ -3,9 +3,14 @@
           xmlns='http://maven.apache.org/SETTINGS/1.0.0' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
     <servers>
         <server>
-            <id>bintray-americanexpress-maven</id>
-            <username>${env.MAVEN_REPO_USERNAME}</username>
-            <password>${env.MAVEN_REPO_PASSWORD}</password>
+            <id>ossrh</id>
+            <username>${env.MAVEN_CENTRAL_USERNAME}</username>
+            <password>${env.MAVEN_CENTRAL_PASSWORD}</password>
+        </server>
+        <server>
+            <id>github</id>
+            <username>${env.GITHUB_USERNAME}</username>
+            <password>${env.GITHUB_EMAIL}</password>
         </server>
     </servers>
 </settings>
