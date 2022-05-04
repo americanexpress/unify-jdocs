@@ -1,0 +1,9 @@
+{
+  "addresses": [
+    {
+      "block": {
+        "field1": "value 1"
+      }
+    }
+  ]
+}

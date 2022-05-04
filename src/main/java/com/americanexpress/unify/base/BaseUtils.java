@@ -1,35 +1,26 @@
-package com.americanexpress.unify.jdocs;
+package com.americanexpress.unify.base;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import com.github.lalyos.jfiglet.FigletFont;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+
+import java.io.*;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Random;
+import java.time.format.ResolverStyle;
+import java.time.temporal.TemporalAccessor;
+import java.util.*;
 
-/**
- * The BaseUtils class contains general purpose static methods.
- * <p>
- * Unless otherwise specified, methods throw an instance of UnifyException which wraps the
- * underlying exception as the cause
- *
- * @author Deepak Arora
- */
 public class BaseUtils {
 
-  /**
-   * Wrapping function over Java sleep to throws a UnifyException
-   *
-   * @param millis Time to sleep for in milliseconds
-   */
+  private static Logger logger = LoggerFactory.getLogger(BaseUtils.class);
+
+  // Wrapping function over Java sleep to throws a UnifyException
   public static void sleep(long millis) {
     try {
       Thread.sleep(millis);
@@ -111,14 +102,13 @@ public class BaseUtils {
    * <p>
    * The input string is expected to have a timezone specified at the location specified in the pattern
    *
-   * @param dt      The date as a string
-   * @param pattern The pattern of the string representation
-   * @param locale  The Locale in the string representation
+   * @param dt        The date as a string
+   * @param inPattern The pattern of the string representation
    * @return A ZonedDateTime object else throws UnifyException containing the underlying exception as a cause
    */
-  public static ZonedDateTime getZonedDateTimeFromString(String dt, String pattern, Locale locale) {
+  public static ZonedDateTime getZonedDateTimeFromString(String dt, String inPattern) {
     try {
-      DateTimeFormatter df = DateTimeFormatter.ofPattern(pattern).withLocale(locale);
+      DateTimeFormatter df = DateTimeFormatter.ofPattern(inPattern).withLocale(Locale.US);
       ZonedDateTime zdt = ZonedDateTime.parse(dt, df);
       return zdt;
     }
@@ -130,14 +120,13 @@ public class BaseUtils {
   /**
    * Creates a local date time object from the string representation of a date
    *
-   * @param dt      The date as a string
-   * @param pattern The pattern of the string representation
-   * @param locale  The Locale in the string representation
+   * @param dt        The date as a string
+   * @param inPattern The pattern of the string representation
    * @return A LocalDateTime object
    */
-  public static LocalDateTime getLocalDateTimeFromString(String dt, String pattern, Locale locale) {
+  public static LocalDateTime getLocalDateTimeFromString(String dt, String inPattern) {
     try {
-      DateTimeFormatter df = DateTimeFormatter.ofPattern(pattern).withLocale(locale);
+      DateTimeFormatter df = DateTimeFormatter.ofPattern(inPattern).withLocale(Locale.US);
       LocalDateTime ldt = LocalDateTime.parse(dt, df);
       return ldt;
     }
@@ -149,14 +138,13 @@ public class BaseUtils {
   /**
    * Creates a local date object from the string representation of a date
    *
-   * @param dt      The date as a string
-   * @param pattern The pattern of the string representation
-   * @param locale  The Locale in the string representation
+   * @param dt        The date as a string
+   * @param inPattern The pattern of the string representation
    * @return A LocalDate object
    */
-  public static LocalDate getLocalDateFromString(String dt, String pattern, Locale locale) {
+  public static LocalDate getLocalDateFromString(String dt, String inPattern) {
     try {
-      DateTimeFormatter df = DateTimeFormatter.ofPattern(pattern).withLocale(locale);
+      DateTimeFormatter df = DateTimeFormatter.ofPattern(inPattern).withLocale(Locale.US);
       LocalDate ldt = LocalDate.parse(dt, df);
       return ldt;
     }
@@ -165,40 +153,21 @@ public class BaseUtils {
     }
   }
 
-  /**
-   * Creates a string representation of a date given a ZonedDateTime object
-   * *
-   *
-   * @param zdt        The ZonedDateTime object to convert to String
-   * @param outPattern The pattern of the string representation
-   * @param outLocale  The Locale in the string representation
-   * @param outTz      The timezone in the string representation
-   * @return The string representation of the date
-   */
-  public static String fromZonedDateTime(ZonedDateTime zdt, String outPattern, Locale outLocale, String outTz) {
+  // given an instant, returns a string representation as per the out pattern in the system default time zone
+  public static String fromInstant(Instant instant, String outPattern) {
     try {
-      DateTimeFormatter df = DateTimeFormatter.ofPattern(outPattern).withZone(ZoneId.of(outTz)).withLocale(outLocale);
-      return zdt.format(df);
+      return fromInstant(instant, outPattern, ZoneId.systemDefault().toString());
     }
     catch (Exception e) {
       throw new UnifyException("base_err_1", e);
     }
   }
 
-  /**
-   * Creates a string representation from an Instant as per the given pattern, locale and timezone
-   *
-   * @param instant    The Instant to convert into a String
-   * @param outPattern The pattern of the string representation
-   * @param outLocale  The local in the output string representation
-   * @param outTz      The timezone of the date in the string representation
-   * @return The string representation of the date
-   */
-  public static String fromInstant(Instant instant, String outPattern, Locale outLocale, String outTz) {
+  // given an instant, returns a string representation as per the out pattern in the specified time zone
+  public static String fromInstant(Instant instant, String outPattern, String outTz) {
     try {
-      ZonedDateTime zdt = instant.atZone(ZoneId.of(outTz));
-      DateTimeFormatter df = DateTimeFormatter.ofPattern(outPattern).withZone(ZoneId.of(outTz)).withLocale(outLocale);
-      return zdt.format(df);
+      DateTimeFormatter df = DateTimeFormatter.ofPattern(outPattern).withZone(ZoneId.of(outTz)).withLocale(Locale.US);
+      return df.format(instant);
     }
     catch (Exception e) {
       throw new UnifyException("base_err_1", e);
@@ -212,22 +181,20 @@ public class BaseUtils {
    *
    * @param dt         The input string to be converted
    * @param inPattern  The input string pattern
-   * @param inLocale   The local in the input string representation
    * @param outPattern The pattern of the output string
-   * @param outLocale  The local in the output string representation
    * @param outTz      The timezone of the output string representation
    * @return The string representation of the date. If the input date is null or empty, an empty string is returned
    */
-  public static String fromTzDateString(String dt, String inPattern, Locale inLocale, String outPattern, Locale outLocale, String outTz) {
+  public static String fromDateString(String dt, String inPattern, String outPattern, String outTz) {
     try {
       if ((dt == null) || (dt.isEmpty() == true)) {
         return "";
       }
 
-      DateTimeFormatter df = DateTimeFormatter.ofPattern(inPattern).withLocale(inLocale);
-      ZonedDateTime zdt = ZonedDateTime.parse(dt, df);
-      DateTimeFormatter df1 = DateTimeFormatter.ofPattern(outPattern).withLocale(outLocale).withZone(ZoneId.of(outTz));
-      return zdt.format(df1);
+      DateTimeFormatter df1 = DateTimeFormatter.ofPattern(inPattern).withLocale(Locale.US);
+      DateTimeFormatter df2 = DateTimeFormatter.ofPattern(outPattern).withLocale(Locale.US).withZone(ZoneId.of(outTz));
+      TemporalAccessor ta = df1.parse(dt);
+      return df2.format(ta);
     }
     catch (Exception e) {
       throw new UnifyException("base_err_1", e);
@@ -235,7 +202,15 @@ public class BaseUtils {
   }
 
   /**
-   * Creates a string representation from a date represented as a string which does NOT contain timezone information
+   * Creates a string representation from a date represented as a string which
+   * does NOT contain timezone information in both input and output string patterns OR
+   * both input and output string patterns contain the same time zone information i.e. either zone id or offset
+   * it cannot be that one string contains zone id and the other contains offset information OR
+   * the input pattern contains a time zone info and the output does not in which case the source
+   * time zone will be used for the output
+   * <p>
+   * Suffice to say that it is best to use this for cases where output pattern does not contain time zone info
+   *
    * <p>
    * Default locale is used
    *
@@ -244,97 +219,21 @@ public class BaseUtils {
    * @param outPattern The pattern of the output string
    * @return The string representation of the date. If the input date is null or empty, an empty string is returned
    */
-  public static String fromLocalDateString(String dt, String inPattern, String outPattern) {
-    try {
-      if ((dt == null) || (dt.isEmpty() == true)) {
-        return "";
-      }
+  public static String fromDateString(String dt, String inPattern, String outPattern) {
+    if ((dt == null) || (dt.isEmpty() == true)) {
+      return "";
+    }
 
-      SimpleDateFormat format1 = new SimpleDateFormat(inPattern);
-      SimpleDateFormat format2 = new SimpleDateFormat(outPattern);
-      Date d = format1.parse(dt);
-      return format2.format(d);
-    }
-    catch (ParseException e) {
-      throw new UnifyException("base_err_1", e);
-    }
+    DateTimeFormatter df1 = DateTimeFormatter.ofPattern(inPattern).withLocale(Locale.US);
+    DateTimeFormatter df2 = DateTimeFormatter.ofPattern(outPattern).withLocale(Locale.US);
+    TemporalAccessor ta = df1.parse(dt);
+    return df2.format(ta);
   }
 
-  /**
-   * Creates a date object from a string representation
-   * <p>
-   * Default locale is used
-   *
-   * @param s       String representation of the date
-   * @param pattern Patter of the string representation
-   * @return A Date object
-   */
-  public static Date getDateFromString(String s, String pattern) {
-    try {
-      SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-      Date d1 = sdf.parse(s);
-      return d1;
-    }
-    catch (ParseException e) {
-      throw new UnifyException("base_err_1", e);
-    }
-  }
-
-  /**
-   * Returns a java.sql.Date from a string with the specified pattern
-   *
-   * @param s
-   * @param pattern
-   * @return
-   */
-  public static java.sql.Date getSqlDateFromString(String s, String pattern) {
-    try {
-      SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-      Date udl = sdf.parse(s);
-      java.sql.Date d1 = new java.sql.Date(udl.getTime());
-      return d1;
-    }
-    catch (ParseException e) {
-      throw new UnifyException("base_err_1", e);
-    }
-  }
-
-  /**
-   * Creates a String representation from a Date object
-   *
-   * @param d          The Date to be converted to string
-   * @param outPattern The pattern of the string representation
-   * @return The String representation
-   */
-  public static String fromDate(Date d, String outPattern) {
-    try {
-      SimpleDateFormat sdf = new SimpleDateFormat(outPattern);
-      String s = sdf.format(d);
-      return s;
-    }
-    catch (Exception e) {
-      throw new UnifyException("base_err_1", e);
-    }
-  }
-
-  /**
-   * Creates a String representation from a string containing Julian date
-   *
-   * @param dt         The string representation in Julian date format
-   * @param outPattern The pattern of the output String representation
-   * @return The String as per the pattern
-   */
-  public static String fromJulianDate(String dt, String outPattern) {
-    try {
-      DateFormat fmt1 = new SimpleDateFormat("yyyyDDD");
-      Date date = null;
-      date = fmt1.parse(dt);
-      DateFormat fmt2 = new SimpleDateFormat(outPattern);
-      return fmt2.format(date);
-    }
-    catch (ParseException e) {
-      throw new UnifyException("base_err_1", e);
-    }
+  public static Timestamp getTimestampFromLocalDateTime(String strDate, String pattern) {
+    DateTimeFormatter df = DateTimeFormatter.ofPattern(pattern).withLocale(Locale.US);
+    LocalDateTime ldt = LocalDateTime.parse(strDate, df);
+    return Timestamp.valueOf(ldt);
   }
 
   /**
@@ -344,9 +243,10 @@ public class BaseUtils {
    * @return Timestamp object for the string representation
    */
   // Given a date string, format it and return a timestamp of that date
-  public static Timestamp getTimestampFromString(String strDate) {
-    ZonedDateTime zdt = BaseUtils.getZonedDateTimeFromString(strDate, "yyyy-MMM-dd HH:mm:ss.SSS VV", Locale.ENGLISH);
-    return Timestamp.from(zdt.toInstant());
+  public static Timestamp getTimestampFromUnifyTsString(String strDate) {
+    DateTimeFormatter df = DateTimeFormatter.ofPattern(CONSTS_BASE.UNIFY_TS_FMT).withLocale(Locale.US);
+    TemporalAccessor ta = df.parse(strDate);
+    return Timestamp.from(Instant.from(ta));
   }
 
   /**
@@ -356,8 +256,57 @@ public class BaseUtils {
    * @return Timestamp object for the instant
    */
   // Given an instant, return a timestamp
-  public static Timestamp fromInstant(Instant instant) {
+  public static Timestamp getTimestampFromInstant(Instant instant) {
     return new Timestamp(instant.toEpochMilli());
+  }
+
+  public static Instant getInstantFromString(String sDate, String inPattern) {
+    // creates an instant from an arbitrary pattern. The only requirement is that the year needs to be specified
+    // else an exception will be thrown
+    // Also the time zone / offset if specified will only be used if the full date time is specified upto seconds
+    DateTimeFormatter df = DateTimeFormatter.ofPattern(inPattern).withResolverStyle(ResolverStyle.STRICT);
+
+    TemporalAccessor ta = null;
+    try {
+      ta = df.parseBest(sDate, ZonedDateTime::from, LocalDateTime::from, LocalDate::from, YearMonth::from, Year::from);
+    }
+    catch (Exception e) {
+      throw new UnifyException("base_err_14", e);
+    }
+
+    if (ta instanceof ZonedDateTime) {
+      return ((ZonedDateTime)ta).toInstant();
+    }
+    else if (ta instanceof LocalDateTime) {
+      LocalDateTime ldt = (LocalDateTime)ta;
+      return ldt.atZone(ZoneId.systemDefault()).toInstant();
+    }
+    else if (ta instanceof LocalDate) {
+      LocalDate ld = (LocalDate)ta;
+      return ld.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+    }
+    else if (ta instanceof YearMonth) {
+      YearMonth ym = (YearMonth)ta;
+      return ym.atDay(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+    }
+    else if (ta instanceof Year) {
+      Year year = (Year)ta;
+      return year.atMonth(1).atDay(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+    }
+
+    // should never reach here
+    return null;
+  }
+
+  public static Instant getNextBusinessDay(Instant ts, int daysToAdd) {
+    ZonedDateTime zdt = ts.atZone(ZoneId.of("UTC"));
+    for (int i = 0; i < daysToAdd; i++) {
+      zdt = zdt.plusDays(1);
+      while ((zdt.getDayOfWeek() == DayOfWeek.SATURDAY) || (zdt.getDayOfWeek() == DayOfWeek.SUNDAY)) {
+        zdt = zdt.plusDays(1);
+      }
+    }
+    return zdt.toInstant();
   }
 
   /**
@@ -369,10 +318,16 @@ public class BaseUtils {
    */
   public static String getResourceAsString(Class clazz, String filePath) {
     String s = null;
-    InputStream is = new BufferedInputStream(clazz.getResourceAsStream(filePath));
-    s = getStringFromStream(is);
+    InputStream is = clazz.getResourceAsStream(filePath);
+
+    if (is == null) {
+      return null;
+    }
+
+    InputStream bis = new BufferedInputStream(is);
+    s = getStringFromStream(bis);
     try {
-      is.close();
+      bis.close();
     }
     catch (IOException ex) {
       throw new UnifyException("base_err_3", ex);
@@ -415,9 +370,15 @@ public class BaseUtils {
    * @return The stack trace as a String. Only last 12 levels of the stack trace are returned
    */
   public static String getStackTrace(Throwable e) {
-    StackTraceElement[] se = e.getStackTrace();
-    String s = getStackTrace(e, 12);
-    return s;
+    Throwable e1 = null;
+    if (e instanceof UnifyException) {
+      e1 = e.getCause();
+      if (e1 != null) {
+        e = e1;
+      }
+    }
+
+    return getStackTrace(e, 12);
   }
 
   /**
@@ -427,6 +388,14 @@ public class BaseUtils {
    * @return The stack trace as a String
    */
   public static String getStackTrace(Throwable e, int levels) {
+    Throwable e1 = null;
+    if (e instanceof UnifyException) {
+      e1 = e.getCause();
+      if (e1 != null) {
+        e = e1;
+      }
+    }
+
     StackTraceElement[] se = e.getStackTrace();
     if (levels > se.length) {
       levels = se.length;
@@ -436,7 +405,7 @@ public class BaseUtils {
     for (int i = 0; i < levels; i++) {
       s = s + "at " + se[i].getClassName() + "(" + se[i].getFileName() + ":" + se[i].getLineNumber() + ")";
       if (i != (levels - 1)) {
-        s = s + CONSTS_JDOCS.NEW_LINE;
+        s = s + CONSTS_BASE.NEW_LINE;
       }
     }
 
@@ -539,7 +508,7 @@ public class BaseUtils {
   /**
    * Returns the class name without the package names
    *
-   * @param canonicalName the full name of the class for example com.example.Class1
+   * @param canonicalName the full name of the class for example com.aexp.acq.Class1
    * @return The class name. For the above Class1
    */
   public static String getSimpleClassName(String canonicalName) {
@@ -691,8 +660,8 @@ public class BaseUtils {
    * @return The error String
    */
   public static String getErrorString(Exception e, String code) {
-    String s = "Error code -> " + code + CONSTS_JDOCS.NEW_LINE;
-    s = s + "Error message -> " + e.getMessage() + CONSTS_JDOCS.NEW_LINE;
+    String s = "Error code -> " + code + CONSTS_BASE.NEW_LINE;
+    s = s + "Error message -> " + e.getMessage() + CONSTS_BASE.NEW_LINE;
     s = s + "Error details -> " + getStackTrace(e, 12);
     return s;
   }
@@ -720,20 +689,19 @@ public class BaseUtils {
     Throwable cause = e.getCause();
     String s = null;
     if (cause == null) {
-      s = "Error code -> " + e.getErrorCode() + CONSTS_JDOCS.NEW_LINE;
-      s = s + "Error message -> " + e.getMessage() + CONSTS_JDOCS.NEW_LINE;
-      s = s + "Error details -> " + getStackTrace(e, 12);
+      s = "Error code -> " + e.getErrorCode() + CONSTS_BASE.NEW_LINE;
+      s = s + "Error message -> " + e.getMessage() + CONSTS_BASE.NEW_LINE;
+      s = s + "Error details -> " + getStackTrace(e);
     }
     else {
-      s = "Error code -> " + e.getErrorCode() + CONSTS_JDOCS.NEW_LINE;
-      s = s + "Error message -> " + cause.getMessage() + CONSTS_JDOCS.NEW_LINE;
-      s = s + "Error details -> " + e.getDetails() + CONSTS_JDOCS.NEW_LINE;
-      s = s + "Stack info -> " + getStackTrace(cause, 12);
+      s = "Error code -> " + e.getErrorCode() + CONSTS_BASE.NEW_LINE;
+      s = s + "Error message -> " + cause.getMessage() + CONSTS_BASE.NEW_LINE;
+      s = s + "Error details -> " + e.getDetails() + CONSTS_BASE.NEW_LINE;
+      s = s + "Stack info -> " + getStackTrace(cause);
     }
 
     return s;
   }
-
 
   /**
    * Returns an empty String when the input String is null
@@ -786,6 +754,21 @@ public class BaseUtils {
    * @param input The input value
    * @return The output value
    */
+  public static BigDecimal getZeroWhenNull(BigDecimal input) {
+    if (input != null) {
+      return input;
+    }
+    else {
+      return new BigDecimal("0.0");
+    }
+  }
+
+  /**
+   * Returns a 0 when input is null
+   *
+   * @param input The input value
+   * @return The output value
+   */
   public static Boolean getFalseWhenNull(Boolean input) {
     if (input != null) {
       return input;
@@ -810,11 +793,114 @@ public class BaseUtils {
     }
   }
 
+  public static void showWelcomeBanner(String pathToBannerFile) {
+    InputStream is = BaseUtils.class.getResourceAsStream(pathToBannerFile);
+    List<String> list = new ArrayList<>();
+
+    // read banner file
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        if (line.isEmpty()) {
+          continue;
+        }
+
+        list.add(line);
+      }
+
+      // get a random number
+      int index = getRandom(0, list.size() - 1);
+      String s = list.get(index);
+      String[] tokens = s.split("\\|");
+      String author = tokens[0].trim();
+      String banner = tokens[1].trim();
+
+      String asciiArt = FigletFont.convertOneLine(banner);
+      System.out.println(asciiArt);
+      System.out.println("Quote famously contributed by -> " + author);
+      System.out.println();
+      System.out.flush();
+      Thread.sleep(3000);
+    }
+    catch (Exception e) {
+      // nothing to do
+    }
+  }
+
   // generate a random number between the two specified number both sides included
   public static int getRandom(int from, int to) {
     Random random = new Random(System.nanoTime());
     int r = random.nextInt(to - from + 1) + from;
     return r;
+  }
+
+  public static void log(Logger logger, Level level, String message) {
+    switch (level) {
+      case DEBUG:
+        logger.debug(message);
+        break;
+
+      case ERROR:
+        logger.error(message);
+        break;
+
+      case INFO:
+        logger.info(message);
+        break;
+
+      case TRACE:
+        logger.trace(message);
+        break;
+
+      case WARN:
+        logger.warn(message);
+        break;
+    }
+  }
+
+  public static void validateDate(String date, String pattern) {
+    DateTimeFormatter dfs = DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.STRICT);
+    dfs.parse(date);
+  }
+
+  public static void validateDateTime(String datetime, String pattern) {
+    DateTimeFormatter dfs = DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.STRICT);
+    dfs.parse(datetime);
+  }
+
+  public static void showSystemInfo() {
+    int logicalProcessors = Runtime.getRuntime().availableProcessors();
+    logger.info("Running on CPU with number of logical threads / cores -> {}", logicalProcessors);
+
+    long m = Runtime.getRuntime().totalMemory() / (1024 * 1024);
+    logger.info("Total JVM memory in mb -> {}", m);
+
+    m = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+    logger.info("Max JVM memory in mb -> {}", m);
+  }
+
+  public static void showEnvVariables() {
+    Map<String, String> envMap = System.getenv();
+    Set<String> envSet = envMap.keySet();
+    System.out.println();
+    logger.info("Listing system environment variables");
+    for (String name : envSet) {
+      String value = System.getenv(name);
+      logger.info("{} -> {}", name, value);
+    }
+    System.out.println();
+  }
+
+  public static Date getSqlDateFromString(String strDate, String pattern) {
+    try {
+      Instant instant = BaseUtils.getInstantFromString(strDate, pattern);
+      Timestamp ts = Timestamp.from(instant);
+      return new Date(ts.getTime());
+    }
+    catch (Exception e) {
+      // nothing to do
+    }
+    return null;
   }
 
   public static String getWithoutCarriageReturn(String s) {

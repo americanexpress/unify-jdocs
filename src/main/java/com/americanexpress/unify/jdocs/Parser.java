@@ -17,7 +17,7 @@ package com.americanexpress.unify.jdocs;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.americanexpress.unify.jdocs.BaseUtils.removeEscapeChars;
+import static com.americanexpress.unify.base.BaseUtils.removeEscapeChars;
 
 class Parser {
 

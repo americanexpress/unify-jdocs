@@ -14,6 +14,9 @@
 
 package com.americanexpress.unify.jdocs;
 
+import com.americanexpress.unify.base.BaseUtils;
+import com.americanexpress.unify.base.ERRORS_BASE;
+import com.americanexpress.unify.base.UnifyException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +33,7 @@ public class DocumentTest {
 
   @BeforeAll
   private static void setup() {
+    ERRORS_BASE.load();
     ERRORS_JDOCS.load();
   }
 
@@ -313,6 +317,16 @@ public class DocumentTest {
   @Test
   void testNativeArray() {
     Document d = getBaseDocument("/jdocs/native_array.json");
+
+    int size = d.getArraySize("$.valid_states[0].states[]");
+    assertEquals(size, 5);
+
+    boolean pathExists = d.pathExists("$.valid_states[0].states[0]");
+    assertEquals(pathExists, true);
+
+    pathExists = d.pathExists("$.valid_states[0].states[5]");
+    assertEquals(pathExists, false);
+
     String s = d.getArrayValueString("$.valid_states[0].states[0]");
     assertEquals(s, "AZ");
 
@@ -774,11 +788,13 @@ public class DocumentTest {
   @Test
   void testErrorCollection() {
     String expected = BaseUtils.getResourceAsString(DocumentTest.class, "/jdocs/sample_19_expected.txt");
+    expected = BaseUtils.getWithoutCarriageReturn(expected);
     try {
       Document d = getTypedDocument("sample_19_model", "/jdocs/sample_19.json");
     }
     catch (UnifyException e) {
-      assertEquals(e.getMessage(), expected);
+      String actual = BaseUtils.getWithoutCarriageReturn(e.getMessage());
+      assertEquals(actual, expected);
     }
   }
 
@@ -792,7 +808,9 @@ public class DocumentTest {
       s = s + printDiffInfo(di);
     }
 
+    s = BaseUtils.getWithoutCarriageReturn(s);
     String expected = BaseUtils.getResourceAsString(DocumentTest.class, "/jdocs/sample_16_expected.txt");
+    expected = BaseUtils.getWithoutCarriageReturn(expected);
     assertEquals(s, expected);
   }
 
@@ -865,7 +883,6 @@ public class DocumentTest {
             "ONLY_IN_LEFT, $.cars[0].make, null\n" +
             "DIFFERENT, $.vendors[1], $.vendors[1]\n" +
             "ONLY_IN_RIGHT, null, $.family.members[1].first_name\n";
-    System.out.println(expected);
     assertEquals(s, expected);
   }
 
@@ -905,6 +922,41 @@ public class DocumentTest {
     }
 
     assertEquals(s, expected);
+  }
+
+  @Test
+  void testMergeKeyBeingObject() {
+    Document d = getTypedDocument("sample_22_model", "/jdocs/sample_22.json");
+    Document frag = getTypedDocument("sample_22_model", "/jdocs/sample_22_frag.json");
+
+    UnifyException e = assertThrows(UnifyException.class, () -> {
+      d.merge(frag, null);
+    });
+  }
+
+  @Test
+  void testIsLeafNode() {
+    Document d = getTypedDocument("sample_22_model", "/jdocs/sample_22.json");
+
+    boolean b = d.isLeafNode("$.addresses[0].block.field1");
+    assertEquals(b, true);
+
+    b = d.isLeafNode("$.addresses[0].block");
+    assertEquals(b, false);
+
+    b = d.isLeafNode("$.addresses[0]");
+    assertEquals(b, false);
+
+    b = d.isLeafNode("$.addresses");
+    assertEquals(b, false);
+
+    b = d.isLeafNode("$.addresses[0].block");
+    assertEquals(b, false);
+
+    UnifyException e = assertThrows(UnifyException.class, () -> {
+      d.isLeafNode("$.addresses12345[0].block");
+    });
+
   }
 
 }

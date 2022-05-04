@@ -1,4 +1,4 @@
-package com.americanexpress.unify.jdocs;
+package com.americanexpress.unify.base;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ public class ErrorMap {
 
   protected static Map<String, String> errors = new ConcurrentHashMap<>();
 
-  public static String getErrorMessage(String code) {
+  public static final String getErrorMessage(String code) {
     String s = errors.get(code);
     s = (s == null) ? "" : s;
     return s;

@@ -1,4 +1,4 @@
-package com.americanexpress.unify.jdocs;
+package com.americanexpress.unify.base;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +82,7 @@ public class UnifyException extends RuntimeException {
     return et;
   }
 
+  @Override
   public Throwable getCause() {
     return cause;
   }

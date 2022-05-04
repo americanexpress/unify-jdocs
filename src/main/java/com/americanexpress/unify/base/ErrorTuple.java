@@ -1,4 +1,4 @@
-package com.americanexpress.unify.jdocs;
+package com.americanexpress.unify.base;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +14,32 @@ public class ErrorTuple {
   private String errorMessage = "";
   private String errorDetails = "";
   private boolean isRetryable = false;
+
+  public ErrorTuple() {
+  }
+
+  public ErrorTuple(String errorCode, Exception e) {
+    set(errorCode, e);
+  }
+
+  public ErrorTuple(Exception e) {
+    set("", e);
+  }
+
+  private void set(String errorCode, Exception e) {
+    if (e instanceof UnifyException) {
+      UnifyException ue = (UnifyException)e;
+      ErrorTuple et = ue.getErrorTuple();
+      this.errorCode = BaseUtils.getEmptyWhenNull(et.getErrorCode());
+      errorMessage = BaseUtils.getEmptyWhenNull(et.getErrorMessage());
+      errorDetails = BaseUtils.getEmptyWhenNull(et.getErrorDetails());
+      isRetryable = et.isRetryable();
+    }
+    else {
+      this.errorCode = BaseUtils.getEmptyWhenNull(errorCode);
+      errorMessage = BaseUtils.getEmptyWhenNull(e.getMessage());
+    }
+  }
 
   public void setRetryable(boolean retryable) {
     this.isRetryable = retryable;
@@ -71,9 +97,9 @@ public class ErrorTuple {
   }
 
   public String getErrorString() {
-    String s = "Error code -> " + errorCode + CONSTS_JDOCS.NEW_LINE;
-    s = s + "Error message -> " + errorMessage + CONSTS_JDOCS.NEW_LINE;
-    s = s + "Error details -> " + errorDetails + CONSTS_JDOCS.NEW_LINE;
+    String s = "Error code -> " + errorCode + CONSTS_BASE.NEW_LINE;
+    s = s + "Error message -> " + errorMessage + CONSTS_BASE.NEW_LINE;
+    s = s + "Error details -> " + errorDetails + CONSTS_BASE.NEW_LINE;
     return s;
   }
 

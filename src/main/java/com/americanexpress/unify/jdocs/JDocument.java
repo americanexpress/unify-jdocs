@@ -14,6 +14,9 @@
 
 package com.americanexpress.unify.jdocs;
 
+import com.americanexpress.unify.base.BaseUtils;
+import com.americanexpress.unify.base.CONSTS_BASE;
+import com.americanexpress.unify.base.UnifyException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
@@ -59,7 +62,7 @@ public class JDocument implements Document {
   protected JsonNode rootNode = null;
 
   // one and only one object mapper -> object mappers are thread safe!!!
-  protected static final ObjectMapper objectMapper = new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+  protected static final ObjectMapper objectMapper = new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true).setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
 
   private static final ObjectWriter objectWriter = objectMapper.writer(new DefaultPrettyPrinter().withObjectIndenter(new DefaultIndenter().withLinefeed("\n")));
 
@@ -253,24 +256,24 @@ public class JDocument implements Document {
     }
   }
 
-  protected boolean pathExists(String path, List<Token> tokenList) {
-    boolean exists = false;
+  private JsonNode getJsonNode(List<Token> tokenList) {
+    JsonNode node = null;
+
     while (true) {
       if (tokenList.isEmpty()) {
         break;
       }
 
-      JsonNode node = traverse(rootNode, tokenList, false, false);
+      node = traverse(rootNode, tokenList, false, false);
 
       if (node == null) {
         break;
       }
 
-      exists = true;
       break;
     }
 
-    return exists;
+    return node;
   }
 
   /**
@@ -286,7 +289,14 @@ public class JDocument implements Document {
       validateFilterNames(path, tokenList);
       checkPathExistsInModel(getModelPath(path));
     }
-    return pathExists(path, tokenList);
+
+    JsonNode node = getJsonNode(tokenList);
+    if (node == null) {
+      return false;
+    }
+    else {
+      return true;
+    }
   }
 
   /**
@@ -468,7 +478,6 @@ public class JDocument implements Document {
     else {
       arrayNode = node.get(fieldName);
     }
-
 
     while (true) {
       if (arrayNode == null) {
@@ -1541,7 +1550,6 @@ public class JDocument implements Document {
     }
   }
 
-
   @Override
   public void deletePath(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1558,6 +1566,29 @@ public class JDocument implements Document {
     else {
       // nothing to do
     }
+  }
+
+  @Override
+  public boolean isLeafNode(String path, String... vargs) {
+    path = getStaticPath(path, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.PATH_EXISTS, PathAccessType.OBJECT);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      checkPathExistsInModel(getModelPath(path));
+    }
+
+    JsonNode node = getJsonNode(tokenList);
+    if (node == null) {
+      throw new UnifyException("jdoc_err_65", path);
+    }
+    boolean b = false;
+    switch (node.getNodeType()) {
+      case BOOLEAN:
+      case NUMBER:
+      case STRING:
+        b = true;
+    }
+    return b;
   }
 
   protected List<Token> parse(String path) {
@@ -1630,7 +1661,6 @@ public class JDocument implements Document {
   }
 
   // typed document methods
-
   public static void loadDocumentModel(String type, String json) {
     logger.info("Loading document model -> " + type);
     try {
@@ -1663,7 +1693,7 @@ public class JDocument implements Document {
     }
   }
 
-  private static Document getDocumentModel(String type) {
+  public static Document getDocumentModel(String type) {
     return docModels.get(type);
   }
 
@@ -1690,12 +1720,12 @@ public class JDocument implements Document {
 
             if (line.charAt(line.length() - 1) == ',') {
               sb.append(',');
-              sb.append(CONSTS_JDOCS.NEW_LINE);
+              sb.append(CONSTS_BASE.NEW_LINE);
             }
           }
           else {
             sb.append(line);
-            sb.append(CONSTS_JDOCS.NEW_LINE);
+            sb.append(CONSTS_BASE.NEW_LINE);
           }
         }
 
@@ -1809,6 +1839,11 @@ public class JDocument implements Document {
         if (keyNode == null) {
           throw new UnifyException("jdoc_err_33", field);
         }
+
+        if (keyNode.isValueNode() == false) {
+          throw new UnifyException("jdoc_err_64", field);
+        }
+
         String keyValue = keyNode.asText();
         JsonNode toMatchedNode = getMatchingArrayElementByKey(toNode, keyField, keyValue, field);
         if (toMatchedNode == null) {
@@ -2014,7 +2049,6 @@ public class JDocument implements Document {
         if (isNullAllowed == false) {
           throwExceptionOrSetErrorList("jdoc_err_36", path, errorList);
         }
-
         break;
       }
 

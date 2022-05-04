@@ -15,6 +15,8 @@
 package com.americanexpress.unify.jdocs;
 
 
+import com.americanexpress.unify.base.UnifyException;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -242,6 +244,11 @@ public class ReadOnlyDocument implements Document {
   @Override
   public void validate(String type) {
     d.validate(type);
+  }
+
+  @Override
+  public boolean isLeafNode(String path, String... vargs) {
+    return d.isLeafNode(path, vargs);
   }
 
 }

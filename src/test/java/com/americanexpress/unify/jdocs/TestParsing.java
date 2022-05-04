@@ -14,6 +14,8 @@
 
 package com.americanexpress.unify.jdocs;
 
+import com.americanexpress.unify.base.BaseUtils;
+import com.americanexpress.unify.base.UnifyException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

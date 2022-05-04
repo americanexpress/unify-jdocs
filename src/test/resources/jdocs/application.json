@@ -1,0 +1,15 @@
+{
+  "application": {
+    "members": [
+      {
+        "index": "{\"type\":\"string\"}",
+        "phones": [
+          {
+            "type": "{\"type\":\"string\"}",
+            "number": "{\"type\":\"string\"}"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -14,6 +14,8 @@
 
 package com.americanexpress.unify.jdocs;
 
+import com.americanexpress.unify.base.UnifyException;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -485,5 +487,15 @@ public interface Document {
    * @throws com.aexp.acq.unify.base.utils.UnifyException exception containing the list of errors encountered
    */
   public void validate(String type);
+
+  /**
+   * checks if the path passed is a leaf node or not
+   *
+   * @param path  the path
+   * @param vargs the values to replace the % characters in path
+   * @return true if the path is a leaf node in the document
+   * @throws com.aexp.acq.unify.base.utils.UnifyException if the path is not found in the document
+   */
+  public boolean isLeafNode(String path, String... vargs);
 
 }

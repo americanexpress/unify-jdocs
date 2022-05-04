@@ -14,6 +14,8 @@
 
 package com.americanexpress.unify.jdocs;
 
+import com.americanexpress.unify.base.ErrorMap;
+
 import java.util.Map;
 
 /*
@@ -83,6 +85,8 @@ public class ERRORS_JDOCS extends ErrorMap {
     map.put("jdoc_err_61", "Type value not found for model path {0}");
     map.put("jdoc_err_62", "Invalid value encountered in path -> {0}");
     map.put("jdoc_err_63", "Error encountered while loading format string. Type -> {0}, path -> {1}, format string -> {2}");
+    map.put("jdoc_err_64", "Key field node is not a value node in the array -> {0}");
+    map.put("jdoc_err_65", "Path not found in document -> {0}");
   }
 
 }
