@@ -56,6 +56,8 @@ public class JDocument implements Document {
   // type of the document
   private String type = "";
 
+  private boolean validateAtReadWriteOnly = false;
+
   // logger
   private static final Logger logger = LoggerFactory.getLogger(JDocument.class);
   // root json node of the document
@@ -85,6 +87,15 @@ public class JDocument implements Document {
   }
 
   public JDocument(String type, String json) {
+    init(type, json, false);
+  }
+
+  public JDocument(String type, String json, boolean validateAtReadWriteOnly) {
+    this.validateAtReadWriteOnly = validateAtReadWriteOnly;
+    init(type, json, validateAtReadWriteOnly);
+  }
+
+  private void init(String type, String json, boolean validateAtReadWriteOnly) {
     if ((type == null) || (type.isEmpty())) {
       throw new UnifyException("jdoc_err_56");
     }
@@ -160,11 +171,17 @@ public class JDocument implements Document {
 
   @Override
   public void setType(String type) {
-    if ((type == null) || (type.isEmpty())) {
-      type = "";
-    }
-    else {
+    if ((type != null) && (type.isEmpty() == false)) {
       // validate the contents here
+      validate(type);
+      this.type = type;
+    }
+  }
+
+  @Override
+  public void setType(String type, boolean validateAtReadWriteOnly) {
+    if ((type != null) && (type.isEmpty() == false)) {
+      this.validateAtReadWriteOnly = validateAtReadWriteOnly;
       validate(type);
       this.type = type;
     }
@@ -188,9 +205,11 @@ public class JDocument implements Document {
   @Override
   public final void validate(String type) {
     // function to validate the contents of the whole document
-    Document md = docModels.get(type);
-    List<String> errorList = validate(((JDocument)md).rootNode, rootNode, "$.", type);
-    processErrors(errorList);
+    if (validateAtReadWriteOnly == false) {
+      Document md = docModels.get(type);
+      List<String> errorList = validate(((JDocument)md).rootNode, rootNode, "$.", type);
+      processErrors(errorList);
+    }
   }
 
   private static JsonNode getMatchingArrayElementByField(ArrayNode node, String field, String value) {

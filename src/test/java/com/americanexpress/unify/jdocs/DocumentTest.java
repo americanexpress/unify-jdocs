@@ -54,6 +54,14 @@ public class DocumentTest {
   }
 
   private Document getTypedDocument(String type, String filePath) {
+    return getTypedDocumentHelper(type, filePath, false);
+  }
+
+  private Document getTypedDocument(String type, String filePath, boolean validateAtReadWriteOnly) {
+    return getTypedDocumentHelper(type, filePath, validateAtReadWriteOnly);
+  }
+
+  private Document getTypedDocumentHelper(String type, String filePath, boolean validateAtReadWriteOnly) {
     setDocModel(type);
 
     String json = null;
@@ -64,7 +72,7 @@ public class DocumentTest {
       json = BaseUtils.getResourceAsString(DocumentTest.class, filePath);
     }
 
-    return new JDocument(type, json);
+    return new JDocument(type, json, validateAtReadWriteOnly);
   }
 
   private void setDocModel(String type) {
@@ -738,6 +746,65 @@ public class DocumentTest {
     Document d = getTypedDocument("sample_18_model", "/jdocs/sample_18_1.json");
     Integer number = d.getInteger("$.addresses[0].number");
     assertEquals(number, null);
+  }
+
+  @Test
+  void testValidateAtReadWriteOnly() {
+    Document d = null;
+
+    try {
+      d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json");
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", true);
+
+    try {
+      d.getString("$.phone_cell");
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    try {
+      d.getString("$.giberish");
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    String s = d.getString("$.first_name");
+    assertEquals(s, "Deepak");
+
+    d = getBaseDocument("/jdocs/sample_23.json");
+
+    s = d.getString("$.giberish");
+    assertEquals(s, null);
+
+    s = d.getString("$.last_name");
+    assertEquals(s, "Arora");
+
+    s = d.getString("$.phone_home");
+    assertEquals(s, "1234");
+
+    try {
+      d.validate("sample_23_model");
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    try {
+      d.setType("sample_23_model");
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    d.setType("sample_23_model", true);
+    d.validate("sample_23_model");
   }
 
   @Test

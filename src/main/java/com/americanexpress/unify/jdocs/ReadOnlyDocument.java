@@ -62,6 +62,11 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
+  public void setType(String type, boolean validateOnReadWriteOnly) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
   public void empty() {
     throw new UnifyException("jdoc_err_19");
   }
