@@ -832,9 +832,7 @@ public class BaseUtils {
       String asciiArt = FigletFont.convertOneLine(banner);
       System.out.println(asciiArt);
       System.out.println("Quote famously contributed by -> " + author);
-      System.out.println();
       System.out.flush();
-      Thread.sleep(3000);
     }
     catch (Exception e) {
       // nothing to do
