@@ -251,6 +251,70 @@ public class JDocument implements Document {
     return index;
   }
 
+  private void deletePathsinMerge(List<String> pathsToDelete) {
+    if (pathsToDelete == null) {
+      return;
+    }
+
+    List<String> newPathsToDelete = new ArrayList<>();
+
+    for (String path : pathsToDelete) {
+      // first do validations on the path
+      List<Token> tokens = validatePath(path, CONSTS_JDOCS.API.DELETE_PATH, PathAccessType.OBJECT);
+      validateFilterNames(path, tokens);
+      checkPathExistsInModel(getModelPath(path));
+
+      // now we construct the new path names while removing the name value pairs
+      // if we do not find an index for a name value pair we do not add it to the new list
+      String s = "$";
+      boolean pathExists = true;
+      for (Token t : tokens) {
+        if (t.isArray()) {
+          ArrayToken at = (ArrayToken)t;
+          s = s + "." + at.getField() + "[";
+
+          ArrayToken.FilterType ft = at.getFilter().getType();
+          if (ft == ArrayToken.FilterType.EMPTY) {
+            s = s + "]";
+          }
+          else if (ft == ArrayToken.FilterType.INDEX) {
+            s = s + at.getFilter().getIndex() + "]";
+          }
+          else if (ft == ArrayToken.FilterType.NAME_VALUE) {
+            String evalPath = s;
+            evalPath = evalPath + at.getFilter().getField() + "=" + at.getFilter().getValue() + "]";
+            int index = getArrayIndex(evalPath);
+            if (index == -1) {
+              pathExists = false;
+              break;
+            }
+            else {
+              s = s + index + "]";
+            }
+          }
+        }
+        else {
+          s = s + "." + t.getField();
+        }
+      }
+
+      if (pathExists == true) {
+        newPathsToDelete.add(s);
+      }
+    }
+
+    // remove duplicates from the new paths to delete
+    Set<String> set = new HashSet<>(newPathsToDelete);
+    newPathsToDelete.clear();
+    newPathsToDelete.addAll(set);
+
+    // sort in the reverse order
+    newPathsToDelete.sort(Comparator.comparing(String::toString).reversed());
+
+    // delete the paths one by one
+    newPathsToDelete.stream().forEach(s -> deletePath(s));
+  }
+
   @Override
   public void merge(Document d, List<String> pathsToDelete) {
     if (isTyped()) {
@@ -260,9 +324,7 @@ public class JDocument implements Document {
       }
 
       // first delete the paths
-      if (pathsToDelete != null) {
-        pathsToDelete.stream().forEach(s -> deletePath(s));
-      }
+      deletePathsinMerge(pathsToDelete);
 
       // now merge
       JsonNode modelNode = null;
@@ -1146,7 +1208,7 @@ public class JDocument implements Document {
 
   }
 
-  protected String getStaticPath(String path, String... vargs) {
+  public static String getStaticPath(String path, String... vargs) {
     if (vargs.length == 0) {
       return path;
     }
@@ -1556,7 +1618,7 @@ public class JDocument implements Document {
       }
 
       if (token.isArray() == false) {
-        // do field handling handling
+        // do field handling
         JsonNode leafNode = node.get(token.getField());
         if (leafNode != null) {
           ((ObjectNode)node).remove(token.getField());
@@ -1579,11 +1641,9 @@ public class JDocument implements Document {
     }
 
     // we first check if the path exists in the document only then do we go ahead to delete it
+    // we do this because pathExists handles out of bound indexes but deletePath does not
     if (pathExists(path) == true) {
       deletePath(path, tokenList);
-    }
-    else {
-      // nothing to do
     }
   }
 

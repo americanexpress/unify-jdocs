@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -245,8 +246,6 @@ public class DocumentTest {
   void testDelete() {
     Document d = getBaseDocument("/jdocs/sample_1.json");
 
-    UnifyException e = null;
-
     // nothing should happen
     d.deletePath("$.laksdlkj");
 
@@ -276,6 +275,88 @@ public class DocumentTest {
 
     // just to show that we can specify [] to denote we are deleting an array block
     d.deletePath("$.members[]");
+  }
+
+  @Test
+  void testMergeDelete() {
+    Document d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
+    Document appFrag = new JDocument("sample_24_model", null);
+    List<String> list = new ArrayList<>();
+    boolean b;
+
+    // check path not in model
+    list.add("$.salkdf");
+    try {
+      b = true;
+      d.merge(appFrag, list);
+    }
+    catch (UnifyException e) {
+      b = false;
+    }
+    assertEquals(false, b);
+    list.clear();
+    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
+
+    // index out of bound
+    list.add("$.members[2]");
+    d.merge(appFrag, list);
+    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
+    list.clear();
+    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
+
+    // name value mismatch
+    list.add("$.members[index=deepak].index");
+    try {
+      b = true;
+      d.merge(appFrag, list);
+    }
+    catch (UnifyException e) {
+      b = false;
+    }
+    assertEquals(false, b);
+    list.clear();
+    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
+
+    list.add("$.members[type=basic].phones[type=home].number");
+    d.merge(appFrag, list);
+    assertEquals(false, d.pathExists("$.members[type=basic].phones[type=home].number"));
+    list.clear();
+    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
+
+    list.add("$.members[0].phones[type=mobile].number");
+    d.merge(appFrag, list);
+    assertEquals(false, d.pathExists("$.members[0].phones[type=mobile].number"));
+    list.clear();
+    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
+
+    list.add("$.members[0].phones[type=mobile]");
+    d.merge(appFrag, list);
+    assertEquals(false, d.pathExists("$.members[0].phones[type=mobile]"));
+    assertEquals(false, d.pathExists("$.members[0].phones[1]"));
+    list.clear();
+    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
+
+    list.add("$.members[type=supp].phones[type=mobile]");
+    d.merge(appFrag, list);
+    assertEquals(false, d.pathExists("$.members[1].phones[type=mobile]"));
+    assertEquals(false, d.pathExists("$.members[1].phones[1]"));
+    list.clear();
+    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
+
+    list.add("$.members[first_name=Chintu]");
+    list.add("$.members[0]");
+    list.add("$.members[0]");
+    list.add("$.members[3]");
+    list.add("$.members[first_name=Chini].phones[type=home].number");
+    list.add("$.members[2].phones[type=mobile].number");
+    d.merge(appFrag, list);
+    assertEquals(false, d.pathExists("$.members[first_name=Chintu].phones[type=mobile]"));
+    assertEquals(false, d.pathExists("$.members[first_name=jenny].phones[1]"));
+    assertEquals(false, d.pathExists("$.members[2].phones[1]"));
+    list.add("$.members[first_name=Jenny].phones[type=mobile].number");
+    list.add("$.members[first_name=Chini].phones[type=home].number");
+    list.clear();
+    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
   }
 
   @Test

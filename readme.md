@@ -10,7 +10,7 @@ want to return to using Java model classes or using JSON schema for JSON documen
 
 #### Getting JDocs package
 
-JDocs is available as a jar file in Maven central with the following Maven coordinates. The latest version is 1.3.3.
+JDocs is available as a jar file in Maven central with the following Maven coordinates. The latest version is 1.3.4.
 
 ````pom
 <groupId>com.americanexpress.unify.jdocs</groupId>

@@ -29,23 +29,56 @@ public class TestTokenParsing {
   private static Logger logger = LoggerFactory.getLogger(JDocument.class);
 
   public static void main(String[] args) throws IOException, UnifyException {
+    test1();
+  }
+
+  private static void test1() {
+    String path = "$.application[0].applicants[type=primary].phones[]";
+    List<Token> tokens = Parser.getTokens(path);
+
+    String s = "$";
+    for (Token t : tokens) {
+      if (t.isArray()) {
+        ArrayToken at = (ArrayToken)t;
+        s = s + "." + at.getField() + "[";
+
+        ArrayToken.FilterType ft = at.getFilter().getType();
+        if (ft == ArrayToken.FilterType.EMPTY) {
+          s = s + "]";
+        }
+        else if (ft == ArrayToken.FilterType.INDEX) {
+          s = s + at.getFilter().getIndex() + "]";
+        }
+        else if (ft == ArrayToken.FilterType.NAME_VALUE) {
+          s = s + at.getFilter().getField() + "=" + at.getFilter().getValue() + "]";
+        }
+      }
+      else {
+        s = s + "." + t.getField();
+      }
+
+      System.out.println(s);
+    }
+  }
+
+  private static void test() {
     String path = "$.application.applicants[].phones[type=home\\]].number";
     List<Token> tokens = Parser.getTokens(path);
     for (Token t : tokens) {
       if (t.isArray()) {
         String s = "";
         ArrayToken at = (ArrayToken)t;
-        s += at.getField() + "[";
+        s = s + at.getField() + "[";
 
         ArrayToken.FilterType ft = at.getFilter().getType();
         if (ft == ArrayToken.FilterType.EMPTY) {
-          s += "]";
+          s = s + "]";
         }
         else if (ft == ArrayToken.FilterType.INDEX) {
-          s += at.getFilter().getIndex() + "]";
+          s = s + at.getFilter().getIndex() + "]";
         }
         else if (ft == ArrayToken.FilterType.NAME_VALUE) {
-          s += at.getFilter().getField() + "=" + at.getFilter().getValue() + "]";
+          s = s + at.getFilter().getField() + "=" + at.getFilter().getValue() + "]";
         }
         System.out.println(s);
       }
