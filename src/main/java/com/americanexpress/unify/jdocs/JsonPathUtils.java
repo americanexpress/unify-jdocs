@@ -165,14 +165,13 @@ public class JsonPathUtils {
   }
 
   public static List<String> getZeroPaddedIndexes(List<String> paths) {
-    // this method takes a list of paths where the indexes are numeric and pads
+    // this method takes a list of paths where the indexes are numeric or empty and pads
     // each index with zeros upto a total width of 6. This means that the delete
     // feature during merge will work as long as there are not more than 999,999
     // elements in an array
     List<String> newPaths = new ArrayList<>(paths.size());
 
     for (String path : paths) {
-      // first do validations on the path
       List<Token> tokens = Parser.getTokens(path);
 
       String s = "$";
@@ -183,7 +182,7 @@ public class JsonPathUtils {
 
           ArrayToken.FilterType ft = at.getFilter().getType();
           if (ft == ArrayToken.FilterType.EMPTY) {
-            throw new UnifyException("jdoc_err_66", path);
+            s = s + "]";
           }
           else if (ft == ArrayToken.FilterType.INDEX) {
             // here we pad the value

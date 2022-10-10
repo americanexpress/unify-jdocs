@@ -87,7 +87,6 @@ public class ERRORS_JDOCS extends ErrorMap {
     map.put("jdoc_err_63", "Error encountered while loading format string. Type -> {0}, path -> {1}, format string -> {2}");
     map.put("jdoc_err_64", "Key field node is not a value node in the array -> {0}");
     map.put("jdoc_err_65", "Path not found in document -> {0}");
-    map.put("jdoc_err_66", "No index specified in path array. Path is -> {0}");
     map.put("jdoc_err_67", "Name value pair not allowed in this method. Path is -> {0}");
   }
 

@@ -251,9 +251,9 @@ public class JDocument implements Document {
     return index;
   }
 
-  private void deletePathsBeforeMerge(List<String> pathsToDelete) {
-    if (pathsToDelete == null) {
-      return;
+  private List<String> deletePathsBeforeMerge(List<String> pathsToDelete) {
+    if ((pathsToDelete == null) || (pathsToDelete.size() == 0)) {
+      return pathsToDelete;
     }
 
     List<String> newPathsToDelete = new ArrayList<>();
@@ -316,6 +316,8 @@ public class JDocument implements Document {
 
     // delete the paths one by one
     newPathsToDelete.stream().forEach(s -> deletePath(s));
+
+    return newPathsToDelete;
   }
 
   @Override
@@ -327,7 +329,7 @@ public class JDocument implements Document {
       }
 
       // first delete the paths
-      deletePathsBeforeMerge(pathsToDelete);
+      pathsToDelete = deletePathsBeforeMerge(pathsToDelete);
 
       // now merge
       JsonNode modelNode = null;
