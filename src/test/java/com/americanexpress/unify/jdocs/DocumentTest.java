@@ -357,6 +357,11 @@ public class DocumentTest {
     list.add("$.members[first_name=Chini].phones[type=home].number");
     list.clear();
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
+
+    list.add("$.members[first_name=ufiedoep].phones[1]");
+    list.add("$.members[3].phones[0]");
+    d.merge(appFrag, list);
+    assertEquals(false, d.pathExists("$.members[3].phones[1]"));
   }
 
   @Test

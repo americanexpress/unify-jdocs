@@ -251,7 +251,7 @@ public class JDocument implements Document {
     return index;
   }
 
-  private void deletePathsinMerge(List<String> pathsToDelete) {
+  private void deletePathsBeforeMerge(List<String> pathsToDelete) {
     if (pathsToDelete == null) {
       return;
     }
@@ -308,6 +308,9 @@ public class JDocument implements Document {
     newPathsToDelete.clear();
     newPathsToDelete.addAll(set);
 
+    // pad the indexes as this is required for proper sorting
+    newPathsToDelete = JsonPathUtils.getZeroPaddedIndexes(newPathsToDelete);
+
     // sort in the reverse order
     newPathsToDelete.sort(Comparator.comparing(String::toString).reversed());
 
@@ -324,7 +327,7 @@ public class JDocument implements Document {
       }
 
       // first delete the paths
-      deletePathsinMerge(pathsToDelete);
+      deletePathsBeforeMerge(pathsToDelete);
 
       // now merge
       JsonNode modelNode = null;

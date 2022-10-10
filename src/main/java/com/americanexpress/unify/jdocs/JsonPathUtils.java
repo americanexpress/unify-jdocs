@@ -15,6 +15,7 @@
 package com.americanexpress.unify.jdocs;
 
 import com.americanexpress.unify.base.BaseUtils;
+import com.americanexpress.unify.base.UnifyException;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -161,6 +162,48 @@ public class JsonPathUtils {
     }
 
     return list;
+  }
+
+  public static List<String> getZeroPaddedIndexes(List<String> paths) {
+    // this method takes a list of paths where the indexes are numeric and pads
+    // each index with zeros upto a total width of 6. This means that the delete
+    // feature during merge will work as long as there are not more than 999,999
+    // elements in an array
+    List<String> newPaths = new ArrayList<>(paths.size());
+
+    for (String path : paths) {
+      // first do validations on the path
+      List<Token> tokens = Parser.getTokens(path);
+
+      String s = "$";
+      for (Token t : tokens) {
+        if (t.isArray()) {
+          ArrayToken at = (ArrayToken)t;
+          s = s + "." + at.getField() + "[";
+
+          ArrayToken.FilterType ft = at.getFilter().getType();
+          if (ft == ArrayToken.FilterType.EMPTY) {
+            throw new UnifyException("jdoc_err_66", path);
+          }
+          else if (ft == ArrayToken.FilterType.INDEX) {
+            // here we pad the value
+            int index = at.getFilter().getIndex();
+            String paddedIndex = String.format("%06d", index);
+            s = s + paddedIndex + "]";
+          }
+          else if (ft == ArrayToken.FilterType.NAME_VALUE) {
+            throw new UnifyException("jdoc_err_67", path);
+          }
+        }
+        else {
+          s = s + "." + t.getField();
+        }
+      }
+
+      newPaths.add(s);
+    }
+
+    return newPaths;
   }
 
 }
