@@ -37,6 +37,11 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
+  public void deletePaths(List<String> pathsToDelete) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
   public boolean isTyped() {
     return d.isTyped();
   }

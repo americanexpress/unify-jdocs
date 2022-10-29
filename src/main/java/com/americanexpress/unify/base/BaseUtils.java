@@ -14,6 +14,8 @@
 
 package com.americanexpress.unify.base;
 
+import com.americanexpress.unify.jdocs.Document;
+import com.americanexpress.unify.jdocs.PathValue;
 import com.github.lalyos.jfiglet.FigletFont;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -903,7 +905,7 @@ public class BaseUtils {
     System.out.println();
   }
 
-  public static Date getSqlDateFromString(String strDate, String pattern) {
+  public static java.sql.Date getSqlDateFromString(String strDate, String pattern) {
     try {
       Instant instant = BaseUtils.getInstantFromString(strDate, pattern);
       Timestamp ts = Timestamp.from(instant);
@@ -930,6 +932,18 @@ public class BaseUtils {
     catch (IOException e) {
     }
     return s1;
+  }
+
+  public static Document deleteNullPathsFromDoc(Document d, List<String> pathsToDelete) {
+    List<PathValue> list = d.flattenWithValues();
+    for (PathValue pv : list) {
+      Object value = pv.getValue();
+      if (value == null) {
+        d.deletePath(pv.getPath());
+      }
+    }
+    d.deletePaths(pathsToDelete);
+    return d;
   }
 
 }

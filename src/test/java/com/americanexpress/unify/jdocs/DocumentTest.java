@@ -529,12 +529,12 @@ public class DocumentTest {
   @Test
   void testSetArray() throws IOException {
     Document d = getBaseDocument("/jdocs/sample_11.json");
-    Document master = new JDocument();
-    master.setContent(d, "$.members[0]", "$.members[0]");
-    master.setContent(d, "$.members[0]", "$.members[1]");
-    master.setContent(d, "$.members[0]", "$.members[2]");
+    Document primary = new JDocument();
+    primary.setContent(d, "$.members[0]", "$.members[0]");
+    primary.setContent(d, "$.members[0]", "$.members[1]");
+    primary.setContent(d, "$.members[0]", "$.members[2]");
     String expected = getCompressedJson("/jdocs/sample_11_expected.json");
-    String actual = master.getJson();
+    String actual = primary.getJson();
     assertEquals(expected, actual);
   }
 
@@ -1033,7 +1033,7 @@ public class DocumentTest {
     boolean b;
 
     // check path not in model
-    list.add("$.salkdf");
+    list.add("$.members[2].salkdf[5].phones");
     try {
       b = true;
       d.merge(appFrag, list);
@@ -1042,10 +1042,10 @@ public class DocumentTest {
       b = false;
     }
     assertEquals(false, b);
-    list.clear();
-    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
 
     // index out of bound
+    list.clear();
+    d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
     list.add("$.members[2]");
     d.merge(appFrag, list);
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
@@ -1062,35 +1062,35 @@ public class DocumentTest {
       b = false;
     }
     assertEquals(false, b);
+
     list.clear();
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
-
     list.add("$.members[type=basic].phones[type=home].number");
     d.merge(appFrag, list);
     assertEquals(false, d.pathExists("$.members[type=basic].phones[type=home].number"));
+
     list.clear();
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
-
     list.add("$.members[0].phones[type=mobile].number");
     d.merge(appFrag, list);
     assertEquals(false, d.pathExists("$.members[0].phones[type=mobile].number"));
+
     list.clear();
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
-
     list.add("$.members[0].phones[type=mobile]");
     d.merge(appFrag, list);
     assertEquals(false, d.pathExists("$.members[0].phones[type=mobile]"));
     assertEquals(false, d.pathExists("$.members[0].phones[1]"));
+
     list.clear();
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
-
     list.add("$.members[type=supp].phones[type=mobile]");
     d.merge(appFrag, list);
     assertEquals(false, d.pathExists("$.members[1].phones[type=mobile]"));
     assertEquals(false, d.pathExists("$.members[1].phones[1]"));
+
     list.clear();
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
-
     list.add("$.members[first_name=Chintu]");
     list.add("$.members[0]");
     list.add("$.members[0]");
@@ -1103,21 +1103,21 @@ public class DocumentTest {
     assertEquals(false, d.pathExists("$.members[2].phones[1]"));
     list.add("$.members[first_name=Jenny].phones[type=mobile].number");
     list.add("$.members[first_name=Chini].phones[type=home].number");
+
     list.clear();
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
-
     list.add("$.members[first_name=ufiedoep].phones[1]");
     list.add("$.members[3].phones[0]");
     d.merge(appFrag, list);
     assertEquals(false, d.pathExists("$.members[3].phones[1]"));
+
     list.clear();
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
-
     list.add("$.members[0].phones[]");
     d.merge(appFrag, list);
+
     list.clear();
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
-
     list.add("$.members[0].last_name");
     d.merge(appFrag, list);
     assertEquals(false, d.pathExists("$.members[0].last_name"));

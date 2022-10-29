@@ -205,4 +205,43 @@ public class JsonPathUtils {
     return newPaths;
   }
 
+  public static List<String> getNoPaddedIndexes(List<String> paths) {
+    // this method takes a list of paths where the indexes are padded with
+    // zeroes. It removes the zeros and returns the list of paths
+    // it preserves the order in which the paths are stored
+    List<String> newPaths = new ArrayList<>(paths.size());
+
+    for (String path : paths) {
+      List<Token> tokens = Parser.getTokens(path);
+
+      String s = "$";
+      for (Token t : tokens) {
+        if (t.isArray()) {
+          ArrayToken at = (ArrayToken)t;
+          s = s + "." + at.getField() + "[";
+
+          ArrayToken.FilterType ft = at.getFilter().getType();
+          if (ft == ArrayToken.FilterType.EMPTY) {
+            s = s + "]";
+          }
+          else if (ft == ArrayToken.FilterType.INDEX) {
+            // here we remove the leading zeros
+            int index = at.getFilter().getIndex();
+            s = s + index + "]";
+          }
+          else if (ft == ArrayToken.FilterType.NAME_VALUE) {
+            throw new UnifyException("jdoc_err_67", path);
+          }
+        }
+        else {
+          s = s + "." + t.getField();
+        }
+      }
+
+      newPaths.add(s);
+    }
+
+    return newPaths;
+  }
+
 }

@@ -251,59 +251,70 @@ public class JDocument implements Document {
     return index;
   }
 
-  private List<String> deletePathsBeforeMerge(List<String> pathsToDelete) {
+  private String replaceNameValuePairsWithIndexes(List<Token> tokens) {
+    // now we construct the new path names while removing the name value pairs
+    // if we do not find an index for a name value pair we do not add it to the new list
+    String s = "$";
+    boolean pathExists = true;
+    for (Token t : tokens) {
+      if (t.isArray()) {
+        ArrayToken at = (ArrayToken)t;
+        s = s + "." + at.getField() + "[";
+
+        ArrayToken.FilterType ft = at.getFilter().getType();
+        if (ft == ArrayToken.FilterType.EMPTY) {
+          s = s + "]";
+        }
+        else if (ft == ArrayToken.FilterType.INDEX) {
+          s = s + at.getFilter().getIndex() + "]";
+        }
+        else if (ft == ArrayToken.FilterType.NAME_VALUE) {
+          String evalPath = s;
+          evalPath = evalPath + at.getFilter().getField() + "=" + at.getFilter().getValue() + "]";
+          int index = getArrayIndex(evalPath);
+          if (index == -1) {
+            pathExists = false;
+            break;
+          }
+          else {
+            s = s + index + "]";
+          }
+        }
+      }
+      else {
+        s = s + "." + t.getField();
+      }
+    }
+
+    if (pathExists == false) {
+      s = "";
+    }
+    return s;
+  }
+
+  @Override
+  public void deletePaths(List<String> pathsToDelete) {
     if ((pathsToDelete == null) || (pathsToDelete.size() == 0)) {
-      return pathsToDelete;
+      return;
     }
 
     List<String> newPathsToDelete = new ArrayList<>();
 
     for (String path : pathsToDelete) {
-      // first do validations on the path
       List<Token> tokens = validatePath(path, CONSTS_JDOCS.API.DELETE_PATH, PathAccessType.OBJECT);
-      validateFilterNames(path, tokens);
-      checkPathExistsInModel(getModelPath(path));
 
-      // now we construct the new path names while removing the name value pairs
-      // if we do not find an index for a name value pair we do not add it to the new list
-      String s = "$";
-      boolean pathExists = true;
-      for (Token t : tokens) {
-        if (t.isArray()) {
-          ArrayToken at = (ArrayToken)t;
-          s = s + "." + at.getField() + "[";
-
-          ArrayToken.FilterType ft = at.getFilter().getType();
-          if (ft == ArrayToken.FilterType.EMPTY) {
-            s = s + "]";
-          }
-          else if (ft == ArrayToken.FilterType.INDEX) {
-            s = s + at.getFilter().getIndex() + "]";
-          }
-          else if (ft == ArrayToken.FilterType.NAME_VALUE) {
-            String evalPath = s;
-            evalPath = evalPath + at.getFilter().getField() + "=" + at.getFilter().getValue() + "]";
-            int index = getArrayIndex(evalPath);
-            if (index == -1) {
-              pathExists = false;
-              break;
-            }
-            else {
-              s = s + index + "]";
-            }
-          }
-        }
-        else {
-          s = s + "." + t.getField();
-        }
+      if (isTyped() == true) {
+        validateFilterNames(path, tokens);
+        checkPathExistsInModel(getModelPath(path));
       }
 
-      if (pathExists == true) {
+      String s = replaceNameValuePairsWithIndexes(tokens);
+      if (s.isEmpty() == false) {
         newPathsToDelete.add(s);
       }
     }
 
-    // remove duplicates from the new paths to delete
+    // remove duplicates
     Set<String> set = new HashSet<>(newPathsToDelete);
     newPathsToDelete.clear();
     newPathsToDelete.addAll(set);
@@ -316,8 +327,6 @@ public class JDocument implements Document {
 
     // delete the paths one by one
     newPathsToDelete.stream().forEach(s -> deletePath(s));
-
-    return newPathsToDelete;
   }
 
   @Override
@@ -329,7 +338,7 @@ public class JDocument implements Document {
       }
 
       // first delete the paths
-      pathsToDelete = deletePathsBeforeMerge(pathsToDelete);
+      deletePaths(pathsToDelete);
 
       // now merge
       JsonNode modelNode = null;

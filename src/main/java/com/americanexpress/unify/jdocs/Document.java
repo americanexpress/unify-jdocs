@@ -64,6 +64,16 @@ public interface Document {
   void empty();
 
   /**
+   * Delete the specified list of paths from the document
+   * <p>
+   * Throws an exception if the path is not found in the associated model document if document is typed or
+   * if the name in name value pair is not of the right type
+   *
+   * @param pathsToDelete the list of paths
+   */
+  void deletePaths(List<String> pathsToDelete);
+
+  /**
    * Delete the specified path from the document. Does nothing if the path is not found. The path specified
    * can be any path including pointing to a leaf, complex or an array node
    * <p>
