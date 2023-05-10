@@ -293,6 +293,26 @@ public interface Document {
   boolean pathExists(String path, String... vargs);
 
   /**
+   * Used to determine if the specified path is an array in the document
+   *
+   * @param path  the path
+   * @param vargs the values to replace the % characters in path
+   * @return true if the path is an array else false
+   * @throws UnifyException If the document is a typed document and the path is not found in the associated model document
+   */
+  boolean isArray(String path, String... vargs);
+
+  /**
+   * Get a document from a non leaf node
+   *
+   * @param path  the path
+   * @param vargs the values to replace the % characters in path
+   * @return Document
+   * @throws UnifyException If path is not found or path is a leaf node
+   */
+  Document getDocument(String path, String... vargs);
+
+  /**
    * Returns the content of the specified path as a new document
    * The path can only point to a complex object or an array element. It can also point to an array only if
    * the includeFullkPath variable is true

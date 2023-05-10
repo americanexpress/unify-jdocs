@@ -32,6 +32,11 @@ public class ErrorTuple {
   public ErrorTuple() {
   }
 
+  public ErrorTuple(String code, String message) {
+    this.errorCode = code;
+    this.errorMessage = message;
+  }
+
   public ErrorTuple(String errorCode, Exception e) {
     set(errorCode, e);
   }

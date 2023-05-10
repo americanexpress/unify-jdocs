@@ -146,25 +146,9 @@ Go through the unit test cases in the source code. Unit test cases are available
 
 Provide us feedback. We would love to hear from you. We can be reached here:
 
-##### Author and lead maintainer:
+##### Author:
 
-Deepak Arora, deepak.arora5@aexp.com, GitHub: @deepakarora3
-
-##### Other maintainers:
-
-Shamanth B Chandrashekar, shamanth.b.chandrashekar@aexp.com, GitHub: shamanth9
-
-Deepika Sidana, deepika.sidana3@aexp.com, GitHub: deepikasidana89
-
-Jyotsna Gandhi, jyotsna.gandhi1@aexp.com, GitHub: jodube21
-
-Shailendra Bade, shailendra.bade@aexp.com, GitHub: finaspirant
-
-Phil Lundrigan, phil.lundrigan@aexp.com, GitHub: lundriganp
-
-##### Special mention:
-
-A special thanks to Phil Lundrigan for his tremendous leadership, support and encouragement.
+Deepak Arora, GitHub: @deepakarora3, Twitter: @DeepakAroraHi
 
 ## Contributing
 
@@ -184,62 +168,3 @@ Any contributions made under this project will be governed by the
 
 This project adheres to the [American Express Community Guidelines](./CODE_OF_CONDUCT.md). By participating, you are
 expected to honor these guidelines.
-
-**Package com.aexp.acq.unify.base.decision_table**
-
-This package implements a decision table functionality using Excel.
-
-The excel based decision tables can be completely used from within an IDE and can be configuration managed (GIT). The
-Excel files are stored as resource files just like any other source code artifact, checked in / out of the repository
-and version controlled.
-
-The decision table provide the following functionality:
-
-* Passing of input data as a map of key value pairs
-* Ability to add columns and rows as required
-* "First match" and "All Matches" policies. First match policy returns when the first match is found. All match policy
-  evaluates to the last row and returns results corresponding to all matching rows
-* "Return None" and "Return Default" no match policies. This policy is applicable in case of no match found. In the case
-  of return none, no values are returned while in the case of return default, the contents of the default row are
-  returned back
-* Standard operators =, <=, >=, <> that work on Boolean, double, integer, long and string data types
-* A "Like" operator for string data type using which a cell can be evaluated against multiple values
-* Ability to return contents of multiple columns for the matched rows
-* For a return cell, ability to specify a function to be executed whose return value will be returned to the caller. To
-  use this feature, enter the value of a return cell as "# full class path"
-  and define a class which implements the "InvokableCell" interface. For example, enter
-  "# com.americanexpress.unify.utils.decision_table.TestInvokableReturn". If the row is matched, then this class will be
-  instantiated and execute method called on this class. The execute method will receive the map of input values passed
-  to the decision table as well as a custom object which is up to the user of the decision table to define
-
-Below is an example of a decision table implemented in Excel:
-
-![Decision Table](decision_table.png)
-
-A decision table is created as below:
-
-```java
-DecisionTable dt=DecisionTable.fromExcel("/base/DTTest1.xlsx");
-```
-
-The input values are collected in a map (Map<String, String>) as one or more key value pairs and passed into the
-decision table for evaluation as below.
-
-```java
-Map<String, String> values=new HashMap<>();
-        values.put("score","100");
-        values.put("yob","1974");
-        values.put("code","4GG");
-```
-
-The response of a decision table is a list of key values pairs in the form List<Map<String, RetDTCell> as below:
-
-```java
-List<Map<String, RetDTCell>>list=dt.evaluate(values);
-        for(Map<String, RetDTCell> map:list){
-        map.forEach((colName,dtCell)->System.out.println("Col name -> "+colName+", value -> "+dtCell.getValue()));
-        System.out.println();
-        }
-```
-
-The list can be traversed to get the individual rows returned from the decision table using standard Java for loops.

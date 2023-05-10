@@ -24,6 +24,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /*
@@ -283,6 +284,30 @@ public class BaseUtilsTest {
     Instant instant = BaseUtils.getNextBusinessDay(Instant.now(), 5);
     System.out.println(instant);
 
+  }
+
+  @Test
+  public void testRemoveNonNumeric() {
+    String s = "980ty -  89 9ui%";
+    String s1 = "980899";
+    String s2 = BaseUtils.removeAllNonNumeric(s);
+    assertEquals(s2, s1);
+  }
+
+  @Test
+  public void testReplaceWhiteSpaceWithSingleSpace() {
+    String s = "ﾄﾓｱｷ   kss    \n\r  ﾄﾓｱｷ";
+    String s1 = "ﾄﾓｱｷ kss ﾄﾓｱｷ";
+    String s2 = BaseUtils.replaceWhiteSpacesWithSingleSpace(s);
+    assertEquals(s2, s1);
+  }
+
+  @Test
+  public void testRemoveWhiteSpace() {
+    String s = "ﾄﾓｱｷ   kss    \n\r  ﾄﾓｱｷ";
+    String s1 = "ﾄﾓｱｷkssﾄﾓｱｷ";
+    String s2 = BaseUtils.removeWhiteSpaces(s);
+    assertEquals(s2, s1);
   }
 
 }

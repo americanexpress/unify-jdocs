@@ -94,6 +94,31 @@ public class DocumentTest {
 
     d = new JDocument("sample_1_model", null);
     assertEquals(d.getPrettyPrintJson(), "{ }");
+
+    d = new JDocument();
+    d.setString("$.house.family.father_name", "Deepak");
+    boolean b = d.pathExists("$.house");
+    assertEquals(b, true);
+
+    d = new JDocument();
+    d.setString("$.house[0].family.father_name", "Deepak");
+    b = d.pathExists("$.house");
+    assertEquals(b, true);
+
+    b = d.isArray("$.house");
+    assertEquals(b, true);
+
+    b = d.isArray("$.house[]");
+    assertEquals(b, true);
+
+    b = d.isArray("$.house[0].family");
+    assertEquals(b, false);
+
+    d = new JDocument("[]");
+    d.setString("$.[0].name", "Deepak");
+    d.setString("$.[1].name", "Nitika");
+    Document d1 = new JDocument();
+    d1.setContent(d, "$.[]", "$.application[]");
   }
 
   @Test
@@ -435,7 +460,7 @@ public class DocumentTest {
     actual = toDoc.getJson();
     assertEquals(expected, actual);
 
-    // test case 6
+    // test case 7
     fromDoc = getTypedDocument("sample_6_model", null);
     fromDoc.setInteger("$.application.members[0].phones[0].docs[0].index", 0);
     fromDoc.setString("$.application.members[0].phones[0].docs[0].name", "Deepak");
@@ -444,6 +469,28 @@ public class DocumentTest {
     expected = getCompressedJson("/jdocs/sample_6_5_expected.json");
     actual = toDoc.getJson();
     assertEquals(expected, actual);
+
+    // test case 8 - we just check that it does not throw an exception
+    fromDoc = getBaseDocument("/jdocs/sample_25.json");
+    toDoc = new JDocument("[]");
+    toDoc.setContent(fromDoc, "$.addresses[]", "$.[]");
+    assertTrue(true);
+
+    toDoc = new JDocument("[]");
+    toDoc.setContent(fromDoc, "$.addresses", "$.[]");
+    assertTrue(true);
+
+    toDoc = new JDocument();
+    toDoc.setContent(fromDoc, "$.addresses", "$.addresses[]");
+    assertTrue(true);
+
+    try {
+      toDoc = new JDocument();
+      toDoc.setContent(fromDoc, "$.addresses", "$.addresses");
+    }
+    catch (UnifyException e) {
+      assertEquals(UnifyException.class, e.getClass());
+    }
   }
 
   @Test
@@ -803,7 +850,37 @@ public class DocumentTest {
     }
 
     d.setType("sample_23_model", true);
-    d.validate("sample_23_model");
+
+    try {
+      d.validate("sample_23_model");
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    // we now set the default to be true
+    JDocument.init(true);
+
+    d = getBaseDocument("/jdocs/sample_23.json");
+    d.setType("sample_23_model"); // will not validate and hence no exception thrown
+    try {
+      d.validate("sample_23_model"); // will fail validation here
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    try {
+      d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json"); // will fail validation here
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", true); // this should pass
+
+    // restore it back
+    JDocument.init(false);
   }
 
   @Test

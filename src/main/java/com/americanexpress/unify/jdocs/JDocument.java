@@ -53,6 +53,8 @@ public class JDocument implements Document {
   // for each regular expression pattern, store the compiled pattern
   private static Map<String, Pattern> compiledPatterns = new ConcurrentHashMap<>();
 
+  private static boolean defaultValidateAtReadWriteOnly = false;
+
   // type of the document
   private String type = "";
 
@@ -60,6 +62,7 @@ public class JDocument implements Document {
 
   // logger
   private static final Logger logger = LoggerFactory.getLogger(JDocument.class);
+
   // root json node of the document
   protected JsonNode rootNode = null;
 
@@ -67,6 +70,22 @@ public class JDocument implements Document {
   protected static final ObjectMapper objectMapper = new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true).setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
 
   private static final ObjectWriter objectWriter = objectMapper.writer(new DefaultPrettyPrinter().withObjectIndenter(new DefaultIndenter().withLinefeed("\n")));
+
+  public static void init() {
+    // should be done once at the start
+    ERRORS_JDOCS.load();
+    JDocument.defaultValidateAtReadWriteOnly = false;
+  }
+
+  public static void init(boolean defaultValidateAtReadWriteOnly) {
+    // should be done once at the start
+    ERRORS_JDOCS.load();
+    JDocument.defaultValidateAtReadWriteOnly = defaultValidateAtReadWriteOnly;
+  }
+
+  public boolean getDefaultValidateAtReadWriteOnly() {
+    return JDocument.defaultValidateAtReadWriteOnly;
+  }
 
   public JDocument() {
     try {
@@ -87,11 +106,10 @@ public class JDocument implements Document {
   }
 
   public JDocument(String type, String json) {
-    init(type, json, false);
+    init(type, json, defaultValidateAtReadWriteOnly);
   }
 
   public JDocument(String type, String json, boolean validateAtReadWriteOnly) {
-    this.validateAtReadWriteOnly = validateAtReadWriteOnly;
     init(type, json, validateAtReadWriteOnly);
   }
 
@@ -99,6 +117,8 @@ public class JDocument implements Document {
     if ((type == null) || (type.isEmpty())) {
       throw new UnifyException("jdoc_err_56");
     }
+
+    this.validateAtReadWriteOnly = validateAtReadWriteOnly;
 
     try {
       this.type = type;
@@ -108,14 +128,14 @@ public class JDocument implements Document {
       else {
         rootNode = objectMapper.readTree(json);
       }
-      validate(type);
+
+      if (validateAtReadWriteOnly == false) {
+        validate(type);
+      }
     }
     catch (IOException ex) {
       throw new UnifyException("jdoc_err_1", ex);
     }
-  }
-
-  public static void initDocumentTypes(String doc_models, String s) {
   }
 
   @Override
@@ -172,8 +192,13 @@ public class JDocument implements Document {
   @Override
   public void setType(String type) {
     if ((type != null) && (type.isEmpty() == false)) {
-      // validate the contents here
-      validate(type);
+
+      validateAtReadWriteOnly = defaultValidateAtReadWriteOnly;
+
+      if (validateAtReadWriteOnly == false) {
+        validate(type);
+      }
+
       this.type = type;
     }
   }
@@ -182,7 +207,11 @@ public class JDocument implements Document {
   public void setType(String type, boolean validateAtReadWriteOnly) {
     if ((type != null) && (type.isEmpty() == false)) {
       this.validateAtReadWriteOnly = validateAtReadWriteOnly;
-      validate(type);
+
+      if (validateAtReadWriteOnly == false) {
+        validate(type);
+      }
+
       this.type = type;
     }
   }
@@ -205,11 +234,12 @@ public class JDocument implements Document {
   @Override
   public final void validate(String type) {
     // function to validate the contents of the whole document
-    if (validateAtReadWriteOnly == false) {
-      Document md = docModels.get(type);
-      List<String> errorList = validate(((JDocument)md).rootNode, rootNode, "$.", type);
-      processErrors(errorList);
+    Document md = docModels.get(type);
+    if (md == null) {
+      throw new UnifyException("jdoc_err_29", type);
     }
+    List<String> errorList = validate(((JDocument)md).rootNode, rootNode, "$.", type);
+    processErrors(errorList);
   }
 
   private static JsonNode getMatchingArrayElementByField(ArrayNode node, String field, String value) {
@@ -331,6 +361,10 @@ public class JDocument implements Document {
 
   @Override
   public void merge(Document d, List<String> pathsToDelete) {
+    if (d == null) {
+      d = new JDocument(type, null);
+    }
+
     if (isTyped()) {
       JDocument td = (JDocument)d;
       if (type.equals(td.type) == false) {
@@ -392,6 +426,64 @@ public class JDocument implements Document {
     else {
       return true;
     }
+  }
+
+  /**
+   * @param path
+   * @return
+   * @throws UnifyException
+   */
+  @Override
+  public boolean isArray(String path, String... vargs) {
+    path = getStaticPath(path, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.PATH_EXISTS, PathAccessType.OBJECT);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      checkPathExistsInModel(getModelPath(path));
+    }
+
+    JsonNode node = getJsonNode(tokenList);
+
+    if (node == null) {
+      throw new UnifyException("jdoc_err_68", path);
+    }
+
+    if (node.getNodeType() == JsonNodeType.ARRAY) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  /**
+   * @param path
+   * @return
+   * @throws UnifyException
+   */
+  @Override
+  public Document getDocument(String path, String... vargs) {
+    path = getStaticPath(path, vargs);
+    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.PATH_EXISTS, PathAccessType.OBJECT);
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      checkPathExistsInModel(getModelPath(path));
+    }
+
+    JsonNode node = getJsonNode(tokenList);
+
+    if (node == null) {
+      throw new UnifyException("jdoc_err_68", path);
+    }
+
+    if (isLeafNode(path)) {
+      throw new UnifyException("jdoc_err_69", path);
+    }
+
+    node = node.deepCopy();
+    JDocument d = new JDocument();
+    d.rootNode = node;
+    return d;
   }
 
   /**
@@ -587,7 +679,7 @@ public class JDocument implements Document {
 
       // check that it is indeed an array
       if (arrayNode.isArray() == false) {
-        throw new UnifyException("jdoc_err_7" + token.getField());
+        throw new UnifyException("jdoc_err_7", token.getField());
       }
 
       retNode = arrayNode;
@@ -955,9 +1047,6 @@ public class JDocument implements Document {
       else {
         throw new UnifyException("jdoc_err_15", value.getClass().getCanonicalName());
       }
-
-      // at present just throw an exception
-      // throw new UnifyException("jdoc_err_15", value.getClass().getCanonicalName());
     }
 
   }
@@ -1171,10 +1260,6 @@ public class JDocument implements Document {
     JsonNode node = rootNode;
     String tokenPath = "$";
 
-    if (value == null) {
-      // throw new UnifyException("jdoc_err_20", path);
-    }
-
     // traverse the document. If we find a node corresponding to the path token and it matches the type
     // i.e. array or object or value node we go inside
     // if we do not find the token in the document, we create it and move inside
@@ -1190,7 +1275,9 @@ public class JDocument implements Document {
           tokenPath = tokenPath + "[0]";
 
           // first get / set the array node under which we need to search for the filter field
-          node = setArrayNode((ObjectNode)node, field);
+          if (node.getNodeType() != JsonNodeType.ARRAY) {
+            node = setArrayNode((ObjectNode)node, field);
+          }
 
           // get / set the node at which we need to make the change
           node = setArrayIndexNode((ArrayNode)node, (ArrayToken)token, path, tokenPath);

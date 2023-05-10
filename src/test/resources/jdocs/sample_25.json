@@ -1,0 +1,13 @@
+{
+  "id": "id",
+  "addresses": [
+    {
+      "type": "home",
+      "line_1": "Park View Spa"
+    },
+    {
+      "type": "business",
+      "line_1": "Business Center"
+    }
+  ]
+}

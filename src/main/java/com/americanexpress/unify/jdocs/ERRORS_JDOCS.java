@@ -88,6 +88,8 @@ public class ERRORS_JDOCS extends ErrorMap {
     map.put("jdoc_err_64", "Key field node is not a value node in the array -> {0}");
     map.put("jdoc_err_65", "Path not found in document -> {0}");
     map.put("jdoc_err_67", "Name value pair not allowed in this method. Path is -> {0}");
+    map.put("jdoc_err_68", "Path does not exist in document. Path -> {0}");
+    map.put("jdoc_err_69", "Path specified cannot be a leaf node. Path -> {0}");
   }
 
 }

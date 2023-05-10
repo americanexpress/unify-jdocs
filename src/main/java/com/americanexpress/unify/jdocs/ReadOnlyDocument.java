@@ -162,6 +162,16 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
+  public boolean isArray(String path, String... vargs) {
+    return d.isArray(path, vargs);
+  }
+
+  @Override
+  public Document getDocument(String path, String... vargs) {
+    return d.getDocument(path, vargs);
+  }
+
+  @Override
   public Document getContent(String path, boolean returnTypedDocument, boolean includeFullPath, String... vargs) {
     return d.getContent(path, returnTypedDocument, includeFullPath, vargs);
   }

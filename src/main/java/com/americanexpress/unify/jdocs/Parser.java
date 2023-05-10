@@ -112,7 +112,6 @@ class Parser {
     return pos;
   }
 
-
   private static List<String> getStringTokens(String s) {
     List<String> paths = new ArrayList<>();
     int from = 2;

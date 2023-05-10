@@ -735,6 +735,24 @@ public class BaseUtils {
   }
 
   /**
+   * Returns null when the input String is empty
+   *
+   * @param input The input String
+   * @return The output String
+   */
+  public static String getNullWhenEmpty(String input) {
+    if (input == null) {
+      return null;
+    }
+
+    if (input.isEmpty() == true) {
+      return null;
+    }
+
+    return input;
+  }
+
+  /**
    * Returns a 0 when input is null
    *
    * @param input The input value
@@ -932,6 +950,34 @@ public class BaseUtils {
     catch (IOException e) {
     }
     return s1;
+  }
+
+  public static String getWithoutCarriageReturnNewLine(String s) {
+    byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+    ByteArrayOutputStream result = new ByteArrayOutputStream();
+    for (int i = 0; i < bytes.length; i++) {
+      if (((bytes[i] == '\r') == false) || ((bytes[i] == '\n') == false)) {
+        result.write(bytes[i]);
+      }
+    }
+    String s1 = result.toString();
+    try {
+      result.close();
+    }
+    catch (IOException e) {
+    }
+    return s1;
+  }
+
+  // this method replaces all multiple occurrences of white spaces with a single space
+  // a string like "  deepak  arora \n\r nitika \n\n\n kaushal " will be replaces with
+  // " deepak arora nitika kaushal "
+  public static String replaceWhiteSpacesWithSingleSpace(String s) {
+    return s.replaceAll("\\s{1,}", " ");
+  }
+
+  public static String removeAllNonNumeric(String s) {
+    return s.replaceAll("[^0-9]", "");
   }
 
   public static Document deleteNullPathsFromDoc(Document d, List<String> pathsToDelete) {
