@@ -1202,4 +1202,37 @@ public class DocumentTest {
     d = getTypedDocument("sample_24_model", "/jdocs/sample_24.json");
   }
 
+  @Test
+  void testIgnoreRegexIfEmpty() {
+    setDocModel("sample_26_model");
+    Document d = new JDocument("sample_26_model", null);
+
+    d.setString("$.id1", "GO2");
+    assertEquals(true, true);
+
+    UnifyException e = assertThrows(UnifyException.class, () -> {
+      d.setString("$.id1", "");
+    });
+
+    d.setString("$.id2", "");
+    assertEquals(true, true);
+
+    d.setString("$.id2", "GNA");
+    assertEquals(true, true);
+
+    e = assertThrows(UnifyException.class, () -> {
+      d.setString("$.id2", "hhh");
+    });
+
+    d.setString("$.id3", "2023-Jan-26");
+    assertEquals(true, true);
+
+    d.setString("$.id3", "");
+    assertEquals(true, true);
+
+    e = assertThrows(UnifyException.class, () -> {
+      d.setString("$.id4", "");
+    });
+  }
+
 }

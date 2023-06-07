@@ -39,6 +39,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.americanexpress.unify.jdocs.DataType.DATE;
+import static com.americanexpress.unify.jdocs.DataType.STRING;
+
 /*
  * @author Deepak Arora
  */
@@ -2219,6 +2222,18 @@ public class JDocument implements Document {
     JsonNode node = getFormatNode(type, path, format);
 
     while (true) {
+      // check that the format field is specified if we are dealing with a date
+      DataType dataType = DataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
+
+      // check that a date field has to have a format. Whether the format is correct or not will be validated later
+      if (dataType == DATE) {
+        String formatValue = node.get(CONSTS_JDOCS.FORMAT_FIELDS.FORMAT).asText();
+        if (formatValue.isEmpty() == true) {
+          throwExceptionOrSetErrorList("jdoc_err_71", path, errorList);
+          break;
+        }
+      }
+
       // if the value is null, check if nulls are allowed
       if (value == null) {
         JsonNode node1 = node.get(CONSTS_JDOCS.FORMAT_FIELDS.NULL_ALLOWED);
@@ -2233,7 +2248,6 @@ public class JDocument implements Document {
       }
 
       // check data types
-      DataType dataType = DataType.valueOf(node.get(CONSTS_JDOCS.FORMAT_FIELDS.TYPE).asText().toUpperCase());
       switch (dataType) {
         case STRING:
           if ((value instanceof String) == false) {
@@ -2278,6 +2292,45 @@ public class JDocument implements Document {
           break;
       }
 
+      // check if value is empty and if so do we need to ignore regex
+      if (dataType == STRING) {
+        String s = value.toString();
+        if (s.isEmpty()) {
+          JsonNode node1 = node.get(CONSTS_JDOCS.FORMAT_FIELDS.IGNORE_REGEX_IF_EMPTY_STRING);
+
+          // by default do not ignore. Historically we have been disallowing an empty string if it does not match
+          // regex pattern. The new requirement is to be able to ignore regex if the value is empty
+          boolean ignoreRegex = false;
+          if (node1 != null) {
+            ignoreRegex = node.get(CONSTS_JDOCS.FORMAT_FIELDS.IGNORE_REGEX_IF_EMPTY_STRING).booleanValue();
+          }
+          if (ignoreRegex == true) {
+            break;
+          }
+        }
+      }
+
+      // check if value is empty and if it is allowed
+      if (dataType == DATE) {
+        String s = value.toString();
+        if (s.isEmpty()) {
+          JsonNode node1 = node.get(CONSTS_JDOCS.FORMAT_FIELDS.EMPTY_DATE_ALLOWED);
+
+          // by default we ignore. Historically we have been ignoring the format if an empty date value
+          // is provided. The new requirement is to not allow an empty date value
+          boolean emptyDateAllowed = true;
+          if (node1 != null) {
+            emptyDateAllowed = node.get(CONSTS_JDOCS.FORMAT_FIELDS.EMPTY_DATE_ALLOWED).booleanValue();
+          }
+          if (emptyDateAllowed == true) {
+            break;
+          }
+          else {
+            throwExceptionOrSetErrorList("jdoc_err_70", path, errorList);
+          }
+        }
+      }
+
       // check against regex pattern and format
       switch (dataType) {
         case STRING:
@@ -2305,17 +2358,13 @@ public class JDocument implements Document {
 
         case DATE:
           // Match input date with the format provided
-          String fieldValue = node.get(CONSTS_JDOCS.FORMAT_FIELDS.FORMAT).asText();
-          if (fieldValue.isEmpty() == false) {
-            try {
-              DateTimeFormatter dfs = DateTimeFormatter.ofPattern(fieldValue).withResolverStyle(ResolverStyle.STRICT);
-              if (value.toString().isEmpty() == false) {
-                dfs.parse(value.toString());
-              }
-            }
-            catch (Exception e) {
-              throwExceptionOrSetErrorList("jdoc_err_51", path, errorList);
-            }
+          String formatValue = node.get(CONSTS_JDOCS.FORMAT_FIELDS.FORMAT).asText();
+          try {
+            DateTimeFormatter dfs = DateTimeFormatter.ofPattern(formatValue).withResolverStyle(ResolverStyle.STRICT);
+            dfs.parse(value.toString());
+          }
+          catch (Exception e) {
+            throwExceptionOrSetErrorList("jdoc_err_51", path, errorList);
           }
           break;
 
@@ -2702,7 +2751,7 @@ public class JDocument implements Document {
 
           case STRING:
             value = fieldNode.asText();
-            dt = DataType.STRING;
+            dt = STRING;
             break;
 
           default:

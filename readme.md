@@ -15,7 +15,7 @@ JDocs is available as a jar file in Maven central with the following latest Mave
 ````pom
 <groupId>com.americanexpress.unify.jdocs</groupId>
 <artifactId>unify-jdocs</artifactId>
-<version>1.3.9</version>
+<version>1.4.0</version>
 ````
 
 ---
@@ -392,9 +392,9 @@ public interface Document {
    */
   boolean pathExists(String path, String... vargs);
 
-  /**
-   * Used to determine if the specified path is an array in the document
-   *
+   /**
+    * Used to determine if the specified path to a leaf node is an array in the document
+    *
    * @param path  the path
    * @param vargs the values to replace the % characters in path
    * @return true if the path is an array else false
@@ -1236,17 +1236,43 @@ d.setString("$.start_date", "15-Apr-2019") // incorrect date format
 d.setString("$.phones[0].number", "111111") // incorrect data type
 ```
 
-As regards constraints, the validation is done against the specified regular expression. If a match
-returns true, the validation is assumed to succeed else an exception is thrown. 
+As regards constraints, the validation is done against the specified regular expression. If a match returns true, the
+validation is assumed to succeed else an exception is thrown.
 
 The following attributes are implemented as part of specifying a constraint on a path:
 
 S. No. | Field Name | Description | Type | Mandatory?
 ------ | --------------- | ------------| ---- | ----------
 1 | type | Defines the type of the field. Possible values are string, integer, long, decimal, boolean, date | String | Yes
-2 | null_allowed | Specifies if null is a valid value for the field. If not specified, default is no null allowed | boolean | No
-3 | regex | The pattern against which the value will be validated | string | No
-4 | format | Only applicable for date type. Specification is as per DateTimeFormatter | string | Yes only for date type
+2 | regex | The pattern against which the value will be validated | string | No
+3 | null_allowed | Specifies if null is a valid value for the field. If not specified, default is null not allowed. If value is null and allowed, regex will be ignored | boolean | No
+4 | ignore_regex_if_empty_string | If not specified, default is false. If specified to true, regex will be ignored if value is empty. Applicable only for string type fields | boolean | No
+5 | format | Only applicable for date type. Specification is as per DateTimeFormatter | string | Yes
+6 | empty_date_allowed | Only applicable for date type fields. If not specified, default is true. If allowed format check is ignored  | boolean | No
+
+**Validating typed documents**
+
+By default, typed documents are validated when they are created and when any read / write operation is performed on
+them. However there may be cases, when we do not want to validate the document at the time of creation but only at the
+time of reading and writing. This is a typical scenario in the use of APIs which can return extra blocks and paths which
+may not be present in the model document and which we may not be interested in. If we were to validate at the time of
+creating the document, the model validations would fail unless we kept the model document in sync with all the changes
+happening on the API side. Most of the times this is not possible as the teams are separate and there is no reason that
+adding fields to the response which we are not interested in should cause a failure. To take care of this scenario, we
+have two alternatives:
+
+1. Use the overloaded JDocument constructor to specify that the validation should only be done while reading / writing
+   paths. This way the default behaviour will not change but can be set at a per document level
+2. Specify the default behaviour of JDocs to do the validation only while reading / writing paths. This can be set using
+   the public static init method while initializing JDocs. Of course this can be overridden as desired by using the
+   JDocument overloaded constructor
+
+The two methods are shown below:
+
+```java
+public JDocument(String type,String json,boolean validateAtReadWriteOnly);
+public static void init(boolean defaultValidateAtReadWriteOnly);
+```
 
 ---
 

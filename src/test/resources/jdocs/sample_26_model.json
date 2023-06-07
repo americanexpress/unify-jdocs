@@ -1,0 +1,6 @@
+{
+  "id1": "{\"type\":\"string\", \"regex\":\"^(GNA|GO2)\"}",
+  "id2": "{\"type\":\"string\", \"regex\":\"^(GNA|GO2)\", \"ignore_regex_if_empty_string\":true}",
+  "id3": "{\"type\":\"date\", \"format\":\"uuuu-MMM-dd\"}",
+  "id4": "{\"type\":\"date\", \"format\":\"uuuu-MMM-dd\", \"empty_date_allowed\":false}"
+}
