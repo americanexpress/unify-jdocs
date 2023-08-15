@@ -663,7 +663,12 @@ public class JDocument implements Document {
     // special handling for document that starts with an array
     String fieldName = token.getField();
     if (fieldName.isEmpty() == true) {
-      arrayNode = node;
+      if (node.getNodeType() == JsonNodeType.ARRAY) {
+        arrayNode = node;
+      }
+      else {
+        arrayNode = null;
+      }
     }
     else {
       arrayNode = node.get(fieldName);

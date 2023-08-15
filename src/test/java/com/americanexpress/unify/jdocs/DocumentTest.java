@@ -904,6 +904,13 @@ public class DocumentTest {
 
     s = d.getString("$.[1].cars[1].model");
     assertEquals(s, null);
+
+    d = new JDocument("{\n" +
+            "  \"response\": \"\",\n" +
+            "  \"status\": 500\n" +
+            "}");
+    boolean b = d.pathExists("$.[0].raw_response");
+    assertEquals(b, false);
   }
 
   @Test
