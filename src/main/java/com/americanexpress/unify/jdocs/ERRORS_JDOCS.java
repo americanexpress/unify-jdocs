@@ -92,6 +92,8 @@ public class ERRORS_JDOCS extends ErrorMap {
     map.put("jdoc_err_69", "Path specified cannot be a leaf node. Path -> {0}");
     map.put("jdoc_err_70", "Empty value not allowed for a date at path -> {0}");
     map.put("jdoc_err_71", "Date format missing for path -> {0}");
+    map.put("jdoc_err_73", "Type cannot be null or empty");
+    map.put("jdoc_err_74", "The type of a document cannot be changed");
   }
 
 }

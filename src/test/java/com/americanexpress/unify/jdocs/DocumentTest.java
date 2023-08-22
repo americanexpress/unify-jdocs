@@ -15,7 +15,6 @@
 package com.americanexpress.unify.jdocs;
 
 import com.americanexpress.unify.base.BaseUtils;
-import com.americanexpress.unify.base.ERRORS_BASE;
 import com.americanexpress.unify.base.UnifyException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -34,8 +33,7 @@ public class DocumentTest {
 
   @BeforeAll
   private static void setup() {
-    ERRORS_BASE.load();
-    ERRORS_JDOCS.load();
+    JDocument.init();
   }
 
   private String getCompressedJson(String filePath) {
@@ -1240,6 +1238,36 @@ public class DocumentTest {
     e = assertThrows(UnifyException.class, () -> {
       d.setString("$.id4", "");
     });
+  }
+
+  @Test
+  void testFieldValidationInGetMethods() {
+    setDocModel("sample_26_model");
+
+    Document d = new JDocument();
+    d.setString("$.id1", "GO2");
+    d.setType("sample_26_model", true);
+    d.getString("$.id1");
+
+    d = new JDocument();
+    d.setString("$.id1", "giberish");
+    d.setType("sample_26_model", true);
+    try {
+      d.getString("$.id1");
+    }
+    catch (Exception e) {
+      assertEquals(true, true);
+    }
+
+    d = new JDocument();
+    d.setString("$.id1", "giberish");
+
+    try {
+      d.setType("sample_26_model", false);
+    }
+    catch (Exception e) {
+      assertEquals(true, true);
+    }
   }
 
 }

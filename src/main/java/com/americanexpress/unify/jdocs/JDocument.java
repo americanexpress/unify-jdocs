@@ -16,6 +16,7 @@ package com.americanexpress.unify.jdocs;
 
 import com.americanexpress.unify.base.BaseUtils;
 import com.americanexpress.unify.base.CONSTS_BASE;
+import com.americanexpress.unify.base.ERRORS_BASE;
 import com.americanexpress.unify.base.UnifyException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -63,6 +64,9 @@ public class JDocument implements Document {
 
   private boolean validateAtReadWriteOnly = false;
 
+  // variable that tells us if the document has been validated against its type. Only applicable for typed documents
+  private boolean isValidated = false;
+
   // logger
   private static final Logger logger = LoggerFactory.getLogger(JDocument.class);
 
@@ -75,13 +79,12 @@ public class JDocument implements Document {
   private static final ObjectWriter objectWriter = objectMapper.writer(new DefaultPrettyPrinter().withObjectIndenter(new DefaultIndenter().withLinefeed("\n")));
 
   public static void init() {
-    // should be done once at the start
-    ERRORS_JDOCS.load();
-    JDocument.defaultValidateAtReadWriteOnly = false;
+    init(false);
   }
 
   public static void init(boolean defaultValidateAtReadWriteOnly) {
     // should be done once at the start
+    ERRORS_BASE.load();
     ERRORS_JDOCS.load();
     JDocument.defaultValidateAtReadWriteOnly = defaultValidateAtReadWriteOnly;
   }
@@ -194,29 +197,25 @@ public class JDocument implements Document {
 
   @Override
   public void setType(String type) {
-    if ((type != null) && (type.isEmpty() == false)) {
-
-      validateAtReadWriteOnly = defaultValidateAtReadWriteOnly;
-
-      if (validateAtReadWriteOnly == false) {
-        validate(type);
-      }
-
-      this.type = type;
-    }
+    setType(type, defaultValidateAtReadWriteOnly);
   }
 
   @Override
   public void setType(String type, boolean validateAtReadWriteOnly) {
-    if ((type != null) && (type.isEmpty() == false)) {
-      this.validateAtReadWriteOnly = validateAtReadWriteOnly;
-
-      if (validateAtReadWriteOnly == false) {
-        validate(type);
-      }
-
-      this.type = type;
+    if (BaseUtils.isNullOrEmpty(type) == true) {
+      throw new UnifyException("jdoc_err_73");
     }
+
+    // if this is already a typed document and we are trying to set it to a different type throw an exception
+    if ((this.type.isEmpty() == false) && (type.equals(this.type) == false)) {
+      throw new UnifyException("jdoc_err_74");
+    }
+
+    this.validateAtReadWriteOnly = validateAtReadWriteOnly;
+    if (validateAtReadWriteOnly == false) {
+      validate(type);
+    }
+    this.type = type;
   }
 
   // Base document methods
@@ -243,6 +242,7 @@ public class JDocument implements Document {
     }
     List<String> errorList = validate(((JDocument)md).rootNode, rootNode, "$.", type);
     processErrors(errorList);
+    isValidated = true;
   }
 
   private static JsonNode getMatchingArrayElementByField(ArrayNode node, String field, String value) {
@@ -1360,120 +1360,137 @@ public class JDocument implements Document {
   public Object getValue(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return getValue(path, null, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    Object value = getValue(path, null, tokenList);
+    checkFieldValue(path, modelPath, value, false);
+    return value;
   }
 
   @Override
   public String getString(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
+    String modelPath = checkPathInModel(path, tokenList);
+    String value = (String)getValue(path, String.class, tokenList);
+    checkFieldValue(path, modelPath, value, false);
+    return value;
+  }
+
+  private void checkFieldValue(String path, String modelPath, Object value, boolean isValueArray) {
+    if ((isTyped() == true) && (isValidated == false) && (validateAtReadWriteOnly == true)) {
+      String format = getFieldFormat(path, modelPath, isValueArray);
+      validateField(format, value, modelPath, null, type);
     }
-    return (String)getValue(path, String.class, tokenList);
+  }
+
+  private String checkPathInModel(String path, List<Token> tokenList) {
+    String modelPath = null;
+    if (isTyped()) {
+      validateFilterNames(path, tokenList);
+      modelPath = getModelPath(path);
+      checkPathExistsInModel(modelPath);
+    }
+    return modelPath;
   }
 
   @Override
   public Integer getInteger(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return (Integer)getValue(path, Integer.class, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    Integer value = (Integer)getValue(path, Integer.class, tokenList);
+    checkFieldValue(path, modelPath, value, false);
+    return value;
   }
 
   @Override
   public Boolean getBoolean(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return (Boolean)getValue(path, Boolean.class, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    Boolean value = (Boolean)getValue(path, Boolean.class, tokenList);
+    checkFieldValue(path, modelPath, value, false);
+    return value;
   }
 
   @Override
   public Long getLong(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return (Long)getValue(path, Long.class, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    Long value = (Long)getValue(path, Long.class, tokenList);
+    checkFieldValue(path, modelPath, value, false);
+    return value;
   }
 
   @Override
   public BigDecimal getBigDecimal(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return (BigDecimal)getValue(path, BigDecimal.class, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    BigDecimal value = (BigDecimal)getValue(path, BigDecimal.class, tokenList);
+    checkFieldValue(path, modelPath, value, false);
+    return value;
   }
 
   @Override
   public Object getArrayValue(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return getValue(path, null, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    Object value = getValue(path, null, tokenList);
+    checkFieldValue(path, modelPath, value, true);
+    return value;
   }
 
   @Override
   public String getArrayValueString(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return (String)getValue(path, String.class, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    String value = (String)getValue(path, String.class, tokenList);
+    checkFieldValue(path, modelPath, value, true);
+    return value;
   }
 
   @Override
   public Integer getArrayValueInteger(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return (Integer)getValue(path, Integer.class, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    Integer value = (Integer)getValue(path, Integer.class, tokenList);
+    checkFieldValue(path, modelPath, value, true);
+    return value;
   }
 
   @Override
   public Boolean getArrayValueBoolean(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return (Boolean)getValue(path, Boolean.class, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    Boolean value = (Boolean)getValue(path, Boolean.class, tokenList);
+    checkFieldValue(path, modelPath, value, true);
+    return value;
   }
 
   @Override
   public Long getArrayValueLong(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return (Long)getValue(path, Long.class, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    Long value = (Long)getValue(path, Long.class, tokenList);
+    checkFieldValue(path, modelPath, value, true);
+    return value;
   }
 
   @Override
   public BigDecimal getArrayValueBigDecimal(String path, String... vargs) {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
-    if (isTyped()) {
-      checkPathExistsInModel(getModelPath(path));
-    }
-    return (BigDecimal)getValue(path, BigDecimal.class, tokenList);
+    String modelPath = checkPathInModel(path, tokenList);
+    BigDecimal value = (BigDecimal)getValue(path, BigDecimal.class, tokenList);
+    checkFieldValue(path, modelPath, value, true);
+    return value;
   }
 
   @Override
@@ -1649,11 +1666,17 @@ public class JDocument implements Document {
     }
   }
 
+  private void copyInstanceFields(JDocument d, String type, boolean validateAtReadWriteOnly, boolean isValidated) {
+    d.type = type;
+    d.validateAtReadWriteOnly = validateAtReadWriteOnly;
+    d.isValidated = isValidated;
+  }
+
   @Override
   public synchronized Document deepCopy() {
     JDocument d = new JDocument();
     d.rootNode = rootNode.deepCopy();
-    d.type = type;
+    copyInstanceFields(d, type, validateAtReadWriteOnly, isValidated);
     return d;
   }
 
@@ -1785,7 +1808,7 @@ public class JDocument implements Document {
 
   @Override
   public Document getContent(String path, boolean returnTypedDocument, boolean includeFullPath, String... vargs) {
-    Document d = null;
+    JDocument d = null;
 
     if (vargs.length > 0) {
       path = getStaticPath(path, vargs);
@@ -1806,7 +1829,8 @@ public class JDocument implements Document {
       }
 
       if (isTyped() && (returnTypedDocument == true)) {
-        d = new JDocument(type, null);
+        d = new JDocument(type, null, validateAtReadWriteOnly);
+        d.isValidated = isValidated;
       }
       else {
         d = new JDocument();
