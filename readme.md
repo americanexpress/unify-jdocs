@@ -1005,18 +1005,16 @@ or the path types may not match i.e. one path may be an array while the other ma
 object or a leaf node. In case any such case is encountered, an exception is thrown and
 the operation aborted.
 
-**CAUTION** -> In case of an exception encountered, whatever merges have been carried out into the 
-from document will remain so and the document will not be reverted back. Ideally if both
-are typed documents, this should not occur. Even then if the application wants
-the document to be reverted, it should first create a copy of the to document, try the merge
-into that first and then if it succeeds, carry it out in the first document.
+**CAUTION** -> In case of an exception encountered, whatever merges have been carried out into the from document will
+remain so and the document will not be reverted back. Ideally if both are typed documents, this should not occur. Even
+then if the application wants the document to be reverted, it should first create a copy of the to document, try the
+merge into that first and then if it succeeds, carry it out in the first document.
 
-This feature of merge is used extensively in scenarios where the master document is given to clients
-as a read only document and along with it, an empty document (called a fragment) is provided.
-Whatever the client has to update into the master, it writes into the fragement and returns
-the fragment to the caller. The caller then merges the fragment into the main master document.
-This gives programs the ability to record incremental updates to a document and later build
-mechanism to play them back to see how the updates occurred.
+This feature of merge is used extensively in scenarios where the main document is given to clients as a read only
+document and along with it, an empty document (called a fragment) is provided. Whatever the client has to update into
+the main, it writes into the fragement and returns the fragment to the caller. The caller then merges the fragment into
+the main document. This gives programs the ability to record incremental updates to a document and later build mechanism
+to play them back to see how the updates occurred.
 
 ---
 
