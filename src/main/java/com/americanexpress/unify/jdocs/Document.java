@@ -55,8 +55,17 @@ public interface Document {
   /**
    * Sets the type of a document. The model object needs to be already loaded. Validation against the model will
    * be carried out as per the value of the variable validateAtReadWriteOnly and an exception thrown if a violation is found
+   * <p>
+   * This method is deprecated - use the new method setType(String type, CONSTS_JDOCS.VALIDATION_TYPE validationType)
    */
+  @Deprecated
   void setType(String type, boolean validateAtReadWriteOnly);
+
+  /**
+   * Sets the type of a document. The model object needs to be already loaded. Validation against the model will
+   * be carried out as per the value of the variable validationType and an exception thrown if a violation is found
+   */
+  void setType(String type, CONSTS_JDOCS.VALIDATION_TYPE validationType);
 
   /**
    * Empty the contents of the document
@@ -521,8 +530,29 @@ public interface Document {
    *
    * @param type the type of the document
    * @throws UnifyException exception containing the list of errors encountered
+   *
+   * This method is deprecated - use the new methods validateAllPaths or validateModelPaths
    */
+  @Deprecated
   public void validate(String type);
+
+  /**
+   * validates all data paths in the document against a model and throws an exception if not met
+   * All validation errors are collected and returned in the exception
+   *
+   * @param type the type of the document
+   * @throws UnifyException exception containing the list of errors encountered
+   */
+  public void validateAllPaths(String type);
+
+  /**
+   * validates only those data paths in the document that are found in the model and throws an exception if not met
+   * All validation errors are collected and returned in the exception
+   *
+   * @param type the type of the document
+   * @throws UnifyException exception containing the list of errors encountered
+   */
+  public void validateModelPaths(String type);
 
   /**
    * checks if the path passed is a leaf node or not
@@ -533,5 +563,10 @@ public interface Document {
    * @throws UnifyException if the path is not found in the document
    */
   public boolean isLeafNode(String path, String... vargs);
+
+  /**
+   * returns the validation type in effect
+   */
+  public CONSTS_JDOCS.VALIDATION_TYPE getValidationType();
 
 }

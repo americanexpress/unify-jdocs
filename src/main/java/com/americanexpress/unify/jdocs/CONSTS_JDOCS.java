@@ -49,4 +49,10 @@ public class CONSTS_JDOCS {
     CONTENT
   }
 
+  public enum VALIDATION_TYPE {
+    ALL_DATA_PATHS,
+    ONLY_MODEL_PATHS,
+    ONLY_AT_READ_WRITE
+  }
+
 }
