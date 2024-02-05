@@ -1345,7 +1345,7 @@ public class DocumentTest {
     catch (UnifyException e) {
     }
 
-    // test only model paths - will succeed
+    // test only model paths -  will succeed
     d.setType("sample_23_model", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS);
 
     // now validate all paths - will fail
