@@ -67,7 +67,13 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
+  @Deprecated
   public void setType(String type, boolean validateOnReadWriteOnly) {
+    throw new UnifyException("jdoc_err_19");
+  }
+
+  @Override
+  public void setType(String type, CONSTS_JDOCS.VALIDATION_TYPE validationType) {
     throw new UnifyException("jdoc_err_19");
   }
 
@@ -262,6 +268,7 @@ public class ReadOnlyDocument implements Document {
   }
 
   @Override
+  @Deprecated
   public void validate(String type) {
     d.validate(type);
   }
@@ -269,6 +276,21 @@ public class ReadOnlyDocument implements Document {
   @Override
   public boolean isLeafNode(String path, String... vargs) {
     return d.isLeafNode(path, vargs);
+  }
+
+  @Override
+  public CONSTS_JDOCS.VALIDATION_TYPE getValidationType() {
+    return null;
+  }
+
+  @Override
+  public void validateAllPaths(String type) {
+    d.validateAllPaths(type);
+  }
+
+  @Override
+  public void validateModelPaths(String type) {
+    d.validateModelPaths(type);
   }
 
 }

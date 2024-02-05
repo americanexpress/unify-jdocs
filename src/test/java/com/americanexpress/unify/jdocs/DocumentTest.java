@@ -60,6 +60,10 @@ public class DocumentTest {
     return getTypedDocumentHelper(type, filePath, validateAtReadWriteOnly);
   }
 
+  private Document getTypedDocument(String type, String filePath, CONSTS_JDOCS.VALIDATION_TYPE validationType) {
+    return getTypedDocumentHelper(type, filePath, validationType);
+  }
+
   private Document getTypedDocumentHelper(String type, String filePath, boolean validateAtReadWriteOnly) {
     setDocModel(type);
 
@@ -72,6 +76,20 @@ public class DocumentTest {
     }
 
     return new JDocument(type, json, validateAtReadWriteOnly);
+  }
+
+  private Document getTypedDocumentHelper(String type, String filePath, CONSTS_JDOCS.VALIDATION_TYPE validationType) {
+    setDocModel(type);
+
+    String json = null;
+    if (filePath == null) {
+      json = "{}";
+    }
+    else {
+      json = BaseUtils.getResourceAsString(DocumentTest.class, filePath);
+    }
+
+    return new JDocument(type, json, validationType);
   }
 
   private void setDocModel(String type) {
@@ -1268,6 +1286,127 @@ public class DocumentTest {
     catch (Exception e) {
       assertEquals(true, true);
     }
+  }
+
+  @Test
+  void testValidation() {
+    Document d = null;
+
+    // test - will fail
+    try {
+      d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    // test - doc construction will succeed but read of field will fail
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS);
+    try {
+      d.getString("$.phone_cell");
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    // test - doc construction will succeed but read of field will fail
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE);
+    try {
+      d.getString("$.phone_cell");
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    // valid test
+    String s = d.getString("$.first_name");
+    assertEquals(s, "Deepak");
+
+    // above tests but this time using set type / validate methods
+    d = getBaseDocument("/jdocs/sample_23.json");
+
+    s = d.getString("$.giberish");
+    assertEquals(s, null);
+
+    s = d.getString("$.last_name");
+    assertEquals(s, "Arora");
+
+    s = d.getString("$.phone_home");
+    assertEquals(s, "1234");
+
+    // try to validate a base document against a model - will succeed
+    d.validateModelPaths("sample_23_model");
+
+    // set type by default - will throw exception
+    try {
+      d.setType("sample_23_model");
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    // test only model paths - will succeed
+    d.setType("sample_23_model", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS);
+
+    // now validate all paths - will fail
+    try {
+      d.validateAllPaths("sample_23_model");
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    // we now set the default to only at read write
+    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE);
+
+    d = getBaseDocument("/jdocs/sample_23.json");
+    d.setType("sample_23_model"); // will not validate and hence no exception thrown
+    try {
+      d.validateAllPaths("sample_23_model"); // will fail validation here
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+    d.validateModelPaths("sample_23_model"); // will succeed
+
+    try {
+      d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json"); // will fail validation here
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS); // this should pass
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE); // this should pass
+
+    // restore it back
+    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
+
+    // we now set the default to model validation
+    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS);
+
+    d = getBaseDocument("/jdocs/sample_23.json");
+    d.setType("sample_23_model"); // will validate and hence no exception thrown
+    try {
+      d.validateAllPaths("sample_23_model"); // will fail validation here
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+    d.validateModelPaths("sample_23_model"); // will succeed
+
+    try {
+      d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json"); // will fail validation here
+      assert (false);
+    }
+    catch (UnifyException e) {
+    }
+
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS); // this should pass
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE); // this should pass
+
+    // restore it back
+    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
   }
 
 }
