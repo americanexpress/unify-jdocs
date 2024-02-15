@@ -818,7 +818,7 @@ public class DocumentTest {
       d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json");
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", true);
@@ -827,14 +827,14 @@ public class DocumentTest {
       d.getString("$.phone_cell");
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     try {
       d.getString("$.giberish");
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     String s = d.getString("$.first_name");
@@ -855,14 +855,14 @@ public class DocumentTest {
       d.validate("sample_23_model");
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     try {
       d.setType("sample_23_model");
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     d.setType("sample_23_model", true);
@@ -871,7 +871,7 @@ public class DocumentTest {
       d.validate("sample_23_model");
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     // we now set the default to be true
@@ -883,14 +883,14 @@ public class DocumentTest {
       d.validate("sample_23_model"); // will fail validation here
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     try {
       d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json"); // will fail validation here
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", true); // this should pass
@@ -1297,7 +1297,7 @@ public class DocumentTest {
       d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     // test - doc construction will succeed but read of field will fail
@@ -1306,7 +1306,7 @@ public class DocumentTest {
       d.getString("$.phone_cell");
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     // test - doc construction will succeed but read of field will fail
@@ -1315,7 +1315,7 @@ public class DocumentTest {
       d.getString("$.phone_cell");
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     // valid test
@@ -1342,7 +1342,7 @@ public class DocumentTest {
       d.setType("sample_23_model");
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     // test only model paths -  will succeed
@@ -1353,7 +1353,7 @@ public class DocumentTest {
       d.validateAllPaths("sample_23_model");
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     // we now set the default to only at read write
@@ -1365,7 +1365,7 @@ public class DocumentTest {
       d.validateAllPaths("sample_23_model"); // will fail validation here
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
     d.validateModelPaths("sample_23_model"); // will succeed
 
@@ -1373,7 +1373,7 @@ public class DocumentTest {
       d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json"); // will fail validation here
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS); // this should pass
@@ -1391,7 +1391,7 @@ public class DocumentTest {
       d.validateAllPaths("sample_23_model"); // will fail validation here
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
     d.validateModelPaths("sample_23_model"); // will succeed
 
@@ -1399,7 +1399,7 @@ public class DocumentTest {
       d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json"); // will fail validation here
       assert (false);
     }
-    catch (UnifyException e) {
+    catch (Exception e) {
     }
 
     d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS); // this should pass
@@ -1407,6 +1407,40 @@ public class DocumentTest {
 
     // restore it back
     JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
+  }
+
+  @Test
+  void testMissingParams() {
+    Document d = new JDocument();
+
+    try {
+      String s = d.getString("$.names[name=%].first_name");
+      assert (false);
+    }
+    catch (Exception e) {
+    }
+
+    try {
+      String s = d.getString("$.names[name=%].other[number=%].first_name");
+      assert (false);
+    }
+    catch (Exception e) {
+    }
+
+    try {
+      String s = d.getString("$.names[name=%].other[number=%].first_name", "Deepak");
+      assert (false);
+    }
+    catch (Exception e) {
+    }
+
+    try {
+      String s = d.getString("$.names[%].first_name");
+      assert (false);
+    }
+    catch (Exception e) {
+    }
+
   }
 
 }

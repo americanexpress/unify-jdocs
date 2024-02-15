@@ -1403,10 +1403,6 @@ public class JDocument implements Document {
   }
 
   public static String getStaticPath(String path, String... vargs) {
-    if (vargs.length == 0) {
-      return path;
-    }
-
     int size = path.length();
     StringBuffer sb = new StringBuffer();
     int counter = 0;

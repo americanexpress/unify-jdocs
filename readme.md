@@ -15,7 +15,7 @@ JDocs is available as a jar file in Maven central with the following latest Mave
 ````pom
 <groupId>com.americanexpress.unify.jdocs</groupId>
 <artifactId>unify-jdocs</artifactId>
-<version>1.6.0</version>
+<version>1.7.0</version>
 ````
 
 ---
