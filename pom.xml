@@ -19,7 +19,7 @@
 
     <groupId>com.americanexpress.unify.jdocs</groupId>
     <artifactId>unify-jdocs</artifactId>
-    <version>1.7.0</version>
+    <version>1.7.1</version>
     <packaging>jar</packaging>
 
     <name>unify-jdocs</name>
@@ -106,6 +106,12 @@
             <groupId>com.github.lalyos</groupId>
             <artifactId>jfiglet</artifactId>
             <version>${jfiglet.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
+            <version>0.10.4</version>
         </dependency>
 
         <dependency>

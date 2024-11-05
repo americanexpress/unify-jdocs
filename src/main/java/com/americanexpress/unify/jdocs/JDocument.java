@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.*;
+import io.vavr.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1020,15 +1021,17 @@ public class JDocument implements Document {
     }
   }
 
-  protected Object getValue(String path, Class clazz, List<Token> tokenList) {
+  protected Tuple2<Object, Boolean> getValue(String path, Class clazz, List<Token> tokenList) {
     JsonNode node = null;
     Object value = null;
+    Boolean isPathPresent = true;
 
     while (true) {
       node = traverse(rootNode, tokenList, false);
 
       if (node == null) {
         value = null;
+        isPathPresent = false;
         break;
       }
 
@@ -1112,7 +1115,7 @@ public class JDocument implements Document {
       break;
     }
 
-    return value;
+    return new Tuple2(value, isPathPresent);
   }
 
   private void setLeafNode(ObjectNode node, String field, Object value) {
@@ -1442,8 +1445,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    Object value = getValue(path, null, tokenList);
-    checkFieldValue(path, modelPath, value, false);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, null, tokenList);
+    Object value = tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, false);
+    }
     return value;
   }
 
@@ -1452,8 +1459,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    String value = (String)getValue(path, String.class, tokenList);
-    checkFieldValue(path, modelPath, value, false);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, String.class, tokenList);
+    String value = (String)tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, false);
+    }
     return value;
   }
 
@@ -1479,8 +1490,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    Integer value = (Integer)getValue(path, Integer.class, tokenList);
-    checkFieldValue(path, modelPath, value, false);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, Integer.class, tokenList);
+    Integer value = (Integer)tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, false);
+    }
     return value;
   }
 
@@ -1489,8 +1504,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    Boolean value = (Boolean)getValue(path, Boolean.class, tokenList);
-    checkFieldValue(path, modelPath, value, false);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, Boolean.class, tokenList);
+    Boolean value = (Boolean)tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, false);
+    }
     return value;
   }
 
@@ -1499,8 +1518,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    Long value = (Long)getValue(path, Long.class, tokenList);
-    checkFieldValue(path, modelPath, value, false);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, Long.class, tokenList);
+    Long value = (Long)tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, false);
+    }
     return value;
   }
 
@@ -1509,8 +1532,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    BigDecimal value = (BigDecimal)getValue(path, BigDecimal.class, tokenList);
-    checkFieldValue(path, modelPath, value, false);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, BigDecimal.class, tokenList);
+    BigDecimal value = (BigDecimal)tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, false);
+    }
     return value;
   }
 
@@ -1519,8 +1546,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    Object value = getValue(path, null, tokenList);
-    checkFieldValue(path, modelPath, value, true);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, null, tokenList);
+    Object value = tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, true);
+    }
     return value;
   }
 
@@ -1529,8 +1560,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    String value = (String)getValue(path, String.class, tokenList);
-    checkFieldValue(path, modelPath, value, true);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, String.class, tokenList);
+    String value = (String)tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, true);
+    }
     return value;
   }
 
@@ -1539,8 +1574,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    Integer value = (Integer)getValue(path, Integer.class, tokenList);
-    checkFieldValue(path, modelPath, value, true);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, Integer.class, tokenList);
+    Integer value = (Integer)tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, true);
+    }
     return value;
   }
 
@@ -1549,8 +1588,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    Boolean value = (Boolean)getValue(path, Boolean.class, tokenList);
-    checkFieldValue(path, modelPath, value, true);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, Boolean.class, tokenList);
+    Boolean value = (Boolean)tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, true);
+    }
     return value;
   }
 
@@ -1559,8 +1602,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    Long value = (Long)getValue(path, Long.class, tokenList);
-    checkFieldValue(path, modelPath, value, true);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, Long.class, tokenList);
+    Long value = (Long)tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, true);
+    }
     return value;
   }
 
@@ -1569,8 +1616,12 @@ public class JDocument implements Document {
     path = getStaticPath(path, vargs);
     List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.GET_ARRAY_VALUE, PathAccessType.VALUE);
     String modelPath = checkPathInModel(path, tokenList);
-    BigDecimal value = (BigDecimal)getValue(path, BigDecimal.class, tokenList);
-    checkFieldValue(path, modelPath, value, true);
+    Tuple2<Object, Boolean> tuple2 = getValue(path, BigDecimal.class, tokenList);
+    BigDecimal value = (BigDecimal)tuple2._1;
+    boolean isPathPresent = tuple2._2;
+    if (isPathPresent == true) {
+      checkFieldValue(path, modelPath, value, true);
+    }
     return value;
   }
 
@@ -2304,7 +2355,7 @@ public class JDocument implements Document {
     else {
       String msg = ERRORS_JDOCS.getErrorMessage(errorCode);
       if (msg == null) {
-        logger.error("Error code {} not found in ErrorMap", errorCode);
+        logger.warn("Error code {} not found in ErrorMap", errorCode);
         msg = "";
       }
       else {
@@ -2516,7 +2567,7 @@ public class JDocument implements Document {
 
               case BOOLEAN:
                 if (BaseUtils.compareWithMany(fieldValue, "true", "false") == true) {
-                  value = new Boolean(fieldValue);
+                  value = Boolean.valueOf(fieldValue);
                 }
                 else {
                   throw new UnifyException("jdoc_err_53", fieldName, path);
@@ -2528,11 +2579,11 @@ public class JDocument implements Document {
                 break;
 
               case INTEGER:
-                value = new Integer(fieldValue);
+                value = Integer.valueOf(fieldValue);
                 break;
 
               case LONG:
-                value = new Long(fieldValue);
+                value = Long.valueOf(fieldValue);
                 break;
 
               case DECIMAL:
@@ -2725,7 +2776,7 @@ public class JDocument implements Document {
 
         case BOOLEAN:
           if (BaseUtils.compareWithMany(filterValue, "true", "false") == true) {
-            filterNode.put(filterField, new Boolean(filterValue));
+            filterNode.put(filterField, Boolean.valueOf(filterValue));
           }
           else {
             throw new UnifyException("jdoc_err_53", filterField, path);
@@ -2737,11 +2788,11 @@ public class JDocument implements Document {
           break;
 
         case INTEGER:
-          filterNode.put(filterField, new Integer(filterValue));
+          filterNode.put(filterField, Integer.valueOf(filterValue));
           break;
 
         case LONG:
-          filterNode.put(filterField, new Long(filterValue));
+          filterNode.put(filterField, Long.valueOf(filterValue));
           break;
 
         case DECIMAL:

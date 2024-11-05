@@ -135,6 +135,15 @@ public class DocumentTest {
     d.setString("$.[1].name", "Nitika");
     Document d1 = new JDocument();
     d1.setContent(d, "$.[]", "$.application[]");
+
+    {
+      // this will run ok
+      d = new JDocument();
+      d.setString("$.pod_info.fname", "Deepak");
+      d.setString("$.pod_info.lname", "Arora");
+      Document rd = new JDocument("[]");
+      rd.setContent(d, "$.pod_info", "$.[0]");
+    }
   }
 
   @Test
@@ -150,12 +159,12 @@ public class DocumentTest {
     assertEquals("9999999999", d.getString("$.members[sex=male].phones[type=mobile].number"));
 
     // check int and long reads
-    assertEquals(new Integer(0), d.getInteger("$.members[0].index"));
-    assertEquals(new Long(0), d.getLong("$.members[0].index"));
+    assertEquals(Integer.valueOf(0), d.getInteger("$.members[0].index"));
+    assertEquals(Long.valueOf(0), d.getLong("$.members[0].index"));
 
     // check boolean reads
-    assertEquals(new Boolean(true), d.getBoolean("$.members[0].is_married"));
-    assertEquals(new Boolean(false), d.getBoolean("$.members[1].is_married"));
+    assertEquals(Boolean.valueOf(true), d.getBoolean("$.members[0].is_married"));
+    assertEquals(Boolean.valueOf(false), d.getBoolean("$.members[1].is_married"));
 
     // check null read
     assertEquals(null, d.getString("$.info.iid"));
@@ -411,7 +420,7 @@ public class DocumentTest {
     assertEquals(s, "AZ");
 
     Integer code = (Integer)d.getArrayValue("$.valid_states[0].codes[0]");
-    assertEquals(code, new Integer(1));
+    assertEquals(code, Integer.valueOf(1));
   }
 
   @Test
@@ -1441,6 +1450,23 @@ public class DocumentTest {
     catch (Exception e) {
     }
 
+  }
+
+  @Test
+  void testNumber() {
+    try {
+      // all primitive types at root are valid JSONs
+      Document d = new JDocument("14");
+      // use below to read the value of such a JSON document
+      // String s = d.getJson();
+      // long value = Long.valueOf(s);
+      d = new JDocument("14.1");
+      d = new JDocument("true");
+      d = new JDocument("\"hello\"");
+    }
+    catch (Exception e) {
+      assert(false);
+    }
   }
 
 }
