@@ -37,7 +37,7 @@ public class ERRORS_JDOCS extends ErrorMap {
     map.put("jdoc_err_10", "Invalid path expression. Non definite array node not allowed in path. Node -> {0}");
     map.put("jdoc_err_11", "Invalid path expression. Non leaf array node cannot be indefinite. Node -> {0}");
     map.put("jdoc_err_12", "Internal error. Non existent path access type. Type -> {0}");
-    map.put("jdoc_err_13", "Mismatch in field type between calling function and data in doucment at path -> {0}");
+    map.put("jdoc_err_13", "Mismatch in field type between calling function and data in document at path -> {0}");
     map.put("jdoc_err_14", "Invalid path expression. Leaf of path is not a value node. Path -> {0}");
     map.put("jdoc_err_15", "Invalid class specification. Clazz -> {0}");
     map.put("jdoc_err_16", "Array index out of bounds for leaf node");

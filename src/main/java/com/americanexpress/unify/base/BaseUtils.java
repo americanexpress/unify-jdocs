@@ -32,6 +32,9 @@ import java.time.format.ResolverStyle;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
+/*
+ * @author Deepak Arora / Benjamin Kats
+ */
 public class BaseUtils {
 
   private static Logger logger = LoggerFactory.getLogger(BaseUtils.class);
@@ -54,13 +57,90 @@ public class BaseUtils {
    * @param s The string to check
    * @return True if string passed is null or empty else false
    */
-  public static boolean isNullOrEmpty(String s) {
-    if ((s == null) || (s.trim().isEmpty() == true)) {
+  public static boolean isNullOrEmptyAfterTrim(String s) {
+    if (s == null) {
+      return true;
+    }
+
+    if (s.trim().isEmpty() == true) {
       return true;
     }
     else {
       return false;
     }
+  }
+
+  /**
+   * Checks if the string value passed is null or empty
+   * <p>
+   * If string consists of only spaces, it is considered as empty
+   *
+   * @deprecated use {@link #isNullOrEmptyAfterTrim(String s)} instead.
+   *
+   * @param s The string to check
+   * @return True if string passed is null or empty else false
+   */
+  @Deprecated
+  public static boolean isNullOrEmpty(String s) {
+    return isNullOrEmptyAfterTrim(s);
+  }
+
+  /**
+   * Checks if any of the strings passed have a value of null or empty
+   * <p>
+   * A string consisting of empty spaces is considered empty
+   *
+   * @param strings the strings to check
+   * @return true if any string passed is null or empty, else returns false
+   */
+  public static boolean isAnyNullOrEmptyAfterTrim(String... strings) {
+    for (String s : strings) {
+      if (BaseUtils.isNullOrEmptyAfterTrim(s)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks if any of the strings passed have a set value other than null or empty
+   * <p>
+   * A string consisting of empty spaces is considered empty
+   *
+   * @param strings the strings to check
+   * @return true if any string passed is not null or empty, else returns false
+   */
+  public static boolean isAnyNotNullOrEmptyAfterTrim(String... strings) {
+    for (String s : strings) {
+      if (BaseUtils.isNotNullOrEmptyAfterTrim(s)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks if all the strings passed have a value of null or empty
+   * <p>
+   * A string consisting of empty spaces is considered empty
+   *
+   * @param strings the strings to check
+   * @return true if all string passed are null or empty, else returns false
+   */
+  public static boolean isAllNullOrEmptyAfterTrim(String... strings) {
+    return isAnyNotNullOrEmptyAfterTrim(strings) == false;
+  }
+
+  /**
+   * Checks if all the strings passed have a set value other than null or empty
+   * <p>
+   * A string consisting of empty spaces is considered empty
+   *
+   * @param strings the strings to check
+   * @return true if all string passed are not null or empty, else returns false
+   */
+  public static boolean isAllNotNullOrEmptyAfterTrim(String... strings) {
+    return isAnyNullOrEmptyAfterTrim(strings) == false;
   }
 
   /**
@@ -547,7 +627,7 @@ public class BaseUtils {
    * @return The String with the specified characters escaped
    */
   public static String escapeChars(String s, char ec, char... chars) {
-    StringBuffer sb = new StringBuffer(s.length() + 10); // abitrarily assuming that there will not be more than 10 characters required to be escaped
+    StringBuffer sb = new StringBuffer(s.length() + 10); // arbitrarily assuming that there will not be more than 10 characters required to be escaped
     int size = s.length();
 
     for (int i = 0; i < size; i++) {
@@ -626,9 +706,11 @@ public class BaseUtils {
    * @param first  The String to compare
    * @param others The Strings to compare against
    * @return True if first is matched to any of others else false
+   * <p>
+   * False if first or others are null
    */
   public static boolean compareWithMany(String first, String... others) {
-    if (others == null) {
+    if (first == null || others == null) {
       return false;
     }
 
@@ -647,9 +729,11 @@ public class BaseUtils {
    * @param first  The String to compare
    * @param others The Strings to compare against
    * @return True if first is matched to any of others else false
+   * <p>
+   * False if first or others are null
    */
   public static boolean compareWithManyIgnoreCase(String first, String... others) {
-    if (others == null) {
+    if (first == null || others == null) {
       return false;
     }
 
@@ -778,7 +862,7 @@ public class BaseUtils {
       return input;
     }
     else {
-      return new Double("0.0");
+      return Double.valueOf("0.0");
     }
   }
 
@@ -813,18 +897,68 @@ public class BaseUtils {
   }
 
   /**
+   * Returns a 0 when input is null
+   *
+   * @param input The input value
+   * @return The output value
+   */
+  public static Boolean getFalseWhenNull(String input) {
+    if (input != null) {
+      return Boolean.valueOf(input);
+    }
+    else {
+      return false;
+    }
+  }
+
+  /**
+   * Returns a 0 when input is null
+   *
+   * @param input The input value
+   * @return The output value
+   */
+  public static Boolean getFalseWhenNullOrEmpty(String input) {
+    if (input == null) {
+      return false;
+    }
+
+    if (input.isEmpty() == true) {
+      return false;
+    }
+
+    return Boolean.valueOf(input);
+  }
+
+  /**
    * Returns true if the input String is not null and not empty
    *
    * @param s The String to test
    * @return True if not empty else false
    */
-  public static boolean isNotEmpty(String s) {
-    if ((null != s) && (s.trim().isEmpty() == false)) {
+  public static boolean isNotNullOrEmptyAfterTrim(String s) {
+    if (s == null) {
+      return false;
+    }
+
+    if (s.trim().isEmpty() == false) {
       return true;
     }
     else {
       return false;
     }
+  }
+
+  /**
+   * Returns true if the input String is not null and not empty
+   *
+   * @deprecated use {@link #isNotNullOrEmptyAfterTrim(String s)} instead.
+   *
+   * @param s The String to test
+   * @return True if not empty else false
+   */
+  @Deprecated
+  public static boolean isNotEmpty(String s) {
+    return isNotNullOrEmptyAfterTrim(s);
   }
 
   public static void showWelcomeBanner(String pathToBannerFile) {
@@ -990,6 +1124,143 @@ public class BaseUtils {
     }
     d.deletePaths(pathsToDelete);
     return d;
+  }
+
+  public static String transformString(String s, List<ActionEnum> aeList) {
+    if (s == null) {
+      return null;
+    }
+
+    for (ActionEnum ae : aeList) {
+      switch (ae) {
+        case set_null_if_empty:
+          if (s.isEmpty() == true) {
+            // no further processing possible on null;
+            return null;
+          }
+          break;
+
+        case trim:
+          s = s.trim();
+          break;
+
+        case upper:
+          s = s.toUpperCase();
+          break;
+
+        case remove_spaces:
+          s = removeWhiteSpaces(s);
+          break;
+
+        case replace_multiple_spaces_with_single_space:
+          s = replaceWhiteSpacesWithSingleSpace(s);
+          break;
+
+        case remove_all_non_numeric:
+          s = removeAllNonNumeric(s);
+          break;
+      }
+    }
+    return s;
+  }
+
+  /**
+   * Returns the enum constant of the specified enum type with the specified name (case sensitive)
+   * <p>
+   * Unlike using {@link Enum#valueOf} directly it does NOT throw an exception for an invalid or missing enum name
+   *
+   * @param enumClass Class of the enum for example: <code>CommonEnum.journey_name.class</code>
+   * @param enumName  The enum name to return
+   * @return The enum from the enumClass, that corresponds to the enumName value
+   * <p>
+   * returns null if enumName is null
+   * <p>
+   * returns null if Object passed in enumClass is not an enum class
+   * <p>
+   * returns null if there is no enum constant associated with that enumName
+   */
+  public static <E extends Enum<E>> E getEnumByName(final Class<E> enumClass, final String enumName) {
+    if (enumName == null || enumClass.isEnum() == false) {
+      return null;
+    }
+    try {
+      return Enum.valueOf(enumClass, enumName);
+    }
+    catch (IllegalArgumentException ex) {
+      return null;
+    }
+  }
+
+  /**
+   * Returns the enum constant of the specified enum type with the specified name (case insensitive)
+   * <p>
+   * Case insensitive version of {@link Enum#valueOf} and does NOT throw an exception for an invalid or missing enum name</p>
+   *
+   * @param enumClass Class of the enum for example: <code>CommonEnum.journey_name.class</code>
+   * @param enumName  The enum name to return
+   * @return The enum from the enumClass, that corresponds to the enumName value
+   * <p>
+   * returns null if enumName is null
+   * <p>
+   * returns null if Object passed in enumClass is not an enum class
+   * <p>
+   * returns null if there is no enum constant associated with that enumName
+   */
+  public static <E extends Enum<E>> E getEnumByNameIgnoreCase(final Class<E> enumClass, final String enumName) {
+    if (enumName == null || enumClass.isEnum() == false) {
+      return null;
+    }
+    for (final E enum1 : enumClass.getEnumConstants()) {
+      if (enumName.equalsIgnoreCase(enum1.name())) {
+        return enum1;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Replaces all % characters in a jPath, in order, with the corresponding values of vargs
+   *
+   * @param jPath The jPath to evaluate
+   * @param vargs An array of strings that will be replacing the % characters in the jPath. Should be an exact amount
+   *              equal to the number of % characters in the jPath.
+   * @return The evaluated jPath
+   * <p>
+   * Returns the unmodified jPath as passed as argument if vargs or jpath is null
+   * <p>
+   * @throws UnifyException If null value is present in vargs
+   *                        <p>
+   *                        If vargs length does not equal % character count
+   */
+  public static String evaluateJPath(String jPath, String... vargs) {
+    if (jPath == null || vargs == null) {
+      return jPath;
+    }
+
+    StringBuilder newJPath = new StringBuilder();
+    int argCount = 0;
+    int percentCount = 0;
+    for (char currChar : jPath.toCharArray()) {
+      if (currChar == '%') {
+        percentCount++;
+        if (argCount < vargs.length) {
+          String arg = vargs[argCount++];
+          if (arg == null) {
+            throw new UnifyException("base_err_5");
+          }
+          newJPath.append(arg);
+        }
+      }
+      else {
+        newJPath.append(currChar);
+      }
+    }
+
+    if (percentCount != vargs.length) {
+      throw new UnifyException("base_err_6", jPath, percentCount + "", vargs.length + "");
+    }
+
+    return String.valueOf(newJPath);
   }
 
 }

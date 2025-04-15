@@ -24,11 +24,12 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
+import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /*
- * @author Deepak Arora
+ * @author Deepak Arora / Benjamin Kats
  */
 public class BaseUtilsTest {
 
@@ -308,6 +309,223 @@ public class BaseUtilsTest {
     String s1 = "ﾄﾓｱｷkssﾄﾓｱｷ";
     String s2 = BaseUtils.removeWhiteSpaces(s);
     assertEquals(s2, s1);
+  }
+
+  @Test
+  public void testIsNullOrEmpty() {
+    String s = null;
+    assertTrue(BaseUtils.isNullOrEmptyAfterTrim(s));
+
+    s = "";
+    assertTrue(BaseUtils.isNullOrEmptyAfterTrim(s));
+
+    s = " ";
+    assertTrue(BaseUtils.isNullOrEmptyAfterTrim(s));
+
+    s = "                        ";
+    assertTrue(BaseUtils.isNullOrEmptyAfterTrim(s));
+
+    s = "A";
+    assertFalse(BaseUtils.isNullOrEmptyAfterTrim(s));
+
+    s = "   A   ";
+    assertFalse(BaseUtils.isNullOrEmptyAfterTrim(s));
+  }
+
+  @Test
+  public void testIsNotNullOrEmpty() {
+    String s = null;
+    assertFalse(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+
+    s = "";
+    assertFalse(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+
+    s = " ";
+    assertFalse(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+
+    s = "                        ";
+    assertFalse(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+
+    s = "   A   ";
+    assertTrue(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+
+    s = "A";
+    assertTrue(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+  }
+
+  @Test
+  public void testIsAnyNullOrEmpty() {
+    final String EMPTY = "";
+    final String ONE_SPACE = " ";
+    final String MANY_SPACES = "                        ";
+    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(null, null, null));
+    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(EMPTY, EMPTY, EMPTY));
+    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(ONE_SPACE, ONE_SPACE, ONE_SPACE));
+    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(MANY_SPACES, MANY_SPACES, MANY_SPACES));
+    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(null, EMPTY, ONE_SPACE, MANY_SPACES));
+    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(null, "A", "A"));
+    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim("A", null, "A"));
+    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim("A", "A", null));
+    assertFalse(BaseUtils.isAnyNullOrEmptyAfterTrim("A", "A", "A"));
+  }
+
+  @Test
+  public void testIsAnyNotNullOrEmpty() {
+    final String EMPTY = "";
+    final String ONE_SPACE = " ";
+    final String MANY_SPACES = "                        ";
+    assertFalse(BaseUtils.isAnyNotNullOrEmptyAfterTrim(null, null, null));
+    assertFalse(BaseUtils.isAnyNotNullOrEmptyAfterTrim(EMPTY, EMPTY, EMPTY));
+    assertFalse(BaseUtils.isAnyNotNullOrEmptyAfterTrim(ONE_SPACE, ONE_SPACE, ONE_SPACE));
+    assertFalse(BaseUtils.isAnyNotNullOrEmptyAfterTrim(MANY_SPACES, MANY_SPACES, MANY_SPACES));
+    assertFalse(BaseUtils.isAnyNotNullOrEmptyAfterTrim(null, EMPTY, ONE_SPACE, MANY_SPACES));
+    assertTrue(BaseUtils.isAnyNotNullOrEmptyAfterTrim(null, "A", "A"));
+    assertTrue(BaseUtils.isAnyNotNullOrEmptyAfterTrim("A", null, "A"));
+    assertTrue(BaseUtils.isAnyNotNullOrEmptyAfterTrim("A", "A", null));
+    assertTrue(BaseUtils.isAnyNotNullOrEmptyAfterTrim("A", "A", "A"));
+  }
+
+  @Test
+  public void testIsAllNullOrEmpty() {
+    final String EMPTY = "";
+    final String ONE_SPACE = " ";
+    final String MANY_SPACES = "                        ";
+    assertTrue(BaseUtils.isAllNullOrEmptyAfterTrim(null, null, null));
+    assertTrue(BaseUtils.isAllNullOrEmptyAfterTrim(EMPTY, EMPTY, EMPTY));
+    assertTrue(BaseUtils.isAllNullOrEmptyAfterTrim(ONE_SPACE, ONE_SPACE, ONE_SPACE));
+    assertTrue(BaseUtils.isAllNullOrEmptyAfterTrim(MANY_SPACES, MANY_SPACES, MANY_SPACES));
+    assertTrue(BaseUtils.isAllNullOrEmptyAfterTrim(null, EMPTY, ONE_SPACE, MANY_SPACES));
+    assertFalse(BaseUtils.isAllNullOrEmptyAfterTrim(null, "A", "A"));
+    assertFalse(BaseUtils.isAllNullOrEmptyAfterTrim("A", null, "A"));
+    assertFalse(BaseUtils.isAllNullOrEmptyAfterTrim("A", "A", null));
+    assertFalse(BaseUtils.isAllNullOrEmptyAfterTrim("A", "A", "A"));
+  }
+
+  @Test
+  public void testIsAllNotNullOrEmpty() {
+    final String EMPTY = "";
+    final String ONE_SPACE = " ";
+    final String MANY_SPACES = "                        ";
+    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(null, null, null));
+    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(EMPTY, EMPTY, EMPTY));
+    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(ONE_SPACE, ONE_SPACE, ONE_SPACE));
+    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(MANY_SPACES, MANY_SPACES, MANY_SPACES));
+    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(null, EMPTY, ONE_SPACE, MANY_SPACES));
+    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(null, "A", "A"));
+    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim("A", null, "A"));
+    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim("A", "A", null));
+    assertTrue(BaseUtils.isAllNotNullOrEmptyAfterTrim("A", "A", "A"));
+  }
+
+  @Test
+  public void testGetEnumByName() {
+    String j1 = "SOME_JOURNEY_3";
+    boolean isSwitched = false;
+
+    switch (BaseUtils.getEnumByName(TestEnums.journey_name.class, j1)) {
+      case SOME_JOURNEY_3:
+        isSwitched = true;
+        break;
+      default:
+        //    do nothing
+    }
+    assertTrue(isSwitched);
+
+    assertNull(BaseUtils.getEnumByName(TestEnums.journey_name.class, "NOT_AN_ENUM"));
+  }
+
+  @Test
+  public void testGetEnumByNameIgnoreCase() {
+    String j1 = "SOME_JOURNEY_3";
+    String j2 = "SoMe_jOUrNEY_3";
+    String j3 = "some_journey_3";
+    boolean isSwitched = false;
+
+    switch (BaseUtils.getEnumByNameIgnoreCase(TestEnums.journey_name.class, j1)) {
+      case SOME_JOURNEY_3:
+        isSwitched = true;
+        break;
+      default:
+        //    do nothing
+    }
+    assertTrue(isSwitched);
+
+    isSwitched = false;
+    switch (BaseUtils.getEnumByNameIgnoreCase(TestEnums.journey_name.class, j2)) {
+      case SOME_JOURNEY_3:
+        isSwitched = true;
+        break;
+      default:
+        //    do nothing
+    }
+    assertTrue(isSwitched);
+
+    isSwitched = false;
+    switch (BaseUtils.getEnumByNameIgnoreCase(TestEnums.journey_name.class, j3)) {
+      case SOME_JOURNEY_3:
+        isSwitched = true;
+        break;
+      default:
+        //    do nothing
+    }
+    assertTrue(isSwitched);
+
+    assertNull(BaseUtils.getEnumByNameIgnoreCase(TestEnums.journey_name.class, "NOT_AN_ENUM"));
+  }
+
+  @Test
+  public void testCompareWithMany() {
+    String val = "Match";
+    String[] vals = {"", null, "match"};
+    assertFalse(BaseUtils.compareWithMany(val, vals));
+
+    vals = new String[] {"", null, "match", "Match"};
+    assertTrue(BaseUtils.compareWithMany(val, vals));
+
+    assertFalse(BaseUtils.compareWithMany(null, vals));
+    assertFalse(BaseUtils.compareWithMany(val, (String[])null));
+    assertFalse(BaseUtils.compareWithMany(null, (String[])null));
+  }
+
+  @Test
+  public void testCompareWithManyIgnoreCase() {
+    String val = "MATCH";
+    String[] vals = {"", null, "match"};
+    assertTrue(BaseUtils.compareWithManyIgnoreCase(val, vals));
+
+    assertFalse(BaseUtils.compareWithManyIgnoreCase(null, vals));
+    assertFalse(BaseUtils.compareWithManyIgnoreCase(val, (String[])null));
+    assertFalse(BaseUtils.compareWithManyIgnoreCase(null, (String[])null));
+
+    vals = new String[] {"", null, "batch", "hatch"};
+    assertFalse(BaseUtils.compareWithManyIgnoreCase(val, vals));
+  }
+
+  @Test
+  public void testEvaluateJPath() {
+    String jPath = "$.some.path[type=%].to.an[index=%].field[%]";
+    assertEquals("$.some.path[type=PRIMARY].to.an[index=1].field[2]", BaseUtils.evaluateJPath(jPath, "PRIMARY", "1", "2"));
+    assertEquals(jPath, BaseUtils.evaluateJPath(jPath, "%", "%", "%"));
+    assertEquals("$.some.path[type=%%%%].to.an[index=%%%].field[%%]", BaseUtils.evaluateJPath(jPath, "%%%%", "%%%", "%%"));
+    assertEquals("$.some.path[type=].to.an[index=  ].field[       ]", BaseUtils.evaluateJPath(jPath, "", "  ", "       "));
+    assertEquals(jPath, BaseUtils.evaluateJPath(jPath, (String[])null));
+    assertNull(BaseUtils.evaluateJPath(null, "PRIMARY", "1", "2"));
+
+    UnifyException exception1 = assertThrows(UnifyException.class, () ->
+            BaseUtils.evaluateJPath("$.some.path[type=%].to.an[index=%].field[%]", "PRIMARY", null, "2"));
+    assertEquals("base_err_5", exception1.getErrorCode());
+
+    UnifyException exception2 = assertThrows(UnifyException.class, () ->
+            BaseUtils.evaluateJPath("$.some.path[type=%].to.an[index=%].field[%]", "PRIMARY", "2"));
+    assertEquals("base_err_6", exception2.getErrorCode());
+
+    UnifyException exception3 = assertThrows(UnifyException.class, () ->
+            BaseUtils.evaluateJPath("$.some.path[type=%].to.an[index=%].field[%]", "PRIMARY", "1", "2", "3"));
+    assertEquals("base_err_6", exception3.getErrorCode());
+
+    UnifyException exception4 = assertThrows(UnifyException.class, () ->
+            BaseUtils.evaluateJPath("$.some.path[type=0].to.an[index=0].field[0]", "PRIMARY", "1", "2", "3"));
+    assertEquals("base_err_6", exception4.getErrorCode());
   }
 
 }

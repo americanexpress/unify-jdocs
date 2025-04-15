@@ -32,7 +32,6 @@ public class UnifyException extends RuntimeException {
   private String getMessage(String code, String... vargs) {
     String msg = ErrorMap.getErrorMessage(code);
     if (msg == null) {
-      logger.error("Error code {} not found in ErrorMap", code);
       msg = "";
     }
     else {
@@ -70,7 +69,13 @@ public class UnifyException extends RuntimeException {
   public UnifyException(String code, Throwable cause, String... vargs) {
     super(cause);
     this.et.setErrorCode(code);
-    this.et.setErrorMessage(getMessage(code, vargs) + ". Cause -> " + cause.getMessage());
+    String s = getMessage(code, vargs);
+    if (s.isEmpty()) {
+      this.et.setErrorMessage("Causal exception message -> " + cause.getMessage());
+    }
+    else {
+      this.et.setErrorMessage(s + ". Causal exception message -> " + cause.getMessage());
+    }
     this.et.setErrorDetails(BaseUtils.getStackTrace(cause, 12));
     this.cause = cause;
   }

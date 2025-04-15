@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.node.*;
 import io.vavr.Tuple2;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ import static com.americanexpress.unify.jdocs.DataType.STRING;
  */
 public class JDocument implements Document {
 
-  // a map to store the doc models in use. In future we could use an ExpiryMap
+  // a map to store the doc models in use. In the future, we could use an ExpiryMap
   private static Map<String, Document> docModels = new ConcurrentHashMap<>();
 
   // for each model document, store a map of the constraint string and the corresponding JsonNode
@@ -75,7 +76,7 @@ public class JDocument implements Document {
   protected JsonNode rootNode = null;
 
   // one and only one object mapper -> object mappers are thread safe!!!
-  protected static final ObjectMapper objectMapper = new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true).setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
+  protected static final ObjectMapper objectMapper = new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true).configure(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES, false);
 
   private static final ObjectWriter objectWriter = objectMapper.writer(new DefaultPrettyPrinter().withObjectIndenter(new DefaultIndenter().withLinefeed("\n")));
 
@@ -256,7 +257,7 @@ public class JDocument implements Document {
   @Override
   @Deprecated
   public void setType(String type, boolean validateAtReadWriteOnly) {
-    if (BaseUtils.isNullOrEmpty(type) == true) {
+    if (BaseUtils.isNullOrEmptyAfterTrim(type) == true) {
       throw new UnifyException("jdoc_err_73");
     }
 
@@ -277,7 +278,7 @@ public class JDocument implements Document {
 
   @Override
   public void setType(String type, CONSTS_JDOCS.VALIDATION_TYPE validationType) {
-    if (BaseUtils.isNullOrEmpty(type) == true) {
+    if (BaseUtils.isNullOrEmptyAfterTrim(type) == true) {
       throw new UnifyException("jdoc_err_73");
     }
 
@@ -1115,7 +1116,7 @@ public class JDocument implements Document {
       break;
     }
 
-    return new Tuple2(value, isPathPresent);
+    return new Tuple2<>(value, isPathPresent);
   }
 
   private void setLeafNode(ObjectNode node, String field, Object value) {

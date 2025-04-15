@@ -27,5 +27,6 @@ public class CONSTS_BASE {
   public static final String EMPTY = "";
   public static final String SINGLE_SPACE = " ";
   public static final String UNIFY_DATE_FORMAT = "uuuu-MMM-dd";
+  public static final String UTC_TS_FMT = "uuuu-MM-dd HH:mm:ss.SSS VV";
 
 }

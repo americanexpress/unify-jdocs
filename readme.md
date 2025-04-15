@@ -6,17 +6,26 @@ It completely eliminates the need to have model / POJO classes and instead works
 on the JSON document. Once you use this library, you may never 
 want to return to using Java model classes or using JSON schema for JSON document validation.
 
+Once you have taken a look, if you like what you see, we would very much appreciate a like for the project - it keeps us motivated knowing that our
+work is getting traction and helping people in the community.
+
+And while you are here, may we mention another of our offerings which could be of interest:
+
+***Unify-flowret - A lightweight Java based orchestration engine***
+
+https://github.com/americanexpress/unify-flowret
+
 ---
 
 #### Getting JDocs package
 
 JDocs is available as a jar file in Maven central with the following latest Maven coordinates.
 
-````pom
+```pom
 <groupId>com.americanexpress.unify.jdocs</groupId>
 <artifactId>unify-jdocs</artifactId>
-<version>1.7.1</version>
-````
+<version>1.8.0</version>
+```
 
 ---
 

@@ -14,21 +14,28 @@
 
 package com.americanexpress.unify.base;
 
-import java.util.Map;
-
-/**
- * @author Deepak Arora
+/*
+ * @author Benjamin Kats
  */
-public class ERRORS_BASE extends ErrorMap {
+public class TestEnums {
 
-  public static void load() {
-    Map<String, String> map = errors;
-    map.put("base_err_1", "Unexpected exception");
-    map.put("base_err_4", "Unexpected Interrupted Exception");
-    map.put("base_err_14", "Cannot create Instant");
-    map.put("base_err_3", "IOException while reading from file");
-    map.put("base_err_5", "Null value passed in vargs");
-    map.put("base_err_6", "% character count and vargs length is not equal. jPath -> {0}, % count -> {1}, vargs length -> {2}");
+  public enum journey_name {
+
+    SOME_JOURNEY_1("some_journey_1"),
+    SOME_JOURNEY_2("some_journey_2"),
+    SOME_JOURNEY_3("some_journey_3"),
+    SOME_JOURNEY_4("some_journey_4"),
+    SOME_JOURNEY_5("some_journey_5");
+
+    private String journeyName;
+
+    journey_name(String journeyName) {
+      this.journeyName = journeyName;
+    }
+
+    public String getJourneyName() {
+      return journeyName;
+    }
   }
 
 }

@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.americanexpress.unify.jdocs.CONSTS_JDOCS.VALIDATION_TYPE.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /*
@@ -53,29 +54,11 @@ public class DocumentTest {
   }
 
   private Document getTypedDocument(String type, String filePath) {
-    return getTypedDocumentHelper(type, filePath, false);
-  }
-
-  private Document getTypedDocument(String type, String filePath, boolean validateAtReadWriteOnly) {
-    return getTypedDocumentHelper(type, filePath, validateAtReadWriteOnly);
+    return getTypedDocumentHelper(type, filePath, ALL_DATA_PATHS);
   }
 
   private Document getTypedDocument(String type, String filePath, CONSTS_JDOCS.VALIDATION_TYPE validationType) {
     return getTypedDocumentHelper(type, filePath, validationType);
-  }
-
-  private Document getTypedDocumentHelper(String type, String filePath, boolean validateAtReadWriteOnly) {
-    setDocModel(type);
-
-    String json = null;
-    if (filePath == null) {
-      json = "{}";
-    }
-    else {
-      json = BaseUtils.getResourceAsString(DocumentTest.class, filePath);
-    }
-
-    return new JDocument(type, json, validateAtReadWriteOnly);
   }
 
   private Document getTypedDocumentHelper(String type, String filePath, CONSTS_JDOCS.VALIDATION_TYPE validationType) {
@@ -830,7 +813,7 @@ public class DocumentTest {
     catch (Exception e) {
     }
 
-    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", true);
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_AT_READ_WRITE);
 
     try {
       d.getString("$.phone_cell");
@@ -861,7 +844,7 @@ public class DocumentTest {
     assertEquals(s, "1234");
 
     try {
-      d.validate("sample_23_model");
+      d.validateAllPaths("sample_23_model");
       assert (false);
     }
     catch (Exception e) {
@@ -874,22 +857,22 @@ public class DocumentTest {
     catch (Exception e) {
     }
 
-    d.setType("sample_23_model", true);
+    d.setType("sample_23_model", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE);
 
     try {
-      d.validate("sample_23_model");
+      d.validateAllPaths("sample_23_model");
       assert (false);
     }
     catch (Exception e) {
     }
 
     // we now set the default to be true
-    JDocument.init(true);
+    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE);
 
     d = getBaseDocument("/jdocs/sample_23.json");
     d.setType("sample_23_model"); // will not validate and hence no exception thrown
     try {
-      d.validate("sample_23_model"); // will fail validation here
+      d.validateAllPaths("sample_23_model"); // will fail validation here
       assert (false);
     }
     catch (Exception e) {
@@ -902,10 +885,10 @@ public class DocumentTest {
     catch (Exception e) {
     }
 
-    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", true); // this should pass
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_AT_READ_WRITE); // this should pass
 
     // restore it back
-    JDocument.init(false);
+    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
   }
 
   @Test
@@ -1273,12 +1256,12 @@ public class DocumentTest {
 
     Document d = new JDocument();
     d.setString("$.id1", "GO2");
-    d.setType("sample_26_model", true);
+    d.setType("sample_26_model", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE);
     d.getString("$.id1");
 
     d = new JDocument();
     d.setString("$.id1", "giberish");
-    d.setType("sample_26_model", true);
+    d.setType("sample_26_model", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE);
     try {
       d.getString("$.id1");
     }
@@ -1290,7 +1273,7 @@ public class DocumentTest {
     d.setString("$.id1", "giberish");
 
     try {
-      d.setType("sample_26_model", false);
+      d.setType("sample_26_model", CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
     }
     catch (Exception e) {
       assertEquals(true, true);
@@ -1303,14 +1286,14 @@ public class DocumentTest {
 
     // test - will fail
     try {
-      d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
+      d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ALL_DATA_PATHS);
       assert (false);
     }
     catch (Exception e) {
     }
 
     // test - doc construction will succeed but read of field will fail
-    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS);
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_MODEL_PATHS);
     try {
       d.getString("$.phone_cell");
       assert (false);
@@ -1319,7 +1302,7 @@ public class DocumentTest {
     }
 
     // test - doc construction will succeed but read of field will fail
-    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE);
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_AT_READ_WRITE);
     try {
       d.getString("$.phone_cell");
       assert (false);
@@ -1355,7 +1338,7 @@ public class DocumentTest {
     }
 
     // test only model paths -  will succeed
-    d.setType("sample_23_model", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS);
+    d.setType("sample_23_model", ONLY_MODEL_PATHS);
 
     // now validate all paths - will fail
     try {
@@ -1366,7 +1349,7 @@ public class DocumentTest {
     }
 
     // we now set the default to only at read write
-    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE);
+    JDocument.init(ONLY_AT_READ_WRITE);
 
     d = getBaseDocument("/jdocs/sample_23.json");
     d.setType("sample_23_model"); // will not validate and hence no exception thrown
@@ -1385,14 +1368,14 @@ public class DocumentTest {
     catch (Exception e) {
     }
 
-    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS); // this should pass
-    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE); // this should pass
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_MODEL_PATHS); // this should pass
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_AT_READ_WRITE); // this should pass
 
     // restore it back
-    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
+    JDocument.init(ALL_DATA_PATHS);
 
     // we now set the default to model validation
-    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS);
+    JDocument.init(ONLY_MODEL_PATHS);
 
     d = getBaseDocument("/jdocs/sample_23.json");
     d.setType("sample_23_model"); // will validate and hence no exception thrown
@@ -1411,11 +1394,11 @@ public class DocumentTest {
     catch (Exception e) {
     }
 
-    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS); // this should pass
-    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE); // this should pass
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_MODEL_PATHS); // this should pass
+    d = getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_AT_READ_WRITE); // this should pass
 
     // restore it back
-    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
+    JDocument.init(ALL_DATA_PATHS);
   }
 
   @Test
@@ -1467,6 +1450,13 @@ public class DocumentTest {
     catch (Exception e) {
       assert(false);
     }
+  }
+
+  @Test
+  void testTemp() {
+    JDocument d = (JDocument)getBaseDocument("/jdocs/temp.json");
+    String s = d.getString("$.id");
+    System.out.println(s);
   }
 
 }
