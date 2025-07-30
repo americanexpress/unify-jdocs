@@ -125,7 +125,7 @@ appropriate authorities to review and/or pursue certain violations.
 
 ### Attribution & Acknowledgements
 These Guidelines have been adapted from the
-[Code of Conduct of the TODO group](http://todogroup.org/opencodeofconduct/). They are subject to
+[Code of Conduct of the TODO group](https://todogroup.org/about/code-of-conduct/). They are subject to
 revision by American Express and may be revised from time to time.
 
 Thank you for your participation!

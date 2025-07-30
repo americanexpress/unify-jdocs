@@ -1,9 +1,20 @@
-## JDocs - A new way of working with JSON documents
+## Table of Contents
+1. [Introduction](#jdocs---a-new-way-of-working-with-json-documents)
+2. [Getting JDocs Package](#getting-jdocs-package)
+3. [Primer on Model Classes](#primer-on-model-classes-marshalling-and-unmarshalling)
+4. [Challenges with Model Classes](#challenges-faced-in-using-model-classes-to-work-with-json-documents)
+5. [How JDocs Addresses Challenges](#how-does-jdocs-address-these-challenges)
+6. [JDocs in Action](#jdocs-in-action)
+7. [Contributing](#contributing)
+8. [License](#license)
+9. [Code of Conduct](#code-of-conduct)
+
+#### JDocs - A new way of working with JSON documents
 
 ---
 JDocs (JSON Documents) is a JSON manipulation library.
 It completely eliminates the need to have model / POJO classes and instead works directly
-on the JSON document. Once you use this library, you may never 
+on the JSON document. Once you use this library, you may never
 want to return to using Java model classes or using JSON schema for JSON document validation.
 
 Once you have taken a look, if you like what you see, we would very much appreciate a like for the project - it keeps us motivated knowing that our
@@ -68,9 +79,9 @@ public class Phone {
   String number;
 }
 ```
- 
+
 These Java classes created are referred to as model classes. The JSON document is parsed and converted into
-Java objects which are then used in the program. The process of converting JSON documents into 
+Java objects which are then used in the program. The process of converting JSON documents into
 language specific objects is known as ‘unmarshalling" and of converting the language specific objects
 back into JSON documents as "marshalling" i.e.
 
@@ -82,30 +93,30 @@ _Unmarshalling -> JSON document to Java object_
 
 #### Challenges faced in using model classes to work with JSON documents
 
-In an application program, model classes, marshalling and unmarshalling is extensively used to convert 
+In an application program, model classes, marshalling and unmarshalling is extensively used to convert
 JSON into Java objects and vice versa. This approach has the following challenges associated with it:
 
 1. The JSON to Java mapping and vice versa has to be created and maintained. Any time the JSON document
-structure changes, these classes must also be updated as also the programs using these classes.
-Having model objects creates an additional layer which always needs to be kept in sync with the JSON text
-document structure. The complexity is compounded by the fact that JSON documents can be arbitrary levels
-deep in which case keeping them in sync becomes ever more challenging. This also tightly couples the JSON
-document, model classes and the business logic code making the application difficult to change
+   structure changes, these classes must also be updated as also the programs using these classes.
+   Having model objects creates an additional layer which always needs to be kept in sync with the JSON text
+   document structure. The complexity is compounded by the fact that JSON documents can be arbitrary levels
+   deep in which case keeping them in sync becomes ever more challenging. This also tightly couples the JSON
+   document, model classes and the business logic code making the application difficult to change
 2. The problem of code bloat. Typically applications deal with multiple JSON document types.
-Each JSON document type may map to multiple Java classes. This situation leads to a plethora of
-Java classes and wrapper functions written to access fields in these classes. Over time
-this leads to code bloat consisting of numerous Java classes with limited value except for reading and writing JSON
-elements. Also, accessing nested fields / arrays may requires multiple lines of code as traversal of
-fields needs to be done across levels and null values / absent entries dealt with
+   Each JSON document type may map to multiple Java classes. This situation leads to a plethora of
+   Java classes and wrapper functions written to access fields in these classes. Over time
+   this leads to code bloat consisting of numerous Java classes with limited value except for reading and writing JSON
+   elements. Also, accessing nested fields / arrays may requires multiple lines of code as traversal of
+   fields needs to be done across levels and null values / absent entries dealt with
 
 The consequences over time of the above are:
 1. Inability to carry out a fast, accurate and exhaustive impact analysis. For example, where all in the code base is this json path used?
 2. Changing JSON document structure becomes extremely difficult, tedious and error prone. In large code bases,
-it becomes next to impossible
+   it becomes next to impossible
 3. There is an adverse impact on performance leading to higher usage of system resources
 4. The code comprehension and readability suffers leading to maintainability issues
 5. Finally deterioration in quality, longer turnaround time for changes, higher efforts and
-ultimately higher costs and risks
+   ultimately higher costs and risks
 
 ---
 
@@ -117,16 +128,16 @@ manipulating JSON documents directly through JSON paths (with a slight home grow
 Doing away with model classes has the following benefits:
 
 1. Reduces the amount of code by ~90% which in turns means significantly faster implementations,
-reduced effort, improved quality and faster time to market
+   reduced effort, improved quality and faster time to market
 2. Helps developers concentrate on implementing business logic rather than spending time and effort on
-manipulating model classes to access data
+   manipulating model classes to access data
 3. Simplifies the way code is written and makes it easily comprehensible.
-To know which elements are being accessed, developers no longer need to go through lines and lines of
-code that only deal with traversing model classes and have very little to do with business logic
+   To know which elements are being accessed, developers no longer need to go through lines and lines of
+   code that only deal with traversing model classes and have very little to do with business logic
 4. Allows for fast, accurate and exhaustive impact analysis across the code base. Developers can in a matter of
-seconds locate all usages of a json path across the code base
+   seconds locate all usages of a json path across the code base
 5. By always referring to data as JSON paths, it allows developers to gain a much better understanding of
-the business domain, data and its usage
+   the business domain, data and its usage
 
 ---
 
@@ -145,39 +156,39 @@ Lets start with a sample JSON document as below:
   }
 }
 ```
- 
+
 ##### Reading and writing elements
 
 The first step is to get a `Document` by so:
 
 ```java
-String json = "<contents of the example json file>"; 
-Document d = new JDocument(json);
+String jsonString = "<contents of the example json file>"; 
+Document document = new JDocument(jsonString);
 ```
 
 Reading and writing can be done using get and set methods of the API:
 
 ```java
-String s = d.getString("$.first_name"); // will return Deepak
-Boolean b = d.getBoolean("$.is_married"); // will return true
-Integer i = d.getInteger("$.number_of_children"); // will return 2
-s = d.getString("$.home_address.line_1"); // will return "XYZ, Greenway Pkwy, #ABC"
+String firstName = document.getString("$.first_name"); // will return Deepak
+Boolean isMarried = document.getBoolean("$.is_married"); // will return true
+Integer numberOfChildren = document.getInteger("$.number_of_children"); // will return 2
+homeAddressLine1 = document.getString("$.home_address.line_1"); // will return "XYZ, Greenway Pkwy, #ABC"
 ```
 
 Similarly, set methods of the API are used to set values directly in the JSON document.
 Let’s say you execute the following commands:
 
 ```java
-d.setString("$.first_name", "John");
-d.setString("$.last_name", "Ryan");
-d.setString("$.middle_name", "Smith");
-d.setString("$.is_married", false);
-d.setInteger("$.number_of_children", 0);
-d.setString("$.home_address.zip", "85032");
-String s = d.getPrettyPrintJson();
+document.setString("$.first_name", "John");
+document.setString("$.last_name", "Ryan");
+document.setString("$.middle_name", "Smith");
+document.setString("$.is_married", false);
+document.setInteger("$.number_of_children", 0);
+document.setString("$.home_address.zip", "85032");
+String prettyPrintedJson = document.getPrettyPrintJson();
 ```
- 
-The value of `s` will now be:
+
+The value of `prettyPrintedJson` will now be:
 ```json
 {
   "first_name": "John",
@@ -195,7 +206,7 @@ The value of `s` will now be:
 One could also use the following method to get a compressed JSON document:
 
 ```java
-String s = d.getJson();
+String jsonString = document.getJson();
 ```
 
 See that the data element "middle_name" which was not existing earlier has been created.
@@ -205,15 +216,15 @@ This can be used to create complex objects or objects inside objects.
 Consider an empty JSON document on which the following commands are run:
 
 ```java
-Document d = new JDocument();
-d.setString("$.person.first_name", "John");
-d.setString("$.person.last_name", "Ryan");
-d.setString("$.person.middle_name", "Smith");
-d.setString("$.person.address.city", "Phoenix");
-String s = d.getPrettyPrintJson();
+Document document = new JDocument();
+document.setString("$.person.first_name", "John");
+document.setString("$.person.last_name", "Ryan");
+document.setString("$.person.middle_name", "Smith");
+document.setString("$.person.address.city", "Phoenix");
+String prettyPrintedJson = d.getPrettyPrintJson();
 ```
 
-The value of `s` will be:
+The value of `prettyPrintedJson` will be:
 
 ```json
 {
@@ -252,9 +263,9 @@ Consider the following JSON document. Lets refer to it as snippet 1:
 ```
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 1
-String s = d.getString("$.phones[0].type"); // will return Home
-s = getString("$.phones[0].number"); // will return 123456
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 1
+String phoneType = document.getString("$.phones[0].type"); // will return Home
+String phoneNumber = document.getString("$.phones[0].number"); // will return 123456
 ```
 
 Lets make things more interesting! You could refer to the array index by specifying a selection criteria. A
@@ -262,23 +273,23 @@ selection criteria is a simple `field=value` specification inside of the square 
 look for an element in the `phones` array which has a field by the name of type and whose value is "Home":
 
 ```java
-d.getString("$.phones[type=Home].type"); // will return Home
-d.getString("$.phones[type=Home].number"); // will return 123456
+document.getString("$.phones[type=Home].type"); // will return Home
+document.getString("$.phones[type=Home].number"); // will return 123456
 ```
 
 A similar construct could be used to set the contents of an array. Consider the following statements:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 1
-d.setString("$.phones[0].number", "222222");
-d.setString("$.phones[0].country", "USA");
-d.setString("$.phones[1].type", "Cell");
-d.setString("$.phones[1].number", "333333");
-d.setString("$.phones[1].country", "USA");
-String s = d.getPrettyPrintJson();
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 1
+document.setString("$.phones[0].number", "222222");
+document.setString("$.phones[0].country", "USA");
+document.setString("$.phones[1].type", "Cell");
+document.setString("$.phones[1].number", "333333");
+document.setString("$.phones[1].country", "USA");
+String prettyPrintedJson = document.getPrettyPrintJson();
 ```
 
-Would result in the following value of `s`:
+Would result in the following value of `prettyPrintedJson`:
 
 ```json
 {
@@ -301,29 +312,29 @@ Would result in the following value of `s`:
 Note that a new element has been created in the array. The same effect could also have been achieved by the following:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 1
-d.setString("$.phones[type=Home].number", "222222")
-d.setString("$.phones[type=Home].country", "USA")
-d.setString("$.phones[type=Cell].number", "333333")
-d.setString("$.phones[type=Cell].country", "USA")
-String s = d.getPrettyPrintJson();
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 1
+document.setString("$.phones[type=Home].number", "222222")
+document.setString("$.phones[type=Home].country", "USA")
+document.setString("$.phones[type=Cell].number", "333333")
+document.setString("$.phones[type=Cell].country", "USA")
+String prettyPrintedJson = document.getPrettyPrintJson();
 ```
 
 Note that JDocs when it did not find an array element with `type=Cell`, it went ahead and created one.
 By default, since the value of the field `type` is not being set explicitly, it assumed the field to be of `String` type.
 If you had not wanted that, you could very well have used something like below:
- 
+
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 1
-d.setString("$.phones[type=Home].number", "222222")
-d.setString("$.phones[type=Home].country", "USA")
-d.setInteger("$.phones[type=0].type", 0)
-d.setString("$.phones[type=0].number", "333333")
-d.setString("$.phones[type=0].country", "USA")
-String s = d.getPrettyPrintJson();
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 1
+document.setString("$.phones[type=Home].number", "222222")
+document.setString("$.phones[type=Home].country", "USA")
+document.setInteger("$.phones[type=0].type", 0)
+document.setString("$.phones[type=0].number", "333333")
+document.setString("$.phones[type=0].country", "USA")
+String prettyPrintedJson = document.getPrettyPrintJson();
 ```
 
-The above would result in the following value of `s`:
+The above would result in the following value of `prettyPrintedJson`:
 
 ```json
 {
@@ -346,15 +357,15 @@ The above would result in the following value of `s`:
 Now for some interesting scenarios. You may ask what if I do the following?
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 1
-d.setInteger("$.phones[type=Home].type", 0);
-String s = d.getPrettyPrintJson();
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 1
+document.setInteger("$.phones[type=Home].type", 0);
+String prettyPrintedJson = document.getPrettyPrintJson();
 ```
 
 Well, JDocs will try and search for the element with field type having a value Home and will implicitly
 handle different data types both for searching and writing. In the case of the above,
 even though the field was stored as `String` type, JDocs converted it to a number.
-The following will be the value in `s`:
+The following will be the value in `prettyPrintedJson`:
 
 ```json
 {
@@ -371,9 +382,9 @@ The following will be the value in `s`:
 Now what if you were to do the following?
 
 ```java
-Document d = new JDocument(); // creating an empty document
-d.setInteger("$.phones[1].type", 0); // specifying array index as 1 without the element at 0 being present
-String s = d.getPrettyPrintJson();
+Document document = new JDocument(); // creating an empty document
+document.setInteger("$.phones[1].type", 0); // specifying array index as 1 without the element at 0 being present
+String prettyPrintedJson = document.getPrettyPrintJson();
 ```
 
 In this case, JDocs would throw an out of bounds exception as below:
@@ -392,13 +403,13 @@ You could use this same notation to create new arrays, create complex objects wi
 create arrays within arrays etc. An example of this is below:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 1
-d.setString("$.addresses[0].type", "Home")
-d.setString("$.addresses[0].line_1", "Greenway Pkwy")
-String s = d.getPrettyPrintJson();
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 1
+document.setString("$.addresses[0].type", "Home")
+document.setString("$.addresses[0].line_1", "Greenway Pkwy")
+String prettyPrintedJson = document.getPrettyPrintJson();
 ```
 
-Now `s` will have the following value:
+Now `prettyPrintedJson` will have the following value:
 
 ```json
 {
@@ -423,13 +434,13 @@ In case array indexes are used:
 1. In case the index exists, the element in that index will be updated
 2. In case the index does not exist and the index value is 0, an array element will be created
 3. In case the index does not exist and the index value is greater than 0, an element
-will be created only if the index is one greater than the maximum index in the existing array
+   will be created only if the index is one greater than the maximum index in the existing array
 
 In case an array selection criteria is used:
 1. If an element exists which contains the field and value as specified in the selection criteria,
-that element will be updated
+   that element will be updated
 2. If no element has a field as specified in the selection criteria, a new array element will
-be created with a field set to the value specified in the criteria
+   be created with a field set to the value specified in the criteria
 
 ---
 
@@ -461,8 +472,8 @@ Consider the following JSON sample. Lets call it snippet 2.
 
 You can find the size of an array as below:
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 2
-int size = d.getArraySize("$.phones[]"); // will contain the value 2
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 2
+int numberOfPhones = document.getArraySize("$.phones[]"); // will contain the value 2
 ``` 
 
 Note that in the above, empty square brackets was specified with phones. This is required so as
@@ -476,15 +487,15 @@ which is the ability to carry out an exhaustive impact analysis of any JSON path
 Lets see the traversal first. Continuing from the above Java snippet:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 2
-int size = d.getArraySize("$.phones[]"); // will contain the value 2
-for (int i = 0; i < size; i++) {
-  String index = i + "";
-  String type = d.getString("$.phones[%].type", index); 
-  String number = d.getString("$.phones[%].number", index); 
-  String country = d.getString("$.phones[%].country", index);
-  System.out.println(type);
-  System.out.println(number);
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 2
+int numberOfPhones = document.getArraySize("$.phones[]"); // will contain the value 2
+for (int phoneIndex = 0; phoneIndex < numberOfPhones; phoneIndex++) {
+  String index = String.valueOf(phoneIndex);
+  String phoneType = document.getString("$.phones[%].type", index); 
+  String phoneNumber = document.getString("$.phones[%].number", index); 
+  String country = document.getString("$.phones[%].country", index);
+  System.out.println(phoneType);
+  System.out.println(phoneNumber);
   System.out.println(country);
 }
 ```
@@ -502,21 +513,25 @@ USA
 Setting the elements while traversing is on exactly similar lines as below:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 2
-int size = d.getArraySize("$.phones[]"); // will contain the value 2
-for (int i = 0; i < size; i++) {
-  String index = i + "";
-  d.setString("$.phones[%].type", "Cell", index);
-  d.setString("$.phones[%].number", "111111", index);
-  d.setString("$.phones[%].country", "USA", index);
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 2
+int numberOfPhones = document.getArraySize("$.phones[]"); // will contain the value 2
+
+// Updating phone details        
+for (int phoneIndex = 0; phoneIndex < numberOfPhones; phoneIndex++) {
+  String index = String.valueOf(phoneIndex);
+  document.setString("$.phones[%].type", "Cell", index);
+  document.setString("$.phones[%].number", "111111", index);
+  document.setString("$.phones[%].country", "USA", index);
 }
-for (i = 0; i < size; i++) {
-  String index = i + "";
-  String type = d.getString("$.phones[%].type", index); 
-  String number = d.getString("$.phones[%].number", index); 
-  String country = d.getString("$.phones[%].country", index);
-  System.out.println(type);
-  System.out.println(number);
+
+// Reading and printing phone details
+for (phoneIndex = 0; phoneIndex < numberOfPhones; phoneIndex++) {
+  String index = String.valueOf("phoneIndex");
+  String phoneType = document.getString("$.phones[%].type", index); 
+  String phoneNumber = document.getString("$.phones[%].number", index); 
+  String country = document.getString("$.phones[%].country", index);
+  System.out.println(phoneType);
+  System.out.println(phoneNumber);
   System.out.println(country);
 }
 ```
@@ -532,13 +547,13 @@ USA
 
 Now lets discuss why deviating from the above technique is not be a good idea. See the code below:
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 2
-int size = d.getArraySize("$.phones[]"); // will contain the value 2
-for (int i = 0; i < size; i++) {
-  String index = i + "";
-  String type = d.getString("$.phones[" + 
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 2
+int numberOfPhones = document.getArraySize("$.phones[]"); // will contain the value 2
+for (int phoneIndex = 0; phoneIndex < numberOfPhones; phoneIndex++) {
+  String index = String.valueOf(phoneIndex);
+  String phoneType = document.getString("$.phones[" + 
                              index + "].type"); 
-  System.out.println(type);
+  System.out.println(phoneType);
 }
 ```
 
@@ -595,28 +610,28 @@ Consider the following JSON snippet 3:
 The method is straightforward as below:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 3
-d.deletePath("$.first_name"); // will delete the first_name field
-d.deletePath("$.national_ids"); // will delete the whole complex object national_ids
-d.deletePath("$.phones[]"); // will delete the whole phones array
-d.deletePath("$.phones[0]"); // will delete the first element of the array
-d.deletePath("$.phones[type=Home]"); // will delete that element of the array which has a type field equal to Home value
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 3
+document.deletePath("$.first_name"); // will delete the first_name field
+document.deletePath("$.national_ids"); // will delete the whole complex object national_ids
+document.deletePath("$.phones[]"); // will delete the whole phones array
+document.deletePath("$.phones[0]"); // will delete the first element of the array
+document.deletePath("$.phones[type=Home]"); // will delete that element of the array which has a type field equal to Home value
 ```
 
 The method also takes variable length argument so as to be able to use it for arrays like so:
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 3
-d.deletePath("$.phones[type=%]", "Home"); // will delete that element of the array which has a type field equal to Home value
-d.deletePath("$.phones[%]", 0 + ""); // will delete the first element
+Document document = new JDocument(jsonString); // assuming jsonString containing snippet 3
+document.deletePath("$.phones[type=%]", "Home"); // will delete that element of the array which has a type field equal to Home value
+document.deletePath("$.phones[%]", 0 + ""); // will delete the first element
 ```
 
 ---
 
 ##### The concept of Base and Typed Documents
 
-Till now we talked of operations which can be done on a free form JSON document meaning that it is 
+Till now we talked of operations which can be done on a free form JSON document meaning that it is
 possible to read and write pretty much any path we feel like. But what if we wanted to lock down the structure of a JSON
-document? Typically we would use something like JSON schema. We thought that there was a far simpler and 
+document? Typically we would use something like JSON schema. We thought that there was a far simpler and
 more intuitive way to do the same thing. This is where we now start to talk of Base and Typed documents.
 
 In JDocs, there can be two types of documents. A Base document which we have worked with so far
@@ -692,15 +707,15 @@ JDocument.loadDocumentTypes(type, json);
 **Creating typed documents**
 
 ```java
-Document d = new JDocument("model", null);
+Document document = new JDocument("model", null);
 ```
 
 The above creates an empty document which is tied to a model document named as `model`
 (expected to be already loaded as described in the above section).
 
 ```java
-String s = "..."; // s contains the contents of a JSON document
-Document d = new JDocument("model", s);
+String jsonString = "..."; // jsonString contains the contents of a JSON document
+Document document = new JDocument("model", jsonString);
 ```
 
 The above creates a typed `JDocument` from an existing JSON document stored in the string `s`.
@@ -713,17 +728,17 @@ For example, for snippet 4 above, the following calls will succeed as the paths 
 constraints on the elements are all valid:
 
 ```java
-Document d = new JDocument("model", null);
-d.setString("$.first_name", "Deepak1");
-d.setString("$.phones[0].type", "Home");
-d.setInteger("$.phones[0].number", 333333);
+Document document = new JDocument("model", null);
+document.setString("$.first_name", "Deepak1");
+document.setString("$.phones[0].type", "Home");
+document.setInteger("$.phones[0].number", 333333);
 ```
 
 Whereas the following will fail:
 ```java
-d.setString("$.first_name1", "Deepak1") // incorrect path
-d.setString("$.start_date", "15-Apr-2019") // incorrect date format
-d.setString("$.phones[0].number", "111111") // incorrect data type
+document.setString("$.first_name1", "Deepak1") // incorrect path
+document.setString("$.start_date", "15-Apr-2019") // incorrect date format
+document.setString("$.phones[0].number", "111111") // incorrect data type
 ```
 
 As regards constraints, the validation is done against the specified regular expression. If a match returns true, the
@@ -811,7 +826,7 @@ Given a document, it is possible to extract content from it as a new document. C
 
 ```json
 {
-   "id": "id",
+  "id": "id",
   "family" : {
     "number_of_members": 2,
     "members": [
@@ -849,12 +864,12 @@ Given a document, it is possible to extract content from it as a new document. C
 We can extract content like below:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing above snippet
-Document d1 = d.getContent("$.family.members[1].phones[0]", false, true);
-String s = d1.getPrettyPrintJson();
+Document document = new JDocument(jsonString); // assuming jsonString containing above snippet
+Document extractedPhoneDetails = document.getContent("$.family.members[1].phones[0]", false, true);
+String prettyPrintedJson = extractedPhoneDetails.getPrettyPrintJson();
 ```
 
-The value of `s` will contain:
+The value of `prettyPrintedJson` will contain:
 
 ```json
 {
@@ -887,7 +902,7 @@ The path specified in this method has to point to either:
 * a complex object
 * an array element (which also needs to be a complex object)
 * an array (like `phones[]`). In this case, the `includeFullPath` parameter has to be false else the API
-will throw an exception
+  will throw an exception
 
 In case the document we are extracting content from is a `TypedDocument`, then we have the option of returning
 a `BaseDocument` or a `TypedDocument`. This is specified using the second parameter `returnTypedDocument`. If this
@@ -897,7 +912,7 @@ is not a `TypedDocument`, this parameter is ignored.
 
 Of course, if a `TypedDocument` is being returned, its needs to conform to the structure of the model document. In
 this situation, if we specify `includeFullPath = false`, it is possible that the returned document when constructed
-will not conform to the model document in which case the API will throw an exception. 
+will not conform to the model document in which case the API will throw an exception.
 
 As with other methods in the API, the path can contain `%` and the value specified in the last variable arguments parameter.
 
@@ -943,13 +958,13 @@ and the following as snippet 6:
 
 The following is am example of copying content:
 ```java
-Document to = new JDocument(json); // assuming json is a string containing snippet 5
-Document from = new JDocument(json1); // assuming json1 is a string containing snippet 6
-to.setContent(from, "$.addresses[]", "$.addresses[]");
-String s = to.getPrettyPrintJson();
+Document targetDocument = new JDocument(jsonString); // assuming jsonString containing snippet 5
+Document sourceDocument = new JDocument(sourceJsonString); // assuming sourceJsonString is a string containing snippet 6
+targetDocument.setContent(sourceDocument, "$.addresses[]", "$.addresses[]");
+String prettyPrintedJson = targetDocument.getPrettyPrintJson();
 ```
 
-The string `s` will contain the following:
+The string `prettyPrintedJson` will contain the following:
 
 ```json
 {
@@ -1032,20 +1047,20 @@ documents need to be typed documents having the same model.
 Lets take snippet 6 as the starting point for understanding. Consider the following code:
 
 ```java
-Document to = new JDocument("model", fromJson); // fromJson contains snippet 6 json
-Document from = new JDocument("model", null); // create an empty document of type model
-from.setString("$.phones[0].phone_type", "Office");
-from.setString("$.phones[0].number", "888888");
-from.setString("$.phones[0].country", "USA");
-to.merge(from, null);
-String s = to.getPrettyPrintJson();
+Document targetDocument = new JDocument("model", sourceJson); // sourceJson contains snippet 6 json
+Document sourceDocument = new JDocument("model", null); // create an empty document of type model
+sourceDocument.setString("$.phones[0].phone_type", "Office");
+sourceDocument.setString("$.phones[0].number", "888888");
+sourceDocument.setString("$.phones[0].country", "USA");
+targetDocument.merge(sourceDocument, null);
+String prettyPrintedJson = to.getPrettyPrintJson();
 ```
 A couple of points to note here:
 1. The second parameter of `merge` is a variable string argument and can be used to specify paths
-which need to be deleted in the to document before the merge is carried out
+   which need to be deleted in the to document before the merge is carried out
 2. If array elements are being merged, JDocs expects the key field to be specified. This is required
-so that JDocs can look up the array element in the to document to merge the from contents into. If no
-such array element is found in the to document, a new array element with the specified key is created 
+   so that JDocs can look up the array element in the to document to merge the from contents into. If no
+   such array element is found in the to document, a new array element with the specified key is created
 
 JDocs will throw an exception in case of mismatches encountered during merge, for example,
 the data type of the "to" path may not match with that of the "from" path
@@ -1069,7 +1084,7 @@ to play them back to see how the updates occurred.
 ##### Using @here in model documents
 
 Consider a scenario where there is a loan processing application document and its associated model. Assume that
-a service is called to the contents of the application document have to be passed in one of the 
+a service is called to the contents of the application document have to be passed in one of the
 JSON fields of the service request. In such a scenario, when a model document for the service request is created,
 the contents of the model document of the application document have to be embedded in it. Imagine if we
 had many more such cases and kept embedding application document everywhere as required. This
@@ -1097,7 +1112,7 @@ Consider the following application model document:
 Now consider that there is a `storeApplication` REST service which persists the contents of the document
 to a database. This service has it own request JSON model document and the contents of the application
 are present in a field. Without the use of @here feature, the model document for tthe service request
-would look like: 
+would look like:
 
 ```json
 {
@@ -1143,12 +1158,12 @@ The below snippet will search the document for an array element in the phones
 array where the field type has the value home. Note that in order to use this API, the final element
 needs to be an array in which a selection criteria is specified. Also note that the selection criteria
 can refer to any field in the element and the index of the match of the first occurrence will be returned. In
-case it is required to read further, an iteration as described previously is recommended. 
+case it is required to read further, an iteration as described previously is recommended.
 
 ```java
-Document d = new JDocument(s); // s contains a valid JSON string
-int i = 0;
-int index = d.getArrayIndex("$.applicants[%].phones[type=home]", i + "");
+Document applicantDocument = new JDocument(jsonString); // jsonString contains a valid JSON string
+int applicantIndex = 0;
+int phoneIndex = applicantDocument.getArrayIndex("$.applicants[%].phones[type=home]", String.valueOf(applicantIndex));
 ```
 
 **Working with array values**
@@ -1213,12 +1228,12 @@ Consider the following JSON snippet:
 ```
 
 The flatten API of JDocs gives us a list of all the paths present in the document with or without values.
-The following gets the list of paths without values: 
+The following gets the list of paths without values:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing above snippet
-List<String> paths = d.flatten();
-paths.stream.forEach(s -> System.out.println(s));
+Document document = new JDocument(jsonString); // assuming jsonString containing above snippet
+List<String> flattenedPaths = document.flatten();
+flattenedPaths.stream.forEach(path -> System.out.println(path));
 ```
 
 The above code will print the following:
@@ -1234,9 +1249,10 @@ $.family.members[0].number_of_dependents
 In case we wanted to get the flattened paths and also the values, we would use the `flattenWithValues` API as below:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing above snippet
-List<PathValue> paths = d.flatten();
-paths.stream.forEach(pv -> System.out.println(pv.getPath() + ", " + pv.getValue() + ", " + pv.getDataType()));
+Document document = new JDocument(jsonString); // assuming jsonString containing above snippet
+List<PathValue> flattenedPaths = document.flatten();
+flattenedPaths.stream.forEach(pathValue ->
+    System.out.println(pathValue.getPath() + ", " + pathValue.getValue() + ", " + pathValue.getDataType()));
 ```
 
 The above code will print the following:
@@ -1303,16 +1319,22 @@ JSON snippet 2:
 The comparison can be done as below:
 
 ```java
-Document ld = new JDocument(jsonLeft); // assuming jsonLeft is a string containing above snippet 1
-Document rd = new JDocument(jsonRight); // assuming jsonRight is a string containing above snippet 2
-List<DiffInfo> diList = ld.getDifferences(rd, true);
-String s = "";
-for (DiffInfo di : diList) {
-  String lpath = (di.getLeft() == null) ? "null" : di.getLeft().getPath();
-  String rpath = (di.getRight() == null) ? "null" : di.getRight().getPath();
-  s = s + di.getDiffResult() + ", " + lpath + ", " + rpath + "\n";
+Document leftDocument = new JDocument(jsonLeftString); // assuming jsonLeft containing above snippet 1
+Document rightDocument = new JDocument(jsonRightString); // assuming jsonRight containing above snippet 2
+List<DiffInfo> differencesList = leftDocument.getDifferences(rightDocument, true);
+StringBuilder differencesSummary = new StringBuilder();
+
+for (DiffInfo difference : differencesList) {
+    String leftPath = (difference.getLeft() == null) ? "null" : difference.getLeft().getPath();
+    String rightPath = (difference.getRight() == null) ? "null" : difference.getRight().getPath();
+    differencesSummary.append(difference.getDiffResult())
+                      .append(", ")
+                      .append(leftPath)
+                      .append(", ")
+                      .append(rightPath)
+                      .append("\n");
 }
-System.out.println(s);
+System.out.println(differencesSummary.toString());
 ```
 
 The above would print:
@@ -1330,13 +1352,13 @@ object returned from the call `di.getLeft()` or `di.getRight`. We could also use
 
 Please note the following regarding comparing JSON documents:
 1. JDocs does a logical comparison of the documents. When fields with null values are encountered, they
-are treated as being equivalent to the field not being present in the document. In the above example,
-in the left document, `$.cars[0].model` has null value while this path is not present in the right document.
-JDocs comparison assumes that these are equivalent. In other words a JSON path leaf node having a null values
-is assumed to be the same as the path not existing at all.
+   are treated as being equivalent to the field not being present in the document. In the above example,
+   in the left document, `$.cars[0].model` has null value while this path is not present in the right document.
+   JDocs comparison assumes that these are equivalent. In other words a JSON path leaf node having a null values
+   is assumed to be the same as the path not existing at all.
 1. If any one of the documents being compared is a typed document, the data type of the path will be determined
-from the model document
- 
+   from the model document
+
 ---
 
 ##### What is unique about JDocs?
@@ -1376,7 +1398,7 @@ Deepak Arora, GitHub: @deepakarora3, Twitter: @DeepakAroraHi
 
 We welcome Your interest in the American Express Open Source Community on Github. Any Contributor to
 any Open Source Project managed by the American Express Open Source Community must accept and sign
-an Agreement indicating agreement to the terms below. Except for the rights granted in this 
+an Agreement indicating agreement to the terms below. Except for the rights granted in this
 Agreement to American Express and to recipients of software distributed by American Express, You
 reserve all right, title, and interest, if any, in and to Your Contributions. Please
 [fill out the Agreement](https://cla-assistant.io/americanexpress/unify-jdocs).
