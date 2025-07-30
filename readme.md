@@ -9,9 +9,10 @@
 8. [License](#license)
 9. [Code of Conduct](#code-of-conduct)
 
+---
+
 #### JDocs - A new way of working with JSON documents
 
----
 JDocs (JSON Documents) is a JSON manipulation library.
 It completely eliminates the need to have model / POJO classes and instead works directly
 on the JSON document. Once you use this library, you may never
