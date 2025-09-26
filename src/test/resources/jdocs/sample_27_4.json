@@ -1,0 +1,19 @@
+{
+  "test": [
+    {
+      "decimal_no": 1000.10
+    },
+    {
+      "decimal_no": 1000.00
+    },
+    {
+      "decimal_no": 1000.89
+    },
+    {
+      "decimal_no": 900.00
+    },
+    {
+      "decimal_no": 1001.00
+    }
+  ]
+}
