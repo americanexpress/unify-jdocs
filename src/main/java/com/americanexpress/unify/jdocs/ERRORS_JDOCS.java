@@ -92,8 +92,14 @@ public class ERRORS_JDOCS extends ErrorMap {
     map.put("jdoc_err_69", "Path specified cannot be a leaf node. Path -> {0}");
     map.put("jdoc_err_70", "Empty value not allowed for a date at path -> {0}");
     map.put("jdoc_err_71", "Date format missing for path -> {0}");
-    map.put("jdoc_err_73", "Type cannot be null or empty");
-    map.put("jdoc_err_74", "The type of a document cannot be changed");
+    map.put("jdoc_err_72", "Type cannot be null or empty");
+    map.put("jdoc_err_73", "The type of a document cannot be changed");
+    map.put("jdoc_err_74", "Min length validation failed for path -> {0}");
+    map.put("jdoc_err_75", "Max length validation failed for path -> {0}");
+    map.put("jdoc_err_76", "Min value validation failed for path -> {0}");
+    map.put("jdoc_err_77", "Max value validation failed for path -> {0}");
+    map.put("jdoc_err_78", "Min date validation failed for path -> {0}");
+    map.put("jdoc_err_79", "Max date validation failed for path -> {0}");
   }
 
 }

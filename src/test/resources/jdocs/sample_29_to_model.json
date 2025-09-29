@@ -1,0 +1,19 @@
+{
+  "level_to": {
+    "field_to_1": "{\"type\":\"string\"}",
+    "field_to_2": "{\"type\":\"string\"}",
+    "some_field": {
+      "field_to_1": "{\"type\":\"string\"}"
+    },
+    "level_2": {
+      "field_to_1": "{\"type\":\"string\"}",
+      "field_to_2": "{\"type\":\"string\"}",
+      "level_3": {
+        "field_1": "{\"type\":\"string\"}",
+        "field_2": "{\"type\":\"string\"}",
+        "field_to_1": "{\"type\":\"string\"}",
+        "field_to_2": "{\"type\":\"string\"}"
+      }
+    }
+  }
+}

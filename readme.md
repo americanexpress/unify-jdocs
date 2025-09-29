@@ -3,10 +3,11 @@
 ---
 JDocs (JSON Documents) is a JSON manipulation library.
 It completely eliminates the need to have model / POJO classes and instead works directly
-on the JSON document. Once you use this library, you may never 
+on the JSON document. Once you use this library, you may never
 want to return to using Java model classes or using JSON schema for JSON document validation.
 
-Once you have taken a look, if you like what you see, we would very much appreciate a like for the project - it keeps us motivated knowing that our
+Once you have taken a look, if you like what you see, we would very much appreciate a like for the project - it keeps us
+motivated knowing that our
 work is getting traction and helping people in the community.
 
 And while you are here, may we mention another of our offerings which could be of interest:
@@ -68,9 +69,9 @@ public class Phone {
   String number;
 }
 ```
- 
+
 These Java classes created are referred to as model classes. The JSON document is parsed and converted into
-Java objects which are then used in the program. The process of converting JSON documents into 
+Java objects which are then used in the program. The process of converting JSON documents into
 language specific objects is known as ‘unmarshalling" and of converting the language specific objects
 back into JSON documents as "marshalling" i.e.
 
@@ -82,30 +83,32 @@ _Unmarshalling -> JSON document to Java object_
 
 #### Challenges faced in using model classes to work with JSON documents
 
-In an application program, model classes, marshalling and unmarshalling is extensively used to convert 
+In an application program, model classes, marshalling and unmarshalling is extensively used to convert
 JSON into Java objects and vice versa. This approach has the following challenges associated with it:
 
 1. The JSON to Java mapping and vice versa has to be created and maintained. Any time the JSON document
-structure changes, these classes must also be updated as also the programs using these classes.
-Having model objects creates an additional layer which always needs to be kept in sync with the JSON text
-document structure. The complexity is compounded by the fact that JSON documents can be arbitrary levels
-deep in which case keeping them in sync becomes ever more challenging. This also tightly couples the JSON
-document, model classes and the business logic code making the application difficult to change
+   structure changes, these classes must also be updated as also the programs using these classes.
+   Having model objects creates an additional layer which always needs to be kept in sync with the JSON text
+   document structure. The complexity is compounded by the fact that JSON documents can be arbitrary levels
+   deep in which case keeping them in sync becomes ever more challenging. This also tightly couples the JSON
+   document, model classes and the business logic code making the application difficult to change
 2. The problem of code bloat. Typically applications deal with multiple JSON document types.
-Each JSON document type may map to multiple Java classes. This situation leads to a plethora of
-Java classes and wrapper functions written to access fields in these classes. Over time
-this leads to code bloat consisting of numerous Java classes with limited value except for reading and writing JSON
-elements. Also, accessing nested fields / arrays may requires multiple lines of code as traversal of
-fields needs to be done across levels and null values / absent entries dealt with
+   Each JSON document type may map to multiple Java classes. This situation leads to a plethora of
+   Java classes and wrapper functions written to access fields in these classes. Over time
+   this leads to code bloat consisting of numerous Java classes with limited value except for reading and writing JSON
+   elements. Also, accessing nested fields / arrays may requires multiple lines of code as traversal of
+   fields needs to be done across levels and null values / absent entries dealt with
 
 The consequences over time of the above are:
-1. Inability to carry out a fast, accurate and exhaustive impact analysis. For example, where all in the code base is this json path used?
+
+1. Inability to carry out a fast, accurate and exhaustive impact analysis. For example, where all in the code base is
+   this json path used?
 2. Changing JSON document structure becomes extremely difficult, tedious and error prone. In large code bases,
-it becomes next to impossible
+   it becomes next to impossible
 3. There is an adverse impact on performance leading to higher usage of system resources
 4. The code comprehension and readability suffers leading to maintainability issues
 5. Finally deterioration in quality, longer turnaround time for changes, higher efforts and
-ultimately higher costs and risks
+   ultimately higher costs and risks
 
 ---
 
@@ -117,16 +120,16 @@ manipulating JSON documents directly through JSON paths (with a slight home grow
 Doing away with model classes has the following benefits:
 
 1. Reduces the amount of code by ~90% which in turns means significantly faster implementations,
-reduced effort, improved quality and faster time to market
+   reduced effort, improved quality and faster time to market
 2. Helps developers concentrate on implementing business logic rather than spending time and effort on
-manipulating model classes to access data
+   manipulating model classes to access data
 3. Simplifies the way code is written and makes it easily comprehensible.
-To know which elements are being accessed, developers no longer need to go through lines and lines of
-code that only deal with traversing model classes and have very little to do with business logic
+   To know which elements are being accessed, developers no longer need to go through lines and lines of
+   code that only deal with traversing model classes and have very little to do with business logic
 4. Allows for fast, accurate and exhaustive impact analysis across the code base. Developers can in a matter of
-seconds locate all usages of a json path across the code base
+   seconds locate all usages of a json path across the code base
 5. By always referring to data as JSON paths, it allows developers to gain a much better understanding of
-the business domain, data and its usage
+   the business domain, data and its usage
 
 ---
 
@@ -145,7 +148,7 @@ Lets start with a sample JSON document as below:
   }
 }
 ```
- 
+
 ##### Reading and writing elements
 
 The first step is to get a `Document` by so:
@@ -171,12 +174,12 @@ Let’s say you execute the following commands:
 d.setString("$.first_name", "John");
 d.setString("$.last_name", "Ryan");
 d.setString("$.middle_name", "Smith");
-d.setString("$.is_married", false);
+d.setBoolean("$.is_married", false);
 d.setInteger("$.number_of_children", 0);
 d.setString("$.home_address.zip", "85032");
 String s = d.getPrettyPrintJson();
 ```
- 
+
 The value of `s` will now be:
 ```json
 {
@@ -254,7 +257,7 @@ Consider the following JSON document. Lets refer to it as snippet 1:
 ```java
 Document d = new JDocument(json); // assuming json is a string containing snippet 1
 String s = d.getString("$.phones[0].type"); // will return Home
-s = getString("$.phones[0].number"); // will return 123456
+s = d.getString("$.phones[0].number"); // will return 123456
 ```
 
 Lets make things more interesting! You could refer to the array index by specifying a selection criteria. A
@@ -310,9 +313,10 @@ String s = d.getPrettyPrintJson();
 ```
 
 Note that JDocs when it did not find an array element with `type=Cell`, it went ahead and created one.
-By default, since the value of the field `type` is not being set explicitly, it assumed the field to be of `String` type.
+By default, since the value of the field `type` is not being set explicitly, it assumed the field to be of `String`
+type.
 If you had not wanted that, you could very well have used something like below:
- 
+
 ```java
 Document d = new JDocument(json); // assuming json is a string containing snippet 1
 d.setString("$.phones[type=Home].number", "222222")
@@ -379,7 +383,7 @@ String s = d.getPrettyPrintJson();
 In this case, JDocs would throw an out of bounds exception as below:
 
 ```java
-com.americanexpress.unify.jdocs.UnifyException: Array index out of bounds -> phones
+com.americanexpress.unify.jdocs.UnifyException:Array index out of bounds->phones
 ``` 
 
 JDocs realized that an element was being attempted to be added at an index which did not have an element
@@ -392,10 +396,10 @@ You could use this same notation to create new arrays, create complex objects wi
 create arrays within arrays etc. An example of this is below:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing snippet 1
-d.setString("$.addresses[0].type", "Home")
-d.setString("$.addresses[0].line_1", "Greenway Pkwy")
-String s = d.getPrettyPrintJson();
+Document d=new JDocument(json); // assuming json is a string containing snippet 1
+        d.setString("$.addresses[0].type","Home")
+        d.setString("$.addresses[0].line_1","Greenway Pkwy")
+        String s=d.getPrettyPrintJson();
 ```
 
 Now `s` will have the following value:
@@ -423,17 +427,19 @@ In case array indexes are used:
 1. In case the index exists, the element in that index will be updated
 2. In case the index does not exist and the index value is 0, an array element will be created
 3. In case the index does not exist and the index value is greater than 0, an element
-will be created only if the index is one greater than the maximum index in the existing array
+   will be created only if the index is one greater than the maximum index in the existing array
 
 In case an array selection criteria is used:
+
 1. If an element exists which contains the field and value as specified in the selection criteria,
-that element will be updated
+   that element will be updated
 2. If no element has a field as specified in the selection criteria, a new array element will
-be created with a field set to the value specified in the criteria
+   be created with a field set to the value specified in the criteria
 
 ---
 
 ##### Iterating arrays
+
 Now, specifying array indexes hard coded as above is fine. But in the real world, you do not know the number
 of elements that an array may have and so you need a way to find out the number of elements in the
 array and to be able to traverse over all the elements, read them and them and maybe set fields in them
@@ -614,9 +620,9 @@ d.deletePath("$.phones[%]", 0 + ""); // will delete the first element
 
 ##### The concept of Base and Typed Documents
 
-Till now we talked of operations which can be done on a free form JSON document meaning that it is 
+Till now we talked of operations which can be done on a free form JSON document meaning that it is
 possible to read and write pretty much any path we feel like. But what if we wanted to lock down the structure of a JSON
-document? Typically we would use something like JSON schema. We thought that there was a far simpler and 
+document? Typically we would use something like JSON schema. We thought that there was a far simpler and
 more intuitive way to do the same thing. This is where we now start to talk of Base and Typed documents.
 
 In JDocs, there can be two types of documents. A Base document which we have worked with so far
@@ -642,7 +648,7 @@ Lets understand this using an example. Consider the snippet 4 below:
 ```json
 {
   "first_name": "Deepak",
-  "start_date": "28-Jan-2020 21:18:10 America/Phoenix",
+  "start_date": "01-28-2020 21:18:10 America/Phoenix",
   "id": 12345,
   "phones": [
     {
@@ -661,15 +667,15 @@ The model for the above JSON document would be defined as below:
 
 ```json
 {
-  "first_name": "{\"type\":\"string\"}",
-  "start_date": "{\"type\":\"date \"format\":\"dd-MM-yyyy HH:mm:ss VV",
-  "id": "{\"type\":\"integer\", \"regex\":\".*\"}",
-  "phones": [
-    {
-      "type": "{\"type\":\"string\"}",
-      "number": "{\"type\":\"integer\", \"regex\":\".*\"}"
-    }
-  ]
+   "first_name": "{\"type\":\"string\"}",
+   "start_date": "{\"type\":\"date\", \"format\":\"MM-dd-uuuu HH:mm:ss VV\"}",
+   "id": "{\"type\":\"integer\", \"regex\":\".*\"}",
+   "phones": [
+      {
+         "type": "{\"type\":\"string\"}",
+         "number": "{\"type\":\"integer\", \"regex\":\".*\"}"
+      }
+   ]
 }
 ```
 
@@ -720,25 +726,135 @@ d.setInteger("$.phones[0].number", 333333);
 ```
 
 Whereas the following will fail:
+
 ```java
-d.setString("$.first_name1", "Deepak1") // incorrect path
-d.setString("$.start_date", "15-Apr-2019") // incorrect date format
-d.setString("$.phones[0].number", "111111") // incorrect data type
+d.setString("$.first_name1","Deepak1") // incorrect path
+        d.setString("$.start_date","15-Apr-2019") // incorrect date format
+        d.setString("$.phones[0].number","111111") // incorrect data type
 ```
 
 As regards constraints, the validation is done against the specified regular expression. If a match returns true, the
 validation is assumed to succeed else an exception is thrown.
 
-The following attributes are implemented as part of specifying a constraint on a path:
+The following attributes can be specified as part of a constraint on a path:
 
-S. No. | Field Name | Description | Type | Mandatory?
------- | --------------- | ------------| ---- | ----------
-1 | type | Defines the type of the field. Possible values are string, integer, long, decimal, boolean, date | String | Yes
-2 | regex | The pattern against which the value will be validated | string | No
-3 | null_allowed | Specifies if null is a valid value for the field. If not specified, default is null not allowed. If value is null and allowed, regex will be ignored | boolean | No
-4 | ignore_regex_if_empty_string | If not specified, default is false. If specified to true, regex will be ignored if value is empty. Applicable only for string type fields | boolean | No
-5 | format | Only applicable for date type. Specification is as per DateTimeFormatter | string | Yes
-6 | empty_date_allowed | Only applicable for date type fields. If not specified, default is true. If allowed format check is ignored  | boolean | No
+<table>
+  <thead>
+    <tr>
+      <th>S. No.</th>
+      <th>Field Name</th>
+      <th>Description</th>
+      <th>Type</th>
+      <th>Mandatory?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>type</td>
+      <td>Defines the type of the field. Possible values are string, integer, long, decimal, boolean, date</td>
+      <td>string</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>regex</td>
+      <td>The pattern against which the value will be validated. Applicable for all data types except date</td>
+      <td>string</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>ignore_regex_if_empty_string</td>
+      <td>Applicable only for string data type as other data types cannot have an empty value. Default if not specified is false</td>
+      <td>boolean</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>null_allowed</td>
+      <td>Specifies if null is a valid value for the field. Applicable for all data types. If not specified, default is false i.e. not allowed. If value is null and allowed, regex will be ignored</td>
+      <td>boolean</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>format</td>
+      <td>Applicable only for date data type. Specification is as per DateTimeFormatter</td>
+      <td>string</td>
+      <td>Yes (only for date data type)</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>empty_date_allowed</td>
+      <td>Applicable only for date data type. If not specified, default is true. If allowed, format check is ignored</td>
+      <td>boolean</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>min_length</td>
+      <td>Applicable only for string data type. Minimum length of field value if not null</td>
+      <td>integer</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>max_length</td>
+      <td>Applicable only for string data type. Maximum length of field value if not null</td>
+      <td>integer</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>min_value</td>
+      <td>Applicable only for integer, long and decimal data types. Minimum value of field value if not null. This value should match the data type</td>
+      <td>integer|long|decimal</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>max_value</td>
+      <td>Applicable only for integer, long and decimal data types. Maximum value of field value if not null. This value should match the data type</td>
+      <td>integer|long|decimal</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>min_date</td>
+      <td>Applicable only for date data types. Minimum date of field value if not null. This value should match the date format specification as defined in the format value</td>
+      <td>string</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>max_date</td>
+      <td>Applicable only for date data types. Maximum date of field value if not null. Note that this value should match the date format specification as defined in the format value</td>
+      <td>string</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+Below is the model for the above specifications:
+
+```json
+{
+   "type": "{\"type\":\"string\"}",
+   "null_allowed": "{\"type\":\"boolean\"}",
+   "regex": "{\"type\":\"string\"}",
+   "ignore_regex_if_empty": "{\"type\":\"boolean\"}",
+   "format": "{\"type\":\"string\"}",
+   "empty_date_allowed": "{\"type\":\"boolean\"}",
+   "min_length": "{\"type\":\"integer\"}",
+   "max_length": "{\"type\":\"integer\"}",
+   "min_value": "{\"type\":\"integer|long|decimal\"}",
+   "max_value": "{\"type\":\"integer|long|decimal\"}",
+   "min_date": "{\"type\":\"string\"}",
+   "max_date": "{\"type\":\"string\"}"
+}
+
+```
 
 **Validating typed documents**
 
@@ -812,46 +928,46 @@ Given a document, it is possible to extract content from it as a new document. C
 ```json
 {
    "id": "id",
-  "family" : {
-    "number_of_members": 2,
-    "members": [
-      {
-        "name": "Deepak Arora",
-        "phones": [
-          {
-            "type": "Home",
-            "number": "1111111111"
-          },
-          {
-            "type": "Cell",
-            "number": "2222222222"
-          }
-        ]
-      },
-      {
-        "name": "Nitika Kaushal",
-        "phones": [
-          {
-            "type": "Home",
-            "number": "3333333333"
-          },
-          {
-            "type": "Cell",
-            "number": "4444444444"
-          }
-        ]
-      }
-    ]
-  }
+   "family": {
+      "number_of_members": 2,
+      "members": [
+         {
+            "name": "Deepak Arora",
+            "phones": [
+               {
+                  "type": "Home",
+                  "number": "1111111111"
+               },
+               {
+                  "type": "Cell",
+                  "number": "2222222222"
+               }
+            ]
+         },
+         {
+            "name": "Nitika Kaushal",
+            "phones": [
+               {
+                  "type": "Home",
+                  "number": "3333333333"
+               },
+               {
+                  "type": "Cell",
+                  "number": "4444444444"
+               }
+            ]
+         }
+      ]
+   }
 }
 ```
 
 We can extract content like below:
 
 ```java
-Document d = new JDocument(json); // assuming json is a string containing above snippet
-Document d1 = d.getContent("$.family.members[1].phones[0]", false, true);
-String s = d1.getPrettyPrintJson();
+Document d=new JDocument(json); // assuming json is a string containing above snippet
+        Document d1=d.getContent("$.family.members[1].phones[0]",false,true);
+        String s=d1.getPrettyPrintJson();
 ```
 
 The value of `s` will contain:
@@ -873,7 +989,8 @@ The value of `s` will contain:
 }
 ```
 
-Note that the third parameter (`includeFullPath`) is specified as `true`. This means that return the full path in the document. Had we set
+Note that the third parameter (`includeFullPath`) is specified as `true`. This means that return the full path in the
+document. Had we set
 that to `false`, the following would have been returned:
 
 ```json
@@ -887,7 +1004,7 @@ The path specified in this method has to point to either:
 * a complex object
 * an array element (which also needs to be a complex object)
 * an array (like `phones[]`). In this case, the `includeFullPath` parameter has to be false else the API
-will throw an exception
+  will throw an exception
 
 In case the document we are extracting content from is a `TypedDocument`, then we have the option of returning
 a `BaseDocument` or a `TypedDocument`. This is specified using the second parameter `returnTypedDocument`. If this
@@ -897,9 +1014,10 @@ is not a `TypedDocument`, this parameter is ignored.
 
 Of course, if a `TypedDocument` is being returned, its needs to conform to the structure of the model document. In
 this situation, if we specify `includeFullPath = false`, it is possible that the returned document when constructed
-will not conform to the model document in which case the API will throw an exception. 
+will not conform to the model document in which case the API will throw an exception.
 
-As with other methods in the API, the path can contain `%` and the value specified in the last variable arguments parameter.
+As with other methods in the API, the path can contain `%` and the value specified in the last variable arguments
+parameter.
 
 ---
 
@@ -1041,11 +1159,12 @@ to.merge(from, null);
 String s = to.getPrettyPrintJson();
 ```
 A couple of points to note here:
+
 1. The second parameter of `merge` is a variable string argument and can be used to specify paths
-which need to be deleted in the to document before the merge is carried out
+   which need to be deleted in the to document before the merge is carried out
 2. If array elements are being merged, JDocs expects the key field to be specified. This is required
-so that JDocs can look up the array element in the to document to merge the from contents into. If no
-such array element is found in the to document, a new array element with the specified key is created 
+   so that JDocs can look up the array element in the to document to merge the from contents into. If no
+   such array element is found in the to document, a new array element with the specified key is created
 
 JDocs will throw an exception in case of mismatches encountered during merge, for example,
 the data type of the "to" path may not match with that of the "from" path
@@ -1069,7 +1188,7 @@ to play them back to see how the updates occurred.
 ##### Using @here in model documents
 
 Consider a scenario where there is a loan processing application document and its associated model. Assume that
-a service is called to the contents of the application document have to be passed in one of the 
+a service is called to the contents of the application document have to be passed in one of the
 JSON fields of the service request. In such a scenario, when a model document for the service request is created,
 the contents of the model document of the application document have to be embedded in it. Imagine if we
 had many more such cases and kept embedding application document everywhere as required. This
@@ -1097,7 +1216,7 @@ Consider the following application model document:
 Now consider that there is a `storeApplication` REST service which persists the contents of the document
 to a database. This service has it own request JSON model document and the contents of the application
 are present in a field. Without the use of @here feature, the model document for tthe service request
-would look like: 
+would look like:
 
 ```json
 {
@@ -1123,10 +1242,10 @@ Using @here, the model document for the service request can be written as:
 
 ```json
 {
-  "request_id": "{\"type\":\"string\"}",
-  "application": {
-     "@here": "/common/docs/models/application.json"
-  }
+   "request_id": "{\"type\":\"string\"}",
+   "application": {
+      "@here": "/common/docs/models/application.json"
+   }
 }
 ```
 
@@ -1143,7 +1262,7 @@ The below snippet will search the document for an array element in the phones
 array where the field type has the value home. Note that in order to use this API, the final element
 needs to be an array in which a selection criteria is specified. Also note that the selection criteria
 can refer to any field in the element and the index of the match of the first occurrence will be returned. In
-case it is required to read further, an iteration as described previously is recommended. 
+case it is required to read further, an iteration as described previously is recommended.
 
 ```java
 Document d = new JDocument(s); // s contains a valid JSON string
@@ -1169,17 +1288,17 @@ JDocs provides a different set of read and write methods to work with such const
 are similar to getXXX and setXXX methods and are listed below:
 
 ```java
-  Boolean getArrayValueBoolean(String path, String... vargs);
-  Integer getArrayValueInteger(String path, String... vargs);
-  String getArrayValueString(String path, String... vargs);
-  Long getArrayValueLong(String path, String... vargs);
-  BigDecimal getArrayValueBigDecimal(String path, String... vargs);
-  
-  void setArrayValueBoolean(String path, boolean value, String... vargs);
-  void setArrayValueInteger(String path, int value, String... vargs);
-  void setArrayValueLong(String path, long value, String... vargs);
-  void setArrayValueBigDecimal(String path, BigDecimal value, String... vargs);
-  void setArrayValueString(String path, String value, String... vargs);
+  Boolean getArrayValueBoolean(String path,String...vargs);
+        Integer getArrayValueInteger(String path,String...vargs);
+        String getArrayValueString(String path,String...vargs);
+        Long getArrayValueLong(String path,String...vargs);
+        BigDecimal getArrayValueBigDecimal(String path,String...vargs);
+
+        void setArrayValueBoolean(String path,boolean value,String...vargs);
+        void setArrayValueInteger(String path,int value,String...vargs);
+        void setArrayValueLong(String path,long value,String...vargs);
+        void setArrayValueBigDecimal(String path,BigDecimal value,String...vargs);
+        void setArrayValueString(String path,String value,String...vargs);
 ```
 
 The model document for the above would be defined as:
@@ -1213,7 +1332,7 @@ Consider the following JSON snippet:
 ```
 
 The flatten API of JDocs gives us a list of all the paths present in the document with or without values.
-The following gets the list of paths without values: 
+The following gets the list of paths without values:
 
 ```java
 Document d = new JDocument(json); // assuming json is a string containing above snippet
@@ -1329,14 +1448,15 @@ object returned from the call `di.getLeft()` or `di.getRight`. We could also use
 `getDataType` in case we wanted to get the data type of the value.
 
 Please note the following regarding comparing JSON documents:
+
 1. JDocs does a logical comparison of the documents. When fields with null values are encountered, they
-are treated as being equivalent to the field not being present in the document. In the above example,
-in the left document, `$.cars[0].model` has null value while this path is not present in the right document.
-JDocs comparison assumes that these are equivalent. In other words a JSON path leaf node having a null values
-is assumed to be the same as the path not existing at all.
+   are treated as being equivalent to the field not being present in the document. In the above example,
+   in the left document, `$.cars[0].model` has null value while this path is not present in the right document.
+   JDocs comparison assumes that these are equivalent. In other words a JSON path leaf node having a null values
+   is assumed to be the same as the path not existing at all.
 1. If any one of the documents being compared is a typed document, the data type of the path will be determined
-from the model document
- 
+   from the model document
+
 ---
 
 ##### What is unique about JDocs?
@@ -1368,6 +1488,7 @@ Provide us feedback. We would love to hear from you.
 ---
 
 ##### Author:
+
 Deepak Arora, GitHub: @deepakarora3, Twitter: @DeepakAroraHi
 
 ---
@@ -1376,7 +1497,7 @@ Deepak Arora, GitHub: @deepakarora3, Twitter: @DeepakAroraHi
 
 We welcome Your interest in the American Express Open Source Community on Github. Any Contributor to
 any Open Source Project managed by the American Express Open Source Community must accept and sign
-an Agreement indicating agreement to the terms below. Except for the rights granted in this 
+an Agreement indicating agreement to the terms below. Except for the rights granted in this
 Agreement to American Express and to recipients of software distributed by American Express, You
 reserve all right, title, and interest, if any, in and to Your Contributions. Please
 [fill out the Agreement](https://cla-assistant.io/americanexpress/unify-jdocs).

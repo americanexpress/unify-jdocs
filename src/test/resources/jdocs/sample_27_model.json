@@ -1,0 +1,17 @@
+{
+  "addresses": [
+    {
+      "line_1": "{\"type\":\"string\", \"min_length\":1, \"max_length\":10}"
+    }
+  ],
+  "test": [
+    {
+      "int_no": "{\"type\":\"integer\", \"min_value\":1, \"max_value\":10}",
+      "long_no": "{\"type\":\"long\", \"min_value\":3000, \"max_value\":6000}",
+      "decimal_no": "{\"type\":\"decimal\", \"min_value\":1000.00, \"max_value\":1000.89}",
+      "date_1": "{\"type\":\"date\", \"format\":\"uuuu-MM-dd\", \"min_date\":\"1975-11-03\", \"max_date\":\"1985-11-03\"}",
+      "date_2": "{\"type\":\"date\", \"format\":\"uuuu-MMM-dd HH:mm:ss.SSS VV\", \"min_date\":\"1975-Nov-03 00:00:00.000 UTC\", \"max_date\":\"1985-Nov-03 00:00:00.000 UTC\"}",
+      "date_3": "{\"type\":\"date\", \"format\":\"uuuu\", \"min_date\":\"1975\", \"max_date\":\"1985\"}"
+    }
+  ]
+}

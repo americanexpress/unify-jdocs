@@ -27,6 +27,10 @@ public class CONSTS_JDOCS {
   // these are the fields that appear in the format string i.e. the whole string for a leaf node
   public class FORMAT_FIELDS {
 
+    private FORMAT_FIELDS() {
+      // nothing to do
+    }
+
     public static final String KEY = "jdocs_arr_pk";
     public static final String TYPE = "type";
     public static final String REGEX = "regex";
@@ -34,6 +38,12 @@ public class CONSTS_JDOCS {
     public static final String NULL_ALLOWED = "null_allowed";
     public static final String IGNORE_REGEX_IF_EMPTY_STRING = "ignore_regex_if_empty_string";
     public static final String EMPTY_DATE_ALLOWED = "empty_date_allowed";
+    public static final String MIN_LENGTH = "min_length";
+    public static final String MAX_LENGTH = "max_length";
+    public static final String MIN_VALUE = "min_value";
+    public static final String MAX_VALUE = "max_value";
+    public static final String MIN_DATE = "min_date";
+    public static final String MAX_DATE = "max_date";
 
   }
 
