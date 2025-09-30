@@ -25,7 +25,7 @@ JDocs is available as a jar file in Maven central with the following latest Mave
 ```pom
 <groupId>com.americanexpress.unify.jdocs</groupId>
 <artifactId>unify-jdocs</artifactId>
-<version>1.8.0</version>
+<version>1.9.0</version>
 ```
 
 ---
@@ -622,7 +622,7 @@ d.deletePath("$.phones[%]", 0 + ""); // will delete the first element
 
 Till now we talked of operations which can be done on a free form JSON document meaning that it is
 possible to read and write pretty much any path we feel like. But what if we wanted to lock down the structure of a JSON
-document? Typically we would use something like JSON schema. We thought that there was a far simpler and
+document? Typically, we would use something like JSON schema. We thought that there was a far simpler and
 more intuitive way to do the same thing. This is where we now start to talk of Base and Typed documents.
 
 In JDocs, there can be two types of documents. A Base document which we have worked with so far
@@ -889,10 +889,10 @@ model document or validate them only at read and write of paths.
 This is a typical scenario in the use of APIs which can return extra blocks and paths which may not be present in the
 model document and which we may not be interested in. If we were to validate at the time of creating the document, the
 model validations would fail unless we kept the model document in sync with all the changes happening on the API side.
-Most of the times, this is not possible as the teams are separate and there is no reason that adding fields to the
+Most times, this is not possible as the teams are separate and there is no reason that adding fields to the
 response which we are not interested in should cause a failure.
 
-The validation mechanism can be set at the whole of JDocs level or at a per document level. To set the validation
+The validation mechanism can be set at the whole of JDocs level or at a per-document level. To set the validation
 mechanism at a JDocs level, initialize JDocs by specifying the validation type in the `init` method as below. This
 validation type will come into effect for all typed documents unless a validation type has been specified explicitly for
 a document:
@@ -913,7 +913,14 @@ or while setting the type of a base document as below:
 
 `d.setType(type, CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS);`
 
-There are also a couple of utility methods to validate a document against a model as below:
+**Validating documents against different models**
+
+Both base and typed documents can be validated against different models. This scenario come in handy when there may
+be different validations required for data originating from different use cases. For example, if we were to collect
+customer information for name or address, there may be a need to have different validations for data collected for
+different countries. The special characters that could be included for US may be different from what could be included
+for France. In order to accomplish this, we would define multiple model documents that may only be used for validation.
+The following validation methods allow us to do such validations.
 
 `public void validateAllPaths(String type);`
 
