@@ -1,0 +1,14 @@
+{
+  "type": "{\"type\":\"string\"}",
+  "null_allowed": "{\"type\":\"boolean\"}",
+  "regex": "{\"type\":\"string\"}",
+  "ignore_regex_if_empty": "{\"type\":\"boolean\"}",
+  "format": "{\"type\":\"string\"}",
+  "empty_date_allowed": "{\"type\":\"boolean\"}",
+  "min_length": "{\"type\":\"integer\"}",
+  "max_length": "{\"type\":\"integer\"}",
+  "min_value": "{\"type\":\"integer|long|decimal\"}",
+  "max_value": "{\"type\":\"integer|long|decimal\"}",
+  "min_date": "{\"type\":\"string\"}",
+  "max_date": "{\"type\":\"string\"}"
+}

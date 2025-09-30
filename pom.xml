@@ -19,7 +19,7 @@
 
     <groupId>com.americanexpress.unify.jdocs</groupId>
     <artifactId>unify-jdocs</artifactId>
-    <version>1.8.0</version>
+    <version>1.9.0</version>
     <packaging>jar</packaging>
 
     <name>unify-jdocs</name>
