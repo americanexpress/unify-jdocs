@@ -1,5 +1,14 @@
 version: 2.1
 
+commands:
+  configure-gpg:
+    description: |
+      Configure GPG private keys.
+    steps:
+      - run:
+          command: echo $ORG_GRADLE_PROJECT_signingKey_base64 | base64 --decode | gpg --batch --no-tty --import --yes
+          name: Configure GPG private key for signing project artifacts in OSS Sonatype
+
 workflows:
   version: 2
   build:
@@ -7,6 +16,7 @@ workflows:
       - build:
           context:
             - maven_central_credentials
+            - code_signing_credentials
           filters:
             branches:
               only:
@@ -20,10 +30,9 @@ jobs:
       - checkout
       - restore_cache:
           key: unify-jdocs-{{ checksum "pom.xml" }}
+      - configure-gpg
       - run: mvn --settings ".circleci/settings.xml" -B -DskipTests clean deploy -e -X
       - save_cache: # saves the project dependencies
           paths:
             - ~/.m2
           key: unify-jdocs-{{ checksum "pom.xml" }}
-
-
