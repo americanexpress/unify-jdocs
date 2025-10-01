@@ -750,7 +750,7 @@ public class BaseUtils {
    * Creates an error String from the specified exception and code
    * <p>
    * The error string consists of the following format
-   * "Error code -> {0}\nError message -> {1}\nError details -> {2}" where
+   * "Error code -&gt {0}\nError message -&gt {1}\nError details -&gt {2}" where
    * {0} is the String code
    * {1} is e.getMessage and
    * {2} is the String returned from getStackTrace(e, 12)
@@ -770,13 +770,13 @@ public class BaseUtils {
    * Creates an error String from a UnifyException
    * <p>
    * The error string consists of the following format if the cause inside UnifyException is null
-   * "Error code -> {0}\nError message -> {1}\nError details -> {2}" where
+   * "Error code -&gt {0}\nError message -&gt {1}\nError details -&gt {2}" where
    * {0} is e.getErrorCode
    * {1} is e.getMessage and
    * {2} is the String returned from getStackTrace(e, 12)
    * <p>
    * The error string consists of the following format if the cause inside UnifyException is not null
-   * "Error code -> {0}\nError message -> {1}\nError details -> {2}\nStack Info -> {3}" where
+   * "Error code -&gt {0}\nError message -&gt {1}\nError details -&gt {2}\nStack Info -&gt {3}" where
    * {0} is e.getErrorCode
    * {1} is cause.getMessage and
    * {2} is e.getDetails
