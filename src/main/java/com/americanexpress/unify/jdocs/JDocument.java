@@ -46,8 +46,12 @@ import java.util.stream.Collectors;
 import static com.americanexpress.unify.jdocs.DataType.DATE;
 import static com.americanexpress.unify.jdocs.DataType.STRING;
 
-/*
- * @author Deepak Arora
+/**
+ * This class represents a JSON document with support for validation,
+ * manipulation, and merging of JSON data. It provides methods to
+ * interact with JSON data, validate paths, and manage document models.
+ *
+ * Author: Deepak Arora
  */
 public class JDocument implements Document {
 
@@ -81,13 +85,18 @@ public class JDocument implements Document {
 
   private static final ObjectWriter objectWriter = objectMapper.writer(new DefaultPrettyPrinter().withObjectIndenter(new DefaultIndenter().withLinefeed("\n")));
 
+  /**
+   * Initializes the JDocument class with the default validation type.
+   */
   public static void init() {
     init(CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
   }
 
   /**
-   * inits JDocs
-   * <p>
+   * Initializes the JDocument class with the specified validation.
+   *
+   * @param defaultValidateAtReadWriteOnly Whether to use validation at read write only
+   *
    * This method is deprecated - use the new method init(CONSTS_JDOCS.VALIDATION_TYPE validationType)
    */
   @Deprecated
@@ -103,6 +112,11 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Initializes the JDocument class with the specified validation type.
+   *
+   * @param validationType The validation type to use.
+   */
   public static void init(CONSTS_JDOCS.VALIDATION_TYPE validationType) {
     // should be done once at the start
     ERRORS_BASE.load();
@@ -110,12 +124,19 @@ public class JDocument implements Document {
     JDocument.defaultValidationType = validationType;
   }
 
+  /**
+   * Gets the default validation type for the JDocument class.
+   *
+   * @return The default validation type.
+   */
   public static CONSTS_JDOCS.VALIDATION_TYPE getDefaultValidationType() {
     return defaultValidationType;
   }
 
   /**
    * This method is deprecated - use the new method getDefaultValidationType()
+   *
+   * @return the default validate at read write only
    */
   @Deprecated
   public boolean getDefaultValidateAtReadWriteOnly() {
@@ -127,11 +148,19 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Gets the validation type for this document.
+   *
+   * @return The validation type.
+   */
   @Override
   public CONSTS_JDOCS.VALIDATION_TYPE getValidationType() {
     return validationType;
   }
 
+  /**
+   * Constructs an empty JDocument.
+   */
   public JDocument() {
     try {
       rootNode = objectMapper.readTree("{}");
@@ -141,6 +170,11 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Constructs a JDocument from the given JSON string.
+   *
+   * @param json The JSON string to initialize the document.
+   */
   public JDocument(String json) {
     try {
       rootNode = objectMapper.readTree(json);
@@ -150,12 +184,22 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Constructs a JDocument with the specified type and JSON string.
+   *
+   * @param type The type of the document.
+   * @param json The JSON string to initialize the document.
+   */
   public JDocument(String type, String json) {
     init(type, json, defaultValidationType);
   }
 
   /**
    * This method is deprecated - use the new constructor JDocument(String type, String json, CONSTS_JDOCS.VALIDATION_TYPE validationType)
+   *
+   * @param type                    the type
+   * @param json                    the json
+   * @param validateAtReadWriteOnly the validate at read write only
    */
   @Deprecated
   public JDocument(String type, String json, boolean validateAtReadWriteOnly) {
@@ -167,6 +211,14 @@ public class JDocument implements Document {
     }
   }
 
+
+  /**
+   * Constructs a JDocument with the specified type, JSON string, and validation type.
+   *
+   * @param type           The type of the document.
+   * @param json           The JSON string to initialize the document.
+   * @param validationType The validation type to use.
+   */
   public JDocument(String type, String json, CONSTS_JDOCS.VALIDATION_TYPE validationType) {
     init(type, json, validationType);
   }
@@ -196,11 +248,23 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Gets the type of the document.
+   *
+   * @return The document type.
+   */
   @Override
   public String getType() {
     return docType;
   }
 
+  /**
+   * Gets the data type of the leaf node at the specified path.
+   *
+   * @param path The path to the leaf node.
+   * @param vargs Optional arguments for the path.
+   * @return The data type of the leaf node.
+   */
   @Override
   public DataType getLeafNodeDataType(String path, String... vargs) {
     if (isTyped() == false) {
@@ -219,6 +283,13 @@ public class JDocument implements Document {
     return DataType.valueOf(type.toUpperCase());
   }
 
+  /**
+   * Gets the data type of the array value leaf node at the specified path.
+   *
+   * @param path The path to the array value leaf node.
+   * @param vargs Optional arguments for the path.
+   * @return The data type of the array value leaf node.
+   */
   @Override
   public DataType getArrayValueLeafNodeDataType(String path, String... vargs) {
     if (isTyped() == false) {
@@ -237,6 +308,11 @@ public class JDocument implements Document {
     return DataType.valueOf(type.toUpperCase());
   }
 
+  /**
+   * Checks if the document is typed.
+   *
+   * @return True if the document is typed, false otherwise.
+   */
   @Override
   public boolean isTyped() {
     if (docType.isEmpty()) {
@@ -247,6 +323,11 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Sets the type of the document.
+   *
+   * @param type The type to set.
+   */
   @Override
   public void setType(String type) {
     setType(type, defaultValidationType);
@@ -277,6 +358,12 @@ public class JDocument implements Document {
     this.docType = type;
   }
 
+  /**
+   * Sets the type of the document with the specified validation type.
+   *
+   * @param type The type to set.
+   * @param validationType The validation type to use.
+   */
   @Override
   public void setType(String type, CONSTS_JDOCS.VALIDATION_TYPE validationType) {
     if (BaseUtils.isNullOrEmptyAfterTrim(type) == true) {
@@ -298,7 +385,7 @@ public class JDocument implements Document {
   // Base document methods
 
   /**
-   *
+   * Empties the document.
    */
   @Override
   public void empty() {
@@ -411,6 +498,11 @@ public class JDocument implements Document {
     return s;
   }
 
+  /**
+   * Deletes the paths from the document.
+   *
+   * @param pathsToDelete The list of paths to delete.
+   */
   @Override
   public void deletePaths(List<String> pathsToDelete) {
     if ((pathsToDelete == null) || (pathsToDelete.size() == 0)) {
@@ -448,6 +540,12 @@ public class JDocument implements Document {
     newPathsToDelete.stream().forEach(s -> deletePath(s));
   }
 
+  /**
+   * Merges the specified document into this document after deleting specified paths.
+   *
+   * @param d The document to merge.
+   * @param pathsToDelete The paths to delete before merging.
+   */
   @Override
   public void merge(Document d, List<String> pathsToDelete) {
     if (d == null) {
@@ -495,8 +593,11 @@ public class JDocument implements Document {
   }
 
   /**
-   * @param path
-   * @return
+   * Checks if a path exists
+   *
+   * @param path The path to check if it exists
+   * @param vargs Optional arguments for the path
+   * @return True if the path exists, false otherwise
    * @throws UnifyException
    */
   @Override
@@ -518,8 +619,11 @@ public class JDocument implements Document {
   }
 
   /**
-   * @param path
-   * @return
+   * Checks if the path is an array
+   *
+   * @param path The path to check if it is an array
+   * @param vargs Optional arguments for the path.
+   * @return True if the path is an array, false otherwise
    * @throws UnifyException
    */
   @Override
@@ -546,8 +650,11 @@ public class JDocument implements Document {
   }
 
   /**
-   * @param path
-   * @return
+   * Gets the document from a path
+   *
+   * @param path The path from which the document has to be read
+   * @param vargs Optional arguments for the path.
+   * @return The document at the specified path
    * @throws UnifyException
    */
   @Override
@@ -575,10 +682,6 @@ public class JDocument implements Document {
     return d;
   }
 
-  /**
-   * @param path
-   * @return
-   */
   protected JsonNode getJsonNode(String path) {
     List<Token> tokenList = parse(path);
     JsonNode node = traverse(rootNode, tokenList, false);
@@ -651,6 +754,14 @@ public class JDocument implements Document {
     return ret;
   }
 
+  /**
+   * Gets the index of an array element based on the specified path and optional arguments.
+   *
+   * @param path The path to the array.
+   * @param vargs Optional arguments for the path.
+   * @return The index of the array element.
+   * @throws UnifyException If the path is invalid or the array element cannot be found.
+   */
   @Override
   public int getArrayIndex(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -678,9 +789,11 @@ public class JDocument implements Document {
   }
 
   /**
-   * @param path
-   * @return
-   * @throws UnifyException
+   * Gets the size of the array at the specified path
+   *
+   * @param path  the path
+   * @param vargs Optional arguments for the path.
+   * @return the size of the array
    */
   @Override
   public int getArraySize(String path, String... vargs) {
@@ -693,6 +806,11 @@ public class JDocument implements Document {
     return getArraySize(path, tokenList);
   }
 
+  /**
+   * Gets the JSON string representation of the document.
+   *
+   * @return The JSON string.
+   */
   @Override
   public String getJson() {
     String s = null;
@@ -706,6 +824,11 @@ public class JDocument implements Document {
     return s;
   }
 
+  /**
+   * Gets the pretty-printed JSON string representation of the document.
+   *
+   * @return The pretty-printed JSON string.
+   */
   @Override
   public String getPrettyPrintJson() {
     String s = null;
@@ -1400,6 +1523,13 @@ public class JDocument implements Document {
 
   }
 
+  /**
+   * Gets the path as a static path by replacing the % characters with the vargs provided
+   *
+   * @param path  the path
+   * @param vargs Optional arguments for the path.
+   * @return the static path
+   */
   public static String getStaticPath(String path, String... vargs) {
     int size = path.length();
     StringBuilder sb = new StringBuilder();
@@ -1435,6 +1565,14 @@ public class JDocument implements Document {
     return tokenList;
   }
 
+  /**
+   * Gets the value at the specified path as an object
+   *
+   * @param path The path from which the value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public Object getValue(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1449,6 +1587,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Gets the value at the specified path as a string
+   *
+   * @param path The path from which the value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The string value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public String getString(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1480,6 +1626,14 @@ public class JDocument implements Document {
     return modelPath;
   }
 
+  /**
+   * Gets the value at the specified path as an integer
+   *
+   * @param path The path from which the value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The integer value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public Integer getInteger(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1494,6 +1648,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Gets the value at the specified path as a boolean
+   *
+   * @param path The path from which the value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The boolean value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public Boolean getBoolean(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1508,6 +1670,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Gets the value at the specified path as a long
+   *
+   * @param path The path from which the value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The long value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public Long getLong(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1522,6 +1692,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Gets the value at the specified path as a BigDecimal
+   *
+   * @param path The path from which the value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The BigDecimal value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public BigDecimal getBigDecimal(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1536,6 +1714,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Gets the value at the specified array path as an object
+   *
+   * @param path The path from which the array value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The array value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public Object getArrayValue(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1550,6 +1736,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Gets the value at the specified array path as a string
+   *
+   * @param path The path from which the array value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The string array value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public String getArrayValueString(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1564,6 +1758,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Gets the value at the specified array path as an integer
+   *
+   * @param path The path from which the array value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The integer array value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public Integer getArrayValueInteger(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1578,6 +1780,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Gets the value at the specified array path as a boolean
+   *
+   * @param path The path from which the array value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The boolean array value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public Boolean getArrayValueBoolean(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1592,6 +1802,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Gets the value at the specified array path as a long
+   *
+   * @param path The path from which the array value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The long array value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public Long getArrayValueLong(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1606,6 +1824,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Gets the value at the specified array path as a BigDecimal
+   *
+   * @param path The path from which the array value has to be read
+   * @param vargs Optional arguments for the path
+   * @return The BigDecimal array value at the specified path
+   * @throws UnifyException
+   */
   @Override
   public BigDecimal getArrayValueBigDecimal(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1620,6 +1846,14 @@ public class JDocument implements Document {
     return value;
   }
 
+  /**
+   * Sets the value at the specified path
+   *
+   * @param path The path at which the value has to be set
+   * @param value The value to be set
+   * @param vargs Optional arguments for the path
+   * @throws UnifyException
+   */
   @Override
   public void setString(String path, String value, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1631,6 +1865,14 @@ public class JDocument implements Document {
     setValue(path, tokenList, value, docType);
   }
 
+  /**
+   * Sets the value at the specified path
+   *
+   * @param path The path at which the value has to be set
+   * @param value The value to be set
+   * @param vargs Optional arguments for the path
+   * @throws UnifyException
+   */
   @Override
   public void setInteger(String path, int value, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1642,6 +1884,14 @@ public class JDocument implements Document {
     setValue(path, tokenList, value, docType);
   }
 
+  /**
+   * Sets the value at the specified path
+   *
+   * @param path The path at which the value has to be set
+   * @param value The value to be set
+   * @param vargs Optional arguments for the path
+   * @throws UnifyException
+   */
   @Override
   public void setBoolean(String path, boolean value, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1653,6 +1903,14 @@ public class JDocument implements Document {
     setValue(path, tokenList, value, docType);
   }
 
+  /**
+   * Sets the value at the specified path
+   *
+   * @param path The path at which the value has to be set
+   * @param value The value to be set
+   * @param vargs Optional arguments for the path
+   * @throws UnifyException
+   */
   @Override
   public void setLong(String path, long value, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1664,6 +1922,14 @@ public class JDocument implements Document {
     setValue(path, tokenList, value, docType);
   }
 
+  /**
+   * Sets the value at the specified path
+   *
+   * @param path The path at which the value has to be set
+   * @param value The value to be set
+   * @param vargs Optional arguments for the path
+   * @throws UnifyException
+   */
   @Override
   public void setBigDecimal(String path, BigDecimal value, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1675,6 +1941,14 @@ public class JDocument implements Document {
     setValue(path, tokenList, value, docType);
   }
 
+  /**
+   * Sets the value at the specified array path
+   *
+   * @param path The path at which the array value has to be set
+   * @param value The value to be set
+   * @param vargs Optional arguments for the path
+   * @throws UnifyException
+   */
   @Override
   public void setArrayValueString(String path, String value, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1686,6 +1960,14 @@ public class JDocument implements Document {
     setValue(path, tokenList, value, docType);
   }
 
+  /**
+   * Sets the value at the specified array path
+   *
+   * @param path The path at which the array value has to be set
+   * @param value The value to be set
+   * @param vargs Optional arguments for the path
+   * @throws UnifyException
+   */
   @Override
   public void setArrayValueInteger(String path, int value, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1697,6 +1979,14 @@ public class JDocument implements Document {
     setValue(path, tokenList, value, docType);
   }
 
+  /**
+   * Sets the value at the specified array path
+   *
+   * @param path The path at which the array value has to be set
+   * @param value The value to be set
+   * @param vargs Optional arguments for the path
+   * @throws UnifyException
+   */
   @Override
   public void setArrayValueBoolean(String path, boolean value, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1708,6 +1998,14 @@ public class JDocument implements Document {
     setValue(path, tokenList, value, docType);
   }
 
+  /**
+   * Sets the value at the specified array path
+   *
+   * @param path The path at which the array value has to be set
+   * @param value The value to be set
+   * @param vargs Optional arguments for the path
+   * @throws UnifyException
+   */
   @Override
   public void setArrayValueLong(String path, long value, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1719,6 +2017,14 @@ public class JDocument implements Document {
     setValue(path, tokenList, value, docType);
   }
 
+  /**
+   * Sets the value at the specified array path
+   *
+   * @param path The path at which the array value has to be set
+   * @param value The value to be set
+   * @param vargs Optional arguments for the path
+   * @throws UnifyException
+   */
   @Override
   public void setArrayValueBigDecimal(String path, BigDecimal value, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1730,6 +2036,15 @@ public class JDocument implements Document {
     setValue(path, tokenList, value, docType);
   }
 
+  /**
+   * Sets the content from one document to another
+   *
+   * @param fromDoc  The document from which the content has to be copied
+   * @param fromPath The path from which the content has to be copied
+   * @param toPath   The path to which the content has to be copied
+   * @param vargs    Optional arguments for the paths
+   * @throws UnifyException
+   */
   @Override
   public void setContent(Document fromDoc, String fromPath, String toPath, String... vargs) {
     if (vargs.length > 0) {
@@ -1799,6 +2114,11 @@ public class JDocument implements Document {
     d.isValidated = isValidated;
   }
 
+  /**
+   * Creates a deep copy of the document
+   *
+   * @return The deep copy of the document
+   */
   @Override
   public synchronized Document deepCopy() {
     JDocument d = new JDocument();
@@ -1890,6 +2210,12 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Deletes the specified path
+   *
+   * @param path The path to be deleted
+   * @param vargs Optional arguments for the path
+   */
   @Override
   public void deletePath(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1906,6 +2232,14 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Checks if the specified path is a leaf node
+   *
+   * @param path The path to be checked
+   * @param vargs Optional arguments for the path
+   * @return true if the path exists in the document
+   * @throws UnifyException
+   */
   @Override
   public boolean isLeafNode(String path, String... vargs) {
     path = getStaticPath(path, vargs);
@@ -1937,6 +2271,16 @@ public class JDocument implements Document {
     return Parser.getTokens(path);
   }
 
+  /**
+   * Gets the content at the specified path as a document
+   *
+   * @param path The path from which the content has to be read
+   * @param returnTypedDocument true if a typed document has to be returned
+   * @param includeFullPath true if the full path has to be included in the returned document
+   * @param vargs Optional arguments for the path
+   * @return The content at the specified path as a document
+   * @throws UnifyException
+   */
   @Override
   public Document getContent(String path, boolean returnTypedDocument, boolean includeFullPath, String... vargs) {
     JDocument d = null;
@@ -2003,7 +2347,12 @@ public class JDocument implements Document {
     return s;
   }
 
-  // typed document methods
+  /**
+   * Load document model
+   *
+   * @param type the type
+   * @param json the json
+   */
   public static void loadDocumentModel(String type, String json) {
     logger.info("Loading document model -> {}", type);
     try {
@@ -2018,14 +2367,29 @@ public class JDocument implements Document {
     setDocumentModel(type, d);
   }
 
+  /**
+   * Sets document model.
+   *
+   * @param type  the type
+   * @param model the model
+   */
   public static void setDocumentModel(String type, Document model) {
     docModels.put(type, model);
   }
 
+  /**
+   * Checks if document model is loaded.
+   *
+   * @param type the type
+   * @return true if the document model is loaded
+   */
   public static boolean isDocumentModelLoaded(String type) {
     return docModels.containsKey(type);
   }
 
+  /**
+   * Closes the document models
+   */
   public static void close() {
     if (docModels != null) {
       logger.info("Unloading document models");
@@ -2036,6 +2400,12 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Gets document model.
+   *
+   * @param type the type
+   * @return the document model
+   */
   public static Document getDocumentModel(String type) {
     Document jd = docModels.get(type);
     if (jd != null) {
@@ -2940,6 +3310,11 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Flatten the document.
+   *
+   * @return List of flattened paths
+   */
   public List<String> flatten() {
     // this function will provide a list of all paths in the document
     List<PathValue> list = new LinkedList<>();
@@ -2949,6 +3324,11 @@ public class JDocument implements Document {
     return list1;
   }
 
+  /**
+   * Flatten the document with values.
+   *
+   * @return List of flattened path with values
+   */
   public List<PathValue> flattenWithValues() {
     // this function will provide a list of all paths in the document along with the value as a string
     List<PathValue> list = new LinkedList<>();
@@ -3108,6 +3488,13 @@ public class JDocument implements Document {
     return new DiffInfo(res, left, right);
   }
 
+  /**
+   * Gets the differences
+   *
+   * @param right the right document to compare
+   * @param onlyDifferences specifies if only difference results are to be returned or all
+   * @return List of differences
+   */
   public List<DiffInfo> getDifferences(Document right, boolean onlyDifferences) {
     List<DiffInfo> diffInfoList = new LinkedList<>();
     List<PathValue> leftPaths = flattenWithValues();
@@ -3150,6 +3537,15 @@ public class JDocument implements Document {
     return diffInfoList;
   }
 
+  /**
+   * Compares the documents at specified paths
+   *
+   * @param leftPath        the sub document at the specified path
+   * @param right           the right document to compare
+   * @param rightPath       the sub document at the specified path
+   * @param onlyDifferences specifies if only difference results are to be returned or all
+   * @return List of differences
+   */
   public List<DiffInfo> getDifferences(String leftPath, Document right, String rightPath, boolean onlyDifferences) {
     validatePath(leftPath, CONSTS_JDOCS.API.CONTENT, PathAccessType.OBJECT);
     validatePath(rightPath, CONSTS_JDOCS.API.CONTENT, PathAccessType.OBJECT);
@@ -3158,6 +3554,11 @@ public class JDocument implements Document {
     return newLeft.getDifferences(newRight, onlyDifferences);
   }
 
+  /**
+   * Validates all paths against the model document
+   *
+   * @param type the type of the document
+   */
   @Override
   public void validateAllPaths(String type) {
     // function to validate the contents of the document. We will validate all data paths against the model
@@ -3172,6 +3573,11 @@ public class JDocument implements Document {
     }
   }
 
+  /**
+   * Validates only paths in the document which are present in the model document
+   *
+   * @param type the type of the document
+   */
   @Override
   public void validateModelPaths(String type) {
     // function to validate the contents of the document. We will validate only those data paths that are found in the model

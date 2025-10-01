@@ -31,7 +31,7 @@ jobs:
       - restore_cache:
           key: unify-jdocs-{{ checksum "pom.xml" }}
       - configure-gpg
-      - run: mvn --settings ".circleci/settings.xml" -B -DskipTests clean deploy -e -X
+      - run: mvn --settings ".circleci/settings.xml" -B -DskipTests clean deploy
       - save_cache: # saves the project dependencies
           paths:
             - ~/.m2

@@ -19,10 +19,12 @@
 
     <groupId>com.americanexpress.unify.jdocs</groupId>
     <artifactId>unify-jdocs</artifactId>
-    <version>1.9.0</version>
+    <version>test.1</version>
     <packaging>jar</packaging>
 
-    <name>unify-jdocs</name>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>A new way of working with JSON documents</description>
+    <url>https://github.com/americanexpress/unify-jdocs</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -40,6 +42,7 @@
             <name>Deepak Arora</name>
             <email>deepak.arora5@aexp.com</email>
             <organization>American Express</organization>
+            <organizationUrl>https://americanexpress.com</organizationUrl>
         </developer>
     </developers>
 
@@ -172,13 +175,42 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.12.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
                 <version>0.9.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
-                    <autoPublish>true</autoPublish>
+                    <autoPublish>false</autoPublish>
                 </configuration>
             </plugin>
             <plugin>
