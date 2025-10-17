@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.americanexpress.unify.jdocs.CONSTS_JDOCS.VALIDATION_TYPE.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,6 +112,32 @@ class DocumentTest {
 
     b = d.isArray("$.house[0].family");
     assertEquals(false, b);
+
+    d=new JDocument();
+    String pathName="$.members[0].first_name";
+    String pathLastName="$.members[0].last_name";
+    d.setString(pathName, "Nilu");
+    d.setString(pathLastName, "Did");
+
+    // Verify the value is set correctly
+    assertTrue(d.pathExists("$.members[0].first_name", "Nilu"));
+    // modify the first name, and store the last value the pathHistoricalVal map
+    d.setString(pathName,"Joerge");
+    //check status of last name path , which is just created
+    assertEquals(d.getPathStatus(pathLastName),CONSTS_JDOCS.FORMAT_FIELDS.CREATED_PATH);
+    d.setString(pathLastName,"JJ");
+
+    //check status of last name path , which is modified now
+    assertEquals(d.getPathStatus(pathLastName),CONSTS_JDOCS.FORMAT_FIELDS.MODIFIED_PATH);
+    d.setString(pathName,"Sam");
+    d.setString(pathLastName,"S");
+
+    Map<String, Object> pathPreviousValue = d.getPathHistory();
+    // access the historical value (the previous value) of the first name and verify it
+    assertTrue(pathPreviousValue.containsKey(pathName)); // Ensure the path is tracked
+    assertEquals("Joerge", pathPreviousValue.get(pathName).toString());
+
+
 
     d = new JDocument("[]");
     d.setString("$.[0].name", "Deepak");

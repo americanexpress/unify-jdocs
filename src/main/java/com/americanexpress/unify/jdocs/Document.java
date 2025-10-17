@@ -18,6 +18,7 @@ import com.americanexpress.unify.base.UnifyException;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /*
  * @author Deepak Arora
@@ -30,6 +31,19 @@ public interface Document {
    * Returns a boolean specifying if this document is a typed document
    */
   boolean isTyped();
+
+  /**
+   *
+   * @returns the modified values of the document
+   */
+  Map<String, Object> getPathHistory();
+
+  /**
+   * Returns the status of the modified value of the document
+   */
+
+
+  String getPathStatus(String path);
 
   /**
    * Returns the type of the document

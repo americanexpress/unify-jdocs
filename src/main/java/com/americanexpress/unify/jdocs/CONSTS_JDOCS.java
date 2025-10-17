@@ -44,6 +44,10 @@ public class CONSTS_JDOCS {
     public static final String MAX_VALUE = "max_value";
     public static final String MIN_DATE = "min_date";
     public static final String MAX_DATE = "max_date";
+    public static final String CREATED_PATH="created_path";
+    public static final String PATH_DOES_NOT_EXIST="path_does_not_exist";
+    public static final String MODIFIED_PATH="modified_path";
+
 
   }
 
