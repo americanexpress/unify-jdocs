@@ -43,6 +43,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.americanexpress.unify.jdocs.CONSTS_JDOCS.FORMAT_FIELDS.CREATED_PATH;
+import static com.americanexpress.unify.jdocs.CONSTS_JDOCS.FORMAT_FIELDS.MODIFIED_PATH;
+import static com.americanexpress.unify.jdocs.CONSTS_JDOCS.FORMAT_FIELDS.PATH_DOES_NOT_EXIST;
 import static com.americanexpress.unify.jdocs.DataType.DATE;
 import static com.americanexpress.unify.jdocs.DataType.STRING;
 
@@ -65,6 +68,9 @@ public class JDocument implements Document {
   private static Map<String, Pattern> compiledPatterns = new ConcurrentHashMap<>();
 
   private static CONSTS_JDOCS.VALIDATION_TYPE defaultValidationType = CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS;
+
+  //to keep track of Modified values
+  private Map<String,Object> pathHistoricalVal =new HashMap<>();
 
   // type of the document
   private String docType = "";
@@ -246,6 +252,30 @@ public class JDocument implements Document {
     catch (IOException ex) {
       throw new UnifyException("jdoc_err_1", ex);
     }
+  }
+
+  /**
+   get a map of modified values
+   */
+  @Override
+  public Map<String, Object> getPathHistory(){
+    return pathHistoricalVal;
+  }
+
+
+  @Override
+  public String getPathStatus(String path){
+
+    if (!pathHistoricalVal.containsKey(path)) {
+      return PATH_DOES_NOT_EXIST;
+    }
+    if (pathHistoricalVal.get(path) == null) {
+      return CREATED_PATH;
+    }
+    // it is modified
+    return MODIFIED_PATH;
+
+
   }
 
   /**
@@ -1506,9 +1536,32 @@ public class JDocument implements Document {
           if (token.isArray()) {
             // set the value in the array
             ArrayToken at = (ArrayToken)token;
+            ArrayNode arrayNode= (ArrayNode) node;
+
+            int index=at.getFilter().getIndex();
+            if(index>=arrayNode.size()){
+              pathHistoricalVal.put(tokenPath+"["+index+"]", null);// new element added
+            }
+            else{
+              JsonNode oldValue = arrayNode.get(index);
+              if (!oldValue.equals(objectMapper.valueToTree(value))) {// only track if value changes
+                pathHistoricalVal.put(tokenPath + "[" + index + "]", oldValue.isTextual() ? oldValue.asText() : oldValue.deepCopy());
+              }
+            }
             setArrayIndexValue((ArrayNode)node, at.getFilter().getIndex(), value);
           }
           else {
+
+            //record the previous value for leaf node
+            ObjectNode objectNode = (ObjectNode)node;
+            JsonNode oldValue = objectNode.get(field);
+            // record addition or update
+            if (oldValue==null) {
+              pathHistoricalVal.put(tokenPath, null);// new element added
+            }
+            else if (oldValue != null && !oldValue.equals(objectMapper.valueToTree(value))) {
+              pathHistoricalVal.put(tokenPath , oldValue.isTextual() ? oldValue.asText() : oldValue.deepCopy());
+            }
             setLeafNode((ObjectNode)node, field, value);
           }
 

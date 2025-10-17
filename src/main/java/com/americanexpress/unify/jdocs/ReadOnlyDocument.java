@@ -19,6 +19,7 @@ import com.americanexpress.unify.base.UnifyException;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /*
  * @author Deepak Arora
@@ -44,6 +45,16 @@ public class ReadOnlyDocument implements Document {
   @Override
   public boolean isTyped() {
     return d.isTyped();
+  }
+
+  @Override
+  public Map<String, Object> getPathHistory() {
+    return d.getPathHistory();
+  }
+
+  @Override
+  public String getPathStatus(String path) {
+    return d.getPathStatus(path);
   }
 
   @Override

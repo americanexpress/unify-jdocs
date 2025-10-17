@@ -301,6 +301,43 @@ Would result in the following value of `s`:
 }
 ```
 
+Assume you update the phone number and country code entries for the same object. And then you want to access the old history, i.e., the past values before the update.
+
+```java
+d.setString("$.phones[0].number", "66666");
+d.setString("$.phones[0].country", "CA");
+String s = d.getPrettyPrintJson();
+```
+
+Would result in the following value of `s`:
+
+```json
+{
+  "first_name": "Deepak",
+  "phones": [
+    {
+      "type": "Home",
+      "number": "66666",
+      "country": "CA"
+    },
+    {
+      "type": "Cell",
+      "number": "333333",
+      "country": "USA"
+    }
+  ]
+}
+```
+
+And to access the previous values of phone and country code, you can use the following:
+
+```java
+Map<String, Object> pathPreviousValue = d.getPathHistory();
+String previousNumber = pathPreviousValue.get("$.phones[0].number").toString(); // will return 222222
+String previousCountry = pathPreviousValue.get("$.phones[0].country").toString(); // will return USA
+```
+
+
 Note that a new element has been created in the array. The same effect could also have been achieved by the following:
 
 ```java
