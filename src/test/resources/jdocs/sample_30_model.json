@@ -1,0 +1,8 @@
+{
+  "employees": [
+    {
+      "primary_id": "{\"type\":\"string\", \"regex\":\"\\\\w{1,17}\"}",
+      "name": "{\"type\":\"string\"}"
+    }
+  ]
+}

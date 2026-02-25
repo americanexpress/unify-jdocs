@@ -8,12 +8,12 @@
     },
     "cars": [
       {
-        "brand": "Honda",
-        "model": "Accord"
+        "brand": "CB1",
+        "model": "CM1"
       },
       {
-        "brand": "Toyota",
-        "model": "Camry"
+        "brand": "CB2",
+        "model": "CM2"
       }
     ]
   },

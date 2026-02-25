@@ -54,15 +54,6 @@ public interface Document {
 
   /**
    * Sets the type of a document. The model object needs to be already loaded. Validation against the model will
-   * be carried out as per the value of the variable validateAtReadWriteOnly and an exception thrown if a violation is found
-   * <p>
-   * This method is deprecated - use the new method setType(String type, CONSTS_JDOCS.VALIDATION_TYPE validationType)
-   */
-  @Deprecated
-  void setType(String type, boolean validateAtReadWriteOnly);
-
-  /**
-   * Sets the type of a document. The model object needs to be already loaded. Validation against the model will
    * be carried out as per the value of the variable validationType and an exception thrown if a violation is found
    */
   void setType(String type, CONSTS_JDOCS.VALIDATION_TYPE validationType);
@@ -74,7 +65,7 @@ public interface Document {
 
   /**
    * Delete the specified list of paths from the document
-   * <p>
+   *
    * Throws an exception if the path is not found in the associated model document if document is typed or
    * if the name in name value pair is not of the right type
    *
@@ -85,7 +76,7 @@ public interface Document {
   /**
    * Delete the specified path from the document. Does nothing if the path is not found. The path specified
    * can be any path including pointing to a leaf, complex or an array node
-   * <p>
+   *
    * Throws an exception if the path is not found in the associated model document
    *
    * @param path  the path
@@ -95,7 +86,7 @@ public interface Document {
 
   /**
    * Gets the size of the array at the path specified. The path specified has to be of array type in the json.
-   * <p>
+   *
    *
    * @param path  the path
    * @param vargs the values to replace the % characters in path
@@ -109,7 +100,7 @@ public interface Document {
   /**
    * Gets the index of an element in the array that contains a field equal to the value as specified in the filter
    * criteria
-   * <p>
+   *
    * Throws an exception
    * If the document is a typed document and the path is not found in the associated model document
    * If the path specified does not end with a filter criteria definition i.e. [field=value]
@@ -525,18 +516,6 @@ public interface Document {
   public List<DiffInfo> getDifferences(String leftPath, Document right, String rightPath, boolean onlyDifferences);
 
   /**
-   * validates a document as per a model and throws an exception if not met
-   * All validation errors are collected and returned in the exception
-   *
-   * @param type the type of the document
-   * @throws UnifyException exception containing the list of errors encountered
-   *
-   * This method is deprecated - use the new methods validateAllPaths or validateModelPaths
-   */
-  @Deprecated
-  public void validate(String type);
-
-  /**
    * validates all data paths in the document against a model and throws an exception if not met
    * All validation errors are collected and returned in the exception
    *
@@ -569,4 +548,17 @@ public interface Document {
    */
   public CONSTS_JDOCS.VALIDATION_TYPE getValidationType();
 
+  /**
+   * Gets the path as a static path by replacing the % characters with the vargs provided
+   *
+   * @param path  the path
+   * @param vargs Optional arguments for the path.
+   * @return the static path
+   */
+  public String getStaticPath(String path, String... vargs);
+
+  /**
+   * Remove null fields, empty objects and empty arrays as per passed options
+   */
+  public void removeNullsAndEmpty(boolean removeNullFields, boolean removeEmptyObjects, boolean removeEmptyArrays);
 }

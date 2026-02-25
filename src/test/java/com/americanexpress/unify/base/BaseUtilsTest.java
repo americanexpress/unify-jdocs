@@ -39,7 +39,7 @@ public class BaseUtilsTest {
     Logger logger = LogManager.getLogger(BaseUtilsTest.class);
     logger.info("Test message");
     String s = "Deepak\\ A.ro|ra";
-    String s1 = BaseUtils.escapeChars(s, '\\', '.', '|');
+    String s1 = BaseUtils.escapeCharsAndTrim(s, '\\', '.', '|');
     assertTrue(s1.equals("Deepak\\\\ A\\.ro\\|ra"));
 
   }
@@ -48,7 +48,7 @@ public class BaseUtilsTest {
   public void testRemoveEscapeChars() {
     String s = "Deepak\\\\ A\\.ro\\|ra \\";
     System.out.println(s);
-    String s1 = BaseUtils.removeEscapeChars(s, '\\', '.', '|');
+    String s1 = BaseUtils.removeEscapeCharsAndTrim(s, '\\', '.', '|');
     System.out.println(s1);
     assertTrue(s1.equals("Deepak\\ A.ro|ra \\"));
   }
@@ -314,43 +314,43 @@ public class BaseUtilsTest {
   @Test
   public void testIsNullOrEmpty() {
     String s = null;
-    assertTrue(BaseUtils.isNullOrEmptyAfterTrim(s));
+    assertTrue(BaseUtils.isNullOrEmpty(s));
 
     s = "";
-    assertTrue(BaseUtils.isNullOrEmptyAfterTrim(s));
+    assertTrue(BaseUtils.isNullOrEmpty(s));
 
     s = " ";
-    assertTrue(BaseUtils.isNullOrEmptyAfterTrim(s));
+    assertTrue(BaseUtils.isNullOrEmpty(s));
 
     s = "                        ";
-    assertTrue(BaseUtils.isNullOrEmptyAfterTrim(s));
+    assertTrue(BaseUtils.isNullOrEmpty(s));
 
     s = "A";
-    assertFalse(BaseUtils.isNullOrEmptyAfterTrim(s));
+    assertFalse(BaseUtils.isNullOrEmpty(s));
 
     s = "   A   ";
-    assertFalse(BaseUtils.isNullOrEmptyAfterTrim(s));
+    assertFalse(BaseUtils.isNullOrEmpty(s));
   }
 
   @Test
   public void testIsNotNullOrEmpty() {
     String s = null;
-    assertFalse(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+    assertFalse(BaseUtils.isNotNullOrEmpty(s));
 
     s = "";
-    assertFalse(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+    assertFalse(BaseUtils.isNotNullOrEmpty(s));
 
     s = " ";
-    assertFalse(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+    assertFalse(BaseUtils.isNotNullOrEmpty(s));
 
     s = "                        ";
-    assertFalse(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+    assertFalse(BaseUtils.isNotNullOrEmpty(s));
 
     s = "   A   ";
-    assertTrue(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+    assertTrue(BaseUtils.isNotNullOrEmpty(s));
 
     s = "A";
-    assertTrue(BaseUtils.isNotNullOrEmptyAfterTrim(s));
+    assertTrue(BaseUtils.isNotNullOrEmpty(s));
   }
 
   @Test
@@ -358,15 +358,15 @@ public class BaseUtilsTest {
     final String EMPTY = "";
     final String ONE_SPACE = " ";
     final String MANY_SPACES = "                        ";
-    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(null, null, null));
-    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(EMPTY, EMPTY, EMPTY));
-    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(ONE_SPACE, ONE_SPACE, ONE_SPACE));
-    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(MANY_SPACES, MANY_SPACES, MANY_SPACES));
-    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(null, EMPTY, ONE_SPACE, MANY_SPACES));
-    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim(null, "A", "A"));
-    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim("A", null, "A"));
-    assertTrue(BaseUtils.isAnyNullOrEmptyAfterTrim("A", "A", null));
-    assertFalse(BaseUtils.isAnyNullOrEmptyAfterTrim("A", "A", "A"));
+    assertTrue(BaseUtils.isAnyNullOrEmpty(null, null, null));
+    assertTrue(BaseUtils.isAnyNullOrEmpty(EMPTY, EMPTY, EMPTY));
+    assertTrue(BaseUtils.isAnyNullOrEmpty(ONE_SPACE, ONE_SPACE, ONE_SPACE));
+    assertTrue(BaseUtils.isAnyNullOrEmpty(MANY_SPACES, MANY_SPACES, MANY_SPACES));
+    assertTrue(BaseUtils.isAnyNullOrEmpty(null, EMPTY, ONE_SPACE, MANY_SPACES));
+    assertTrue(BaseUtils.isAnyNullOrEmpty(null, "A", "A"));
+    assertTrue(BaseUtils.isAnyNullOrEmpty("A", null, "A"));
+    assertTrue(BaseUtils.isAnyNullOrEmpty("A", "A", null));
+    assertFalse(BaseUtils.isAnyNullOrEmpty("A", "A", "A"));
   }
 
   @Test
@@ -374,15 +374,15 @@ public class BaseUtilsTest {
     final String EMPTY = "";
     final String ONE_SPACE = " ";
     final String MANY_SPACES = "                        ";
-    assertFalse(BaseUtils.isAnyNotNullOrEmptyAfterTrim(null, null, null));
-    assertFalse(BaseUtils.isAnyNotNullOrEmptyAfterTrim(EMPTY, EMPTY, EMPTY));
-    assertFalse(BaseUtils.isAnyNotNullOrEmptyAfterTrim(ONE_SPACE, ONE_SPACE, ONE_SPACE));
-    assertFalse(BaseUtils.isAnyNotNullOrEmptyAfterTrim(MANY_SPACES, MANY_SPACES, MANY_SPACES));
-    assertFalse(BaseUtils.isAnyNotNullOrEmptyAfterTrim(null, EMPTY, ONE_SPACE, MANY_SPACES));
-    assertTrue(BaseUtils.isAnyNotNullOrEmptyAfterTrim(null, "A", "A"));
-    assertTrue(BaseUtils.isAnyNotNullOrEmptyAfterTrim("A", null, "A"));
-    assertTrue(BaseUtils.isAnyNotNullOrEmptyAfterTrim("A", "A", null));
-    assertTrue(BaseUtils.isAnyNotNullOrEmptyAfterTrim("A", "A", "A"));
+    assertFalse(BaseUtils.isAnyNotNullOrEmpty(null, null, null));
+    assertFalse(BaseUtils.isAnyNotNullOrEmpty(EMPTY, EMPTY, EMPTY));
+    assertFalse(BaseUtils.isAnyNotNullOrEmpty(ONE_SPACE, ONE_SPACE, ONE_SPACE));
+    assertFalse(BaseUtils.isAnyNotNullOrEmpty(MANY_SPACES, MANY_SPACES, MANY_SPACES));
+    assertFalse(BaseUtils.isAnyNotNullOrEmpty(null, EMPTY, ONE_SPACE, MANY_SPACES));
+    assertTrue(BaseUtils.isAnyNotNullOrEmpty(null, "A", "A"));
+    assertTrue(BaseUtils.isAnyNotNullOrEmpty("A", null, "A"));
+    assertTrue(BaseUtils.isAnyNotNullOrEmpty("A", "A", null));
+    assertTrue(BaseUtils.isAnyNotNullOrEmpty("A", "A", "A"));
   }
 
   @Test
@@ -390,15 +390,15 @@ public class BaseUtilsTest {
     final String EMPTY = "";
     final String ONE_SPACE = " ";
     final String MANY_SPACES = "                        ";
-    assertTrue(BaseUtils.isAllNullOrEmptyAfterTrim(null, null, null));
-    assertTrue(BaseUtils.isAllNullOrEmptyAfterTrim(EMPTY, EMPTY, EMPTY));
-    assertTrue(BaseUtils.isAllNullOrEmptyAfterTrim(ONE_SPACE, ONE_SPACE, ONE_SPACE));
-    assertTrue(BaseUtils.isAllNullOrEmptyAfterTrim(MANY_SPACES, MANY_SPACES, MANY_SPACES));
-    assertTrue(BaseUtils.isAllNullOrEmptyAfterTrim(null, EMPTY, ONE_SPACE, MANY_SPACES));
-    assertFalse(BaseUtils.isAllNullOrEmptyAfterTrim(null, "A", "A"));
-    assertFalse(BaseUtils.isAllNullOrEmptyAfterTrim("A", null, "A"));
-    assertFalse(BaseUtils.isAllNullOrEmptyAfterTrim("A", "A", null));
-    assertFalse(BaseUtils.isAllNullOrEmptyAfterTrim("A", "A", "A"));
+    assertTrue(BaseUtils.isAllNullOrEmpty(null, null, null));
+    assertTrue(BaseUtils.isAllNullOrEmpty(EMPTY, EMPTY, EMPTY));
+    assertTrue(BaseUtils.isAllNullOrEmpty(ONE_SPACE, ONE_SPACE, ONE_SPACE));
+    assertTrue(BaseUtils.isAllNullOrEmpty(MANY_SPACES, MANY_SPACES, MANY_SPACES));
+    assertTrue(BaseUtils.isAllNullOrEmpty(null, EMPTY, ONE_SPACE, MANY_SPACES));
+    assertFalse(BaseUtils.isAllNullOrEmpty(null, "A", "A"));
+    assertFalse(BaseUtils.isAllNullOrEmpty("A", null, "A"));
+    assertFalse(BaseUtils.isAllNullOrEmpty("A", "A", null));
+    assertFalse(BaseUtils.isAllNullOrEmpty("A", "A", "A"));
   }
 
   @Test
@@ -406,15 +406,15 @@ public class BaseUtilsTest {
     final String EMPTY = "";
     final String ONE_SPACE = " ";
     final String MANY_SPACES = "                        ";
-    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(null, null, null));
-    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(EMPTY, EMPTY, EMPTY));
-    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(ONE_SPACE, ONE_SPACE, ONE_SPACE));
-    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(MANY_SPACES, MANY_SPACES, MANY_SPACES));
-    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(null, EMPTY, ONE_SPACE, MANY_SPACES));
-    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim(null, "A", "A"));
-    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim("A", null, "A"));
-    assertFalse(BaseUtils.isAllNotNullOrEmptyAfterTrim("A", "A", null));
-    assertTrue(BaseUtils.isAllNotNullOrEmptyAfterTrim("A", "A", "A"));
+    assertFalse(BaseUtils.isAllNotNullOrEmpty(null, null, null));
+    assertFalse(BaseUtils.isAllNotNullOrEmpty(EMPTY, EMPTY, EMPTY));
+    assertFalse(BaseUtils.isAllNotNullOrEmpty(ONE_SPACE, ONE_SPACE, ONE_SPACE));
+    assertFalse(BaseUtils.isAllNotNullOrEmpty(MANY_SPACES, MANY_SPACES, MANY_SPACES));
+    assertFalse(BaseUtils.isAllNotNullOrEmpty(null, EMPTY, ONE_SPACE, MANY_SPACES));
+    assertFalse(BaseUtils.isAllNotNullOrEmpty(null, "A", "A"));
+    assertFalse(BaseUtils.isAllNotNullOrEmpty("A", null, "A"));
+    assertFalse(BaseUtils.isAllNotNullOrEmpty("A", "A", null));
+    assertTrue(BaseUtils.isAllNotNullOrEmpty("A", "A", "A"));
   }
 
   @Test

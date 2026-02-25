@@ -1,0 +1,41 @@
+{
+  "application": {
+    "addresses": [
+      {
+        "home": {
+          "cars": [
+            {
+              "name": "CB1"
+            },
+            {
+              // empty object as element
+            },
+            {
+              "name": "CB3",
+
+              // empty object
+              "model_info": {
+              },
+
+              // empty object
+              "spec_info": {
+                "field": null
+              },
+              // empty array
+              "emails": [
+              ]
+            }
+          ]
+        }
+      }
+    ],
+
+    // empty object
+    "name": {
+    },
+
+    // empty array
+    "emails": [
+    ]
+  }
+}

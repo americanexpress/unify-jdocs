@@ -17,7 +17,7 @@ package com.americanexpress.unify.jdocs;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.americanexpress.unify.base.BaseUtils.removeEscapeChars;
+import static com.americanexpress.unify.base.BaseUtils.removeEscapeCharsAndTrim;
 
 class Parser {
 
@@ -44,7 +44,7 @@ class Parser {
         tokens.add(getArrayToken(strToken, first, isLeaf));
       }
       else {
-        String s = removeEscapeChars(strToken, '\\', '.', '[', ']', '=');
+        String s = removeEscapeCharsAndTrim(strToken, '\\', '.', '[', ']', '=');
         tokens.add(new Token(s, isLeaf));
       }
     }
@@ -54,7 +54,7 @@ class Parser {
 
   private static ArrayToken getArrayToken(String s, int first, boolean isLeaf) {
     ArrayToken at = null;
-    String name = removeEscapeChars(s.substring(0, first), '\\', '.', '[', ']', '=');
+    String name = removeEscapeCharsAndTrim(s.substring(0, first), '\\', '.', '[', ']', '=');
 
     while (true) {
       if (s.charAt(first + 1) == ']') {
@@ -69,13 +69,13 @@ class Parser {
         pos = isPresent(s, '=');
         if (pos != -1) {
           // it is a key value pair
-          String key = removeEscapeChars(s.substring(0, pos), '\\', '.', '[', ']', '=');
-          String value = removeEscapeChars(s.substring(pos + 1), '\\', '.', '[', ']', '=');
+          String key = removeEscapeCharsAndTrim(s.substring(0, pos), '\\', '.', '[', ']', '=');
+          String value = removeEscapeCharsAndTrim(s.substring(pos + 1), '\\', '.', '[', ']', '=');
           at = new ArrayToken(name, key, value, isLeaf);
         }
         else {
           // it is an index
-          s = removeEscapeChars(s, '\\', '.', '[', ']', '=');
+          s = removeEscapeCharsAndTrim(s, '\\', '.', '[', ']', '=');
           at = new ArrayToken(name, Integer.parseInt(s), isLeaf);
         }
         break;
