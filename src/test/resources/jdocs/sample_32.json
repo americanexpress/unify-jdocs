@@ -1,0 +1,26 @@
+{
+  "employee": {
+    "name": "John",
+    "address": {
+    },
+    "cars": [
+    ],
+    "boats": [
+      null,
+      "athena",
+      null
+    ],
+    "bikes": [
+      {
+        "parts": [
+          {},
+          {},
+          {
+            "name": "engine",
+            "spec": null
+          }
+        ]
+      }
+    ]
+  }
+}

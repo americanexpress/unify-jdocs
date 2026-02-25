@@ -100,6 +100,13 @@ public class ERRORS_JDOCS extends ErrorMap {
     map.put("jdoc_err_77", "Max value validation failed for path -> {0}");
     map.put("jdoc_err_78", "Min date validation failed for path -> {0}");
     map.put("jdoc_err_79", "Max date validation failed for path -> {0}");
+    map.put("jdoc_err_80", "$ symbol not found in path -> {0}");
+    map.put("jdoc_err_81", "The type of the document does not match the type specified in path -> {0}");
+    map.put("jdoc_err_82", "JDocument can be initialized only once");
+    map.put("jdoc_err_83", "Initialization is allowed to be done only once");
+    map.put("jdoc_err_84", "Path already exists and is of a different type. Cannot overwrite. Path -> {0}");
+    map.put("jdoc_err_85", "For the policies ENFORCE_FOR_SPECIFIED_TYPES_ONLY or IGNORE_FOR_SPECIFIED_TYPES_ONLY, at least one or more document types need to be provided in the list");
+    map.put("jdoc_err_86", "No document type specified in the path -> {0}");
   }
 
 }

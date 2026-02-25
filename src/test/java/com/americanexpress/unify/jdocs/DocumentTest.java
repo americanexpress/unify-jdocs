@@ -16,11 +16,14 @@ package com.americanexpress.unify.jdocs;
 
 import com.americanexpress.unify.base.BaseUtils;
 import com.americanexpress.unify.base.UnifyException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.americanexpress.unify.jdocs.CONSTS_JDOCS.VALIDATION_TYPE.*;
@@ -32,8 +35,28 @@ import static org.junit.jupiter.api.Assertions.*;
 class DocumentTest {
 
   @BeforeAll
-  static void setup() {
-    JDocument.init();
+  static void setupBeforeAll() {
+    JDocument.init(new Initializer()
+                           .allowComments(true)
+                           .stripTrailingBigDecimalZeroes(false));
+    JDocument.configure(new Configurator()
+                                .defaultValidationPolicy(CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS)
+                                .docTypePrefixPolicy(new DocTypePrefixPolicyIgnoreForAll())
+                                .lineFeed("\n")
+                                .ignoreDocTypePrefixForBaseDocs(true)
+                                .deleteEmptyArray(true)
+                                .deleteEmptyObject(false));
+  }
+
+  @AfterEach
+  void setupBeforeEach() {
+    JDocument.configure(new Configurator()
+                                .defaultValidationPolicy(CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS)
+                                .docTypePrefixPolicy(new DocTypePrefixPolicyIgnoreForAll())
+                                .lineFeed("\n")
+                                .ignoreDocTypePrefixForBaseDocs(true)
+                                .deleteEmptyArray(true)
+                                .deleteEmptyObject(false));
   }
 
   private String getCompressedJson(String filePath) {
@@ -861,7 +884,8 @@ class DocumentTest {
     }
 
     // we now set the default to be true
-    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE);
+    JDocument.configure(new Configurator()
+                                .defaultValidationPolicy(CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE));
 
     d = getBaseDocument("/jdocs/sample_23.json");
     d.setType("sample_23_model"); // will not validate and hence no exception thrown
@@ -882,7 +906,8 @@ class DocumentTest {
     getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_AT_READ_WRITE); // this should pass
 
     // restore it back
-    JDocument.init(CONSTS_JDOCS.VALIDATION_TYPE.ALL_DATA_PATHS);
+    JDocument.configure(new Configurator()
+                                .defaultValidationPolicy(ALL_DATA_PATHS));
   }
 
   @Test
@@ -899,10 +924,10 @@ class DocumentTest {
     assertEquals("Happening road", s);
 
     s = d.getString("$.[0].cars[0].model");
-    assertEquals("Accord", s);
+    assertEquals("CM1", s);
 
     s = d.getString("$.[0].cars[1].model");
-    assertEquals("Camry", s);
+    assertEquals("CM2", s);
 
     s = d.getString("$.[1].cars[1].model");
     assertNull(s);
@@ -993,7 +1018,7 @@ class DocumentTest {
             "  },\n" +
             "  \"cars\": [\n" +
             "    {\n" +
-            "      \"make\": \"Honda\",\n" +
+            "      \"make\": \"CB1\",\n" +
             "      \"model\": null\n" +
             "    }\n" +
             "  ],\n" +
@@ -1337,7 +1362,8 @@ class DocumentTest {
     }
 
     // we now set the default to only at read write
-    JDocument.init(ONLY_AT_READ_WRITE);
+    JDocument.configure(new Configurator()
+                                .defaultValidationPolicy(CONSTS_JDOCS.VALIDATION_TYPE.ONLY_AT_READ_WRITE));
 
     d = getBaseDocument("/jdocs/sample_23.json");
     d.setType("sample_23_model"); // will not validate and hence no exception thrown
@@ -1360,10 +1386,12 @@ class DocumentTest {
     getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_AT_READ_WRITE); // this should pass
 
     // restore it back
-    JDocument.init(ALL_DATA_PATHS);
+    JDocument.configure(new Configurator()
+                                .defaultValidationPolicy(ALL_DATA_PATHS));
 
-    // we now set the default to model validation
-    JDocument.init(ONLY_MODEL_PATHS);
+    // set it to a different value
+    JDocument.configure(new Configurator()
+                                .defaultValidationPolicy(ONLY_MODEL_PATHS));
 
     d = getBaseDocument("/jdocs/sample_23.json");
     d.setType("sample_23_model"); // will validate and hence no exception thrown
@@ -1386,7 +1414,8 @@ class DocumentTest {
     getTypedDocument("sample_23_model", "/jdocs/sample_23.json", ONLY_AT_READ_WRITE); // this should pass
 
     // restore it back
-    JDocument.init(ALL_DATA_PATHS);
+    JDocument.configure(new Configurator()
+                                .defaultValidationPolicy(ALL_DATA_PATHS));
   }
 
   @Test
@@ -1441,9 +1470,9 @@ class DocumentTest {
   }
 
   @Test
-  void testTemp() {
+  void testDelim() {
     // a placeholder to run any temporary test
-    JDocument d = (JDocument)getBaseDocument("/jdocs/temp.json");
+    JDocument d = (JDocument)getBaseDocument("/jdocs/delim.json");
     d.getString("$.id");
     assertTrue(true);
   }
@@ -1541,6 +1570,426 @@ class DocumentTest {
     assertEquals("field_2", toDoc.getString("$.level_to.level_2.level_3.field_2"));
     assertEquals("val_6", toDoc.getString("$.level_to.level_2.level_3.field_to_1"));
     assertEquals("val_7", toDoc.getString("$.level_to.level_2.level_3.field_to_2"));
+  }
+
+  @Test
+  void testDocTypePrefix() {
+    // first check with the doc prefix policy set to ignore all
+    // check with a typed document
+    Document d = getTypedDocument("sample_1_model", "/jdocs/sample_1.json");
+    assertEquals("Deepak", d.getString("$.members[0].first_name"));
+    assertEquals("Deepak", d.getString("sample_1_model$.members[0].first_name"));
+    try {
+      d.getString("xyz$.members[0].first_name");
+      fail();
+    }
+    catch (Exception e) {
+    }
+
+    // check for a base document
+    d = getBaseDocument("/jdocs/sample_1.json");
+    assertEquals("Deepak", d.getString("$.members[0].first_name"));
+    try {
+      d.getString("sample_1_model$.members[0].first_name");
+    }
+    catch (Exception e) {
+      fail();
+    }
+
+    // set
+    JDocument.configure(new Configurator()
+                                .docTypePrefixPolicy(new DocTypePrefixPolicyEnforceForAll()));
+
+    // check with a typed document
+    d = getTypedDocument("sample_1_model", "/jdocs/sample_1.json");
+    assertEquals("Deepak", d.getString("sample_1_model$.members[0].first_name"));
+    try {
+      d.getString("$.members[0].first_name");
+      fail();
+    }
+    catch (Exception e) {
+    }
+
+    // restore
+    JDocument.configure(new Configurator()
+                                .docTypePrefixPolicy(new DocTypePrefixPolicyIgnoreForAll()));
+
+    // set - check with a base document setting the flag to false
+    JDocument.configure(new Configurator()
+                                .ignoreDocTypePrefixForBaseDocs(false));
+    d = getBaseDocument("/jdocs/sample_1.json");
+    assertEquals("Deepak", d.getString("$.members[0].first_name"));
+    try {
+      d.getString("xyz$.members[0].first_name");
+      fail();
+    }
+    catch (Exception e) {
+    }
+
+    // restore
+    JDocument.configure(new Configurator()
+                                .ignoreDocTypePrefixForBaseDocs(true));
+
+    // enforce for some test case
+    // set
+    JDocument.configure(new Configurator()
+                                .docTypePrefixPolicy(
+                                        new DocTypePrefixPolicyEnforceForSome(new HashSet<>(Arrays.asList("sample_1_model")))));
+
+    // check with a typed document
+    d = getTypedDocument("sample_1_model", "/jdocs/sample_1.json");
+    try {
+      d.getString("$.members[0].first_name");
+      fail();
+    }
+    catch (Exception e) {
+    }
+
+    try {
+      d = getTypedDocument("sample_3_model", "/jdocs/sample_3.json");
+      d.getString("$.id");
+    }
+    catch (Exception e) {
+      fail();
+    }
+
+    // restore
+    JDocument.configure(new Configurator()
+                                .docTypePrefixPolicy(new DocTypePrefixPolicyIgnoreForAll()));
+
+    // ignore for some test case
+    // set
+    JDocument.configure(new Configurator()
+                                .docTypePrefixPolicy(
+                                        new DocTypePrefixPolicyIgnoreForSome(new HashSet<>(Arrays.asList("sample_1_model")))));
+
+    // check with a typed document
+    d = getTypedDocument("sample_1_model", "/jdocs/sample_1.json");
+    try {
+      d.getString("$.members[0].first_name");
+    }
+    catch (Exception e) {
+      fail();
+    }
+
+    try {
+      d = getTypedDocument("sample_3_model", "/jdocs/sample_3.json");
+      d.getString("$.id");
+      fail();
+    }
+    catch (Exception e) {
+    }
+
+    // restore
+    JDocument.configure(new Configurator()
+                                .docTypePrefixPolicy(new DocTypePrefixPolicyIgnoreForAll()));
+
+  }
+
+  @Test
+  void testOverwritingNodes1() {
+    try {
+      JDocument d = new JDocument();
+      d.setString("$.car[0].name", "CB1");
+      d.setString("$.car.name", "CB1");
+      fail();
+    }
+    catch (Exception e) {
+    }
+  }
+
+  @Test
+  void testOverwritingNodes1_2() {
+    try {
+      JDocument d = new JDocument();
+      d.setString("$.car[0].name", "CB1");
+      d.setArrayValueString("$.car[1]", "CB1");
+    }
+    catch (Exception e) {
+      fail();
+    }
+  }
+
+  @Test
+  void testOverwritingNodes2() {
+    try {
+      JDocument d = new JDocument();
+      d.setString("$.car.name", "CB1");
+      d.setString("$.car[0].name", "CB1");
+      fail();
+    }
+    catch (Exception e) {
+    }
+  }
+
+  @Test
+  void testOverwritingNodes2_1() {
+    try {
+      JDocument d = new JDocument();
+      d.setString("$.car.name", "CB1");
+      d.setArrayValueString("$.car[0]", "CB1");
+      fail();
+    }
+    catch (Exception e) {
+    }
+  }
+
+  @Test
+  void testOverwritingNodes3() {
+    try {
+      JDocument d = new JDocument();
+      d.setString("$.car", "CB1");
+      d.setString("$.car.name", "CB1");
+      fail();
+    }
+    catch (Exception e) {
+    }
+  }
+
+  @Test
+  void testEmptyArrayOptions() {
+    try {
+      // empty array should be deleted
+      JDocument d = new JDocument();
+      d.setString("$.cars[0].name", "CB1");
+      d.deletePath("$.cars[0]");
+      assertEquals("{}", d.getJson());
+
+      // empty array should be deleted
+      d = new JDocument();
+      d.setArrayValueString("$.cars[0]", "CB1");
+      d.setArrayValueString("$.cars[1]", "CB3");
+      d.deletePath("$.cars[1]");
+      d.deletePath("$.cars[0]");
+      assertEquals("{}", d.getJson());
+
+      // empty array should be deleted
+      d = new JDocument();
+      d.setArrayValueString("$.application.address.home.cars[0]", "CB1");
+      d.deletePath("$.application.address.home.cars[0]");
+      assertEquals("{\"application\":{\"address\":{\"home\":{}}}}", d.getJson());
+
+      // set
+      JDocument.configure(new Configurator()
+                                  .deleteEmptyArray(false));
+      // empty array should remain
+      d = new JDocument();
+      d.setString("$.cars[0].name", "CB1");
+      d.deletePath("$.cars[0]");
+      assertEquals("{\"cars\":[]}", d.getJson());
+
+      // restore
+      JDocument.configure(new Configurator()
+                                  .deleteEmptyArray(true));
+    }
+    catch (Exception e) {
+      fail();
+    }
+  }
+
+  @Test
+  void testEmptyObjectOptions() {
+    try {
+      // test case - empty object should be retained
+      JDocument d = new JDocument();
+      d.setString("$.cars.eu.german.name", "Audi");
+      d.deletePath("$.cars.eu.german.name");
+      assertEquals("{\"cars\":{\"eu\":{\"german\":{}}}}", d.getJson());
+
+      // empty object should be retained
+      d = new JDocument();
+      d.setString("$.application.addresses[0].home.cars[0].name", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0].name");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[{}]}}]}}", d.getJson());
+
+      // empty object to be retained
+      d = new JDocument();
+      d.setArrayValueString("$.application.addresses[0].home.cars[0]", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0]");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{}}]}}", d.getJson());
+
+      // set
+      JDocument.configure(new Configurator()
+                                  .deleteEmptyObject(true));
+
+      d = new JDocument();
+      d.setString("$.cars.eu.german.name", "Audi");
+      d.deletePath("$.cars.eu.german.name");
+      assertEquals("{}", d.getJson());
+
+      d = new JDocument();
+      d.setString("$.cars.eu.german.name", "Audi");
+      d.setString("$.cars.eu.italian.name", "Fiat");
+      d.deletePath("$.cars.eu.german.name");
+      assertEquals("{\"cars\":{\"eu\":{\"italian\":{\"name\":\"Fiat\"}}}}", d.getJson());
+
+      // restore
+      JDocument.configure(new Configurator()
+                                  .deleteEmptyObject(false));
+    }
+    catch (Exception e) {
+      fail();
+    }
+  }
+
+  @Test
+  void testEmptyArrayAndObjectOptions() {
+    try {
+      // set both to false
+      JDocument.configure(new Configurator()
+                                  .deleteEmptyObject(false));
+      JDocument.configure(new Configurator()
+                                  .deleteEmptyArray(false));
+
+      // empty objects / arrays should be retained
+      JDocument d = new JDocument();
+      d.setString("$.application.addresses[0].home.cars[0].name", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0].name");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[{}]}}]}}", d.getJson());
+
+      // empty objects / arrays should be retained
+      d = new JDocument();
+      d.setString("$.application.addresses[0].home.cars[0].name", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0]");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[]}}]}}", d.getJson());
+
+      // empty objects / arrays should be retained
+      d = new JDocument();
+      d.setArrayValueString("$.application.addresses[0].home.cars[0]", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0]");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[]}}]}}", d.getJson());
+
+      // set objects to false and arrays to true
+      JDocument.configure(new Configurator()
+                                  .deleteEmptyObject(false)
+                                  .deleteEmptyArray(true));
+
+      d = new JDocument();
+      d.setString("$.application.addresses[0].home.cars[0].name", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0].name");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[{}]}}]}}", d.getJson());
+
+      d = new JDocument();
+      d.setString("$.application.addresses[0].home.cars[0].name", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0]");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{}}]}}", d.getJson());
+
+      d = new JDocument();
+      d.setArrayValueString("$.application.addresses[0].home.cars[0]", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0]");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{}}]}}", d.getJson());
+
+      // set objects to true and arrays to false
+      JDocument.configure(new Configurator()
+                                  .deleteEmptyObject(true)
+                                  .deleteEmptyArray(false));
+
+      d = new JDocument();
+      d.setString("$.application.addresses[0].home.cars[0].name", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0].name");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[{}]}}]}}", d.getJson());
+
+      d = new JDocument();
+      d.setString("$.application.addresses[0].home.cars[0].name", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0]");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[]}}]}}", d.getJson());
+
+      d = new JDocument();
+      d.setArrayValueString("$.application.addresses[0].home.cars[0]", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0]");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[]}}]}}", d.getJson());
+
+      // set objects to true and arrays to true
+      JDocument.configure(new Configurator()
+                                  .deleteEmptyObject(true)
+                                  .deleteEmptyArray(true));
+
+      d = new JDocument();
+      d.setString("$.application.addresses[0].home.cars[0].name", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0].name");
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[{}]}}]}}", d.getJson());
+
+      d = new JDocument();
+      d.setString("$.application.addresses[0].home.cars[0].name", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0]");
+      assertEquals("{\"application\":{\"addresses\":[{}]}}", d.getJson());
+
+      d = new JDocument();
+      d.setArrayValueString("$.application.addresses[0].home.cars[0]", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0]");
+      assertEquals("{\"application\":{\"addresses\":[{}]}}", d.getJson());
+
+      // some other test cases
+      d = new JDocument();
+      d.setString("$.application.addresses[0].home.cars[0].name", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0].name");
+      d.deletePath("$.application.addresses[0].home.cars");
+      d.deletePath("$.application.addresses[0].home");
+      assertEquals("{\"application\":{\"addresses\":[{}]}}", d.getJson());
+
+      // Test case for mixed empty arrays and objects
+      d = new JDocument();
+      d.setArrayValueString("$.application.addresses[0].home.cars[0]", "CB1");
+      d.deletePath("$.application.addresses[0].home.cars[0]");
+      d.deletePath("$.application.addresses[0].home");
+      assertEquals("{\"application\":{\"addresses\":[{}]}}", d.getJson());
+
+      // restore
+      JDocument.configure(new Configurator()
+                                  .deleteEmptyObject(false)
+                                  .deleteEmptyArray(true));
+    }
+    catch (Exception e) {
+      fail();
+    }
+  }
+
+  @Test
+  void testRemoveNullsAndEmpty() {
+    try {
+      JDocument d = (JDocument)getBaseDocument("/jdocs/sample_31.json");
+
+      JDocument td = (JDocument)d.deepCopy();
+      td.removeNullsAndEmpty(false, false, false);
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[{\"name\":\"CB1\"},{},{\"name\":\"CB3\",\"model_info\":{},\"spec_info\":{\"field\":null},\"emails\":[]}]}}],\"name\":{},\"emails\":[]}}", td.getJson());
+
+      td = (JDocument)d.deepCopy();
+      td.removeNullsAndEmpty(true, false, false);
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[{\"name\":\"CB1\"},{},{\"name\":\"CB3\",\"model_info\":{},\"spec_info\":{},\"emails\":[]}]}}],\"name\":{},\"emails\":[]}}", td.getJson());
+
+      td = (JDocument)d.deepCopy();
+      td.removeNullsAndEmpty(false, true, false);
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[{\"name\":\"CB1\"},{},{\"name\":\"CB3\",\"spec_info\":{\"field\":null},\"emails\":[]}]}}],\"emails\":[]}}", td.getJson());
+
+      td = (JDocument)d.deepCopy();
+      td.removeNullsAndEmpty(false, false, true);
+      assertEquals("{\"application\":{\"addresses\":[{\"home\":{\"cars\":[{\"name\":\"CB1\"},{},{\"name\":\"CB3\",\"model_info\":{},\"spec_info\":{\"field\":null}}]}}],\"name\":{}}}", td.getJson());
+
+      d = (JDocument)getBaseDocument("/jdocs/sample_32.json");
+      td = (JDocument)d.deepCopy();
+      td.removeNullsAndEmpty(false, false, false);
+      assertEquals("{\"employee\":{\"name\":\"John\",\"address\":{},\"cars\":[],\"boats\":[null,\"athena\",null],\"bikes\":[{\"parts\":[{},{},{\"name\":\"engine\",\"spec\":null}]}]}}", td.getJson());
+
+      td = (JDocument)d.deepCopy();
+      td.removeNullsAndEmpty(true, false, false);
+      assertEquals("{\"employee\":{\"name\":\"John\",\"address\":{},\"cars\":[],\"boats\":[null,\"athena\",null],\"bikes\":[{\"parts\":[{},{},{\"name\":\"engine\"}]}]}}", td.getJson());
+
+      td = (JDocument)d.deepCopy();
+      td.removeNullsAndEmpty(true, true, false);
+      assertEquals("{\"employee\":{\"name\":\"John\",\"cars\":[],\"boats\":[null,\"athena\",null],\"bikes\":[{\"parts\":[{},{},{\"name\":\"engine\"}]}]}}", td.getJson());
+
+      td = (JDocument)d.deepCopy();
+      td.removeNullsAndEmpty(true, true, true);
+      assertEquals("{\"employee\":{\"name\":\"John\",\"boats\":[null,\"athena\",null],\"bikes\":[{\"parts\":[{},{},{\"name\":\"engine\"}]}]}}", td.getJson());
+    }
+    catch (Exception e) {
+      fail();
+    }
+  }
+
+  @Test
+  void testTemp() {
+    // nothing to do as this is just a placeholder
   }
 
 }

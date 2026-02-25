@@ -51,13 +51,13 @@ public class BaseUtils {
 
   /**
    * Checks if the string value passed is null or empty
-   * <p>
+   *
    * If string consists of only spaces, it is considered as empty
    *
    * @param s The string to check
    * @return True if string passed is null or empty else false
    */
-  public static boolean isNullOrEmptyAfterTrim(String s) {
+  public static boolean isNullOrEmpty(String s) {
     if (s == null) {
       return true;
     }
@@ -71,31 +71,16 @@ public class BaseUtils {
   }
 
   /**
-   * Checks if the string value passed is null or empty
-   * <p>
-   * If string consists of only spaces, it is considered as empty
-   *
-   * @deprecated use {@link #isNullOrEmptyAfterTrim(String s)} instead.
-   *
-   * @param s The string to check
-   * @return True if string passed is null or empty else false
-   */
-  @Deprecated
-  public static boolean isNullOrEmpty(String s) {
-    return isNullOrEmptyAfterTrim(s);
-  }
-
-  /**
    * Checks if any of the strings passed have a value of null or empty
-   * <p>
+   *
    * A string consisting of empty spaces is considered empty
    *
    * @param strings the strings to check
    * @return true if any string passed is null or empty, else returns false
    */
-  public static boolean isAnyNullOrEmptyAfterTrim(String... strings) {
+  public static boolean isAnyNullOrEmpty(String... strings) {
     for (String s : strings) {
-      if (BaseUtils.isNullOrEmptyAfterTrim(s)) {
+      if (BaseUtils.isNullOrEmpty(s)) {
         return true;
       }
     }
@@ -104,15 +89,15 @@ public class BaseUtils {
 
   /**
    * Checks if any of the strings passed have a set value other than null or empty
-   * <p>
+   *
    * A string consisting of empty spaces is considered empty
    *
    * @param strings the strings to check
    * @return true if any string passed is not null or empty, else returns false
    */
-  public static boolean isAnyNotNullOrEmptyAfterTrim(String... strings) {
+  public static boolean isAnyNotNullOrEmpty(String... strings) {
     for (String s : strings) {
-      if (BaseUtils.isNotNullOrEmptyAfterTrim(s)) {
+      if (BaseUtils.isNotNullOrEmpty(s)) {
         return true;
       }
     }
@@ -121,31 +106,31 @@ public class BaseUtils {
 
   /**
    * Checks if all the strings passed have a value of null or empty
-   * <p>
+   *
    * A string consisting of empty spaces is considered empty
    *
    * @param strings the strings to check
    * @return true if all string passed are null or empty, else returns false
    */
-  public static boolean isAllNullOrEmptyAfterTrim(String... strings) {
-    return isAnyNotNullOrEmptyAfterTrim(strings) == false;
+  public static boolean isAllNullOrEmpty(String... strings) {
+    return isAnyNotNullOrEmpty(strings) == false;
   }
 
   /**
    * Checks if all the strings passed have a set value other than null or empty
-   * <p>
+   *
    * A string consisting of empty spaces is considered empty
    *
    * @param strings the strings to check
    * @return true if all string passed are not null or empty, else returns false
    */
-  public static boolean isAllNotNullOrEmptyAfterTrim(String... strings) {
-    return isAnyNullOrEmptyAfterTrim(strings) == false;
+  public static boolean isAllNotNullOrEmpty(String... strings) {
+    return isAnyNullOrEmpty(strings) == false;
   }
 
   /**
    * Removes all white spaces from a string
-   * <p>
+   *
    * A whitespace is identified using the Java method Character.isWhiteSpace
    *
    * @param s The string containing white spaces
@@ -195,7 +180,7 @@ public class BaseUtils {
 
   /**
    * Creates a zoned date time object from the string representation of a date
-   * <p>
+   *
    * The input string is expected to have a timezone specified at the location specified in the pattern
    *
    * @param dt        The date as a string
@@ -272,7 +257,7 @@ public class BaseUtils {
 
   /**
    * Creates a string representation from a date represented as a string which contains timezone information
-   * <p>
+   *
    * The timezone of the input date is expected to be specified in the input string at the location specified in the pattern
    *
    * @param dt         The input string to be converted
@@ -304,10 +289,10 @@ public class BaseUtils {
    * it cannot be that one string contains zone id and the other contains offset information OR
    * the input pattern contains a time zone info and the output does not in which case the source
    * time zone will be used for the output
-   * <p>
+   *
    * Suffice to say that it is best to use this for cases where output pattern does not contain time zone info
    *
-   * <p>
+   *
    * Default locale is used
    *
    * @param dt         The input string to be converted
@@ -343,6 +328,18 @@ public class BaseUtils {
     DateTimeFormatter df = DateTimeFormatter.ofPattern(CONSTS_BASE.UNIFY_TS_FMT).withLocale(Locale.US);
     TemporalAccessor ta = df.parse(strDate);
     return Timestamp.from(Instant.from(ta));
+  }
+
+  /**
+   * Creates a Timestamp object from a String representation of a date
+   *
+   * @param strDate The string representation of a date
+   * @return Timestamp object for the string representation
+   */
+  // Given a date string, format it and return a timestamp of that date
+  public static Timestamp getTimestampFromString(String strDate, String pattern) {
+    Instant instant = getInstantFromString(strDate, pattern);
+    return getTimestampFromInstant(instant);
   }
 
   /**
@@ -618,7 +615,7 @@ public class BaseUtils {
 
   /**
    * Escapes the specified characters with the escape character
-   * <p>
+   *
    * If the String contains the escape character as data, that too will be escaped
    *
    * @param s     The String in which to look for characters to escape
@@ -626,7 +623,7 @@ public class BaseUtils {
    * @param chars The characters to escape
    * @return The String with the specified characters escaped
    */
-  public static String escapeChars(String s, char ec, char... chars) {
+  public static String escapeCharsAndTrim(String s, char ec, char... chars) {
     StringBuffer sb = new StringBuffer(s.length() + 10); // arbitrarily assuming that there will not be more than 10 characters required to be escaped
     int size = s.length();
 
@@ -643,7 +640,7 @@ public class BaseUtils {
 
   /**
    * Removes the escape character for the specified characters
-   * <p>
+   *
    * If the String contains the escape character itself escaped, the escape character for this character will also be removed
    *
    * @param s     The String in which to remove the escape characters
@@ -651,7 +648,7 @@ public class BaseUtils {
    * @param chars The escaped characters to look for
    * @return The String with the escaped character removed
    */
-  public static String removeEscapeChars(String s, char ec, char... chars) {
+  public static String removeEscapeCharsAndTrim(String s, char ec, char... chars) {
     StringBuffer sb = new StringBuffer(s.length());
     int size = s.length();
 
@@ -706,7 +703,7 @@ public class BaseUtils {
    * @param first  The String to compare
    * @param others The Strings to compare against
    * @return True if first is matched to any of others else false
-   * <p>
+   *
    * False if first or others are null
    */
   public static boolean compareWithMany(String first, String... others) {
@@ -729,7 +726,7 @@ public class BaseUtils {
    * @param first  The String to compare
    * @param others The Strings to compare against
    * @return True if first is matched to any of others else false
-   * <p>
+   *
    * False if first or others are null
    */
   public static boolean compareWithManyIgnoreCase(String first, String... others) {
@@ -748,7 +745,7 @@ public class BaseUtils {
 
   /**
    * Creates an error String from the specified exception and code
-   * <p>
+   *
    * The error string consists of the following format
    * "Error code -&gt; {0}\nError message -&gt; {1}\nError details -&gt; {2}" where
    * {0} is the String code
@@ -768,13 +765,13 @@ public class BaseUtils {
 
   /**
    * Creates an error String from a UnifyException
-   * <p>
+   *
    * The error string consists of the following format if the cause inside UnifyException is null
    * "Error code -&gt; {0}\nError message -&gt; {1}\nError details -&gt; {2}" where
    * {0} is e.getErrorCode
    * {1} is e.getMessage and
    * {2} is the String returned from getStackTrace(e, 12)
-   * <p>
+   *
    * The error string consists of the following format if the cause inside UnifyException is not null
    * "Error code -&gt; {0}\nError message -&gt; {1}\nError details -&gt; {2}\nStack Info -&gt; {3}" where
    * {0} is e.getErrorCode
@@ -834,6 +831,21 @@ public class BaseUtils {
     }
 
     return input;
+  }
+
+  /**
+   * Returns a 0 when input is null
+   *
+   * @param input The input value
+   * @return The output value
+   */
+  public static Long getZeroWhenNull(Long input) {
+    if (input != null) {
+      return input;
+    }
+    else {
+      return 0L;
+    }
   }
 
   /**
@@ -935,7 +947,7 @@ public class BaseUtils {
    * @param s The String to test
    * @return True if not empty else false
    */
-  public static boolean isNotNullOrEmptyAfterTrim(String s) {
+  public static boolean isNotNullOrEmpty(String s) {
     if (s == null) {
       return false;
     }
@@ -946,19 +958,6 @@ public class BaseUtils {
     else {
       return false;
     }
-  }
-
-  /**
-   * Returns true if the input String is not null and not empty
-   *
-   * @deprecated use {@link #isNotNullOrEmptyAfterTrim(String s)} instead.
-   *
-   * @param s The String to test
-   * @return True if not empty else false
-   */
-  @Deprecated
-  public static boolean isNotEmpty(String s) {
-    return isNotNullOrEmptyAfterTrim(s);
   }
 
   public static void showWelcomeBanner(String pathToBannerFile) {
@@ -1057,7 +1056,7 @@ public class BaseUtils {
     System.out.println();
   }
 
-  public static java.sql.Date getSqlDateFromString(String strDate, String pattern) {
+  public static Date getSqlDateFromString(String strDate, String pattern) {
     try {
       Instant instant = BaseUtils.getInstantFromString(strDate, pattern);
       Timestamp ts = Timestamp.from(instant);
@@ -1166,17 +1165,17 @@ public class BaseUtils {
 
   /**
    * Returns the enum constant of the specified enum type with the specified name (case sensitive)
-   * <p>
+   *
    * Unlike using {@link Enum#valueOf} directly it does NOT throw an exception for an invalid or missing enum name
    *
    * @param enumClass Class of the enum for example: <code>CommonEnum.journey_name.class</code>
    * @param enumName  The enum name to return
    * @return The enum from the enumClass, that corresponds to the enumName value
-   * <p>
+   *
    * returns null if enumName is null
-   * <p>
+   *
    * returns null if Object passed in enumClass is not an enum class
-   * <p>
+   *
    * returns null if there is no enum constant associated with that enumName
    */
   public static <E extends Enum<E>> E getEnumByName(final Class<E> enumClass, final String enumName) {
@@ -1193,17 +1192,17 @@ public class BaseUtils {
 
   /**
    * Returns the enum constant of the specified enum type with the specified name (case insensitive)
-   * <p>
+   *
    * Case insensitive version of {@link Enum#valueOf} and does NOT throw an exception for an invalid or missing enum name</p>
    *
    * @param enumClass Class of the enum for example: <code>CommonEnum.journey_name.class</code>
    * @param enumName  The enum name to return
    * @return The enum from the enumClass, that corresponds to the enumName value
-   * <p>
+   *
    * returns null if enumName is null
-   * <p>
+   *
    * returns null if Object passed in enumClass is not an enum class
-   * <p>
+   *
    * returns null if there is no enum constant associated with that enumName
    */
   public static <E extends Enum<E>> E getEnumByNameIgnoreCase(final Class<E> enumClass, final String enumName) {
@@ -1225,11 +1224,11 @@ public class BaseUtils {
    * @param vargs An array of strings that will be replacing the % characters in the jPath. Should be an exact amount
    *              equal to the number of % characters in the jPath.
    * @return The evaluated jPath
-   * <p>
+   *
    * Returns the unmodified jPath as passed as argument if vargs or jpath is null
-   * <p>
+   *
    * @throws UnifyException If null value is present in vargs
-   *                        <p>
+   *
    *                        If vargs length does not equal % character count
    */
   public static String evaluateJPath(String jPath, String... vargs) {
