@@ -334,6 +334,7 @@ public class BaseUtils {
    * Creates a Timestamp object from a String representation of a date
    *
    * @param strDate The string representation of a date
+   * @param pattern The pattern of the string representation
    * @return Timestamp object for the string representation
    */
   // Given a date string, format it and return a timestamp of that date
@@ -478,6 +479,7 @@ public class BaseUtils {
    * Returns the specified number of levels of the stack trace for a Throwable as a String
    *
    * @param e The exception from which to extract the stack trace
+   * @param levels The depth of the stack trace
    * @return The stack trace as a String
    */
   public static String getStackTrace(Throwable e, int levels) {
@@ -1193,7 +1195,7 @@ public class BaseUtils {
   /**
    * Returns the enum constant of the specified enum type with the specified name (case insensitive)
    *
-   * Case insensitive version of {@link Enum#valueOf} and does NOT throw an exception for an invalid or missing enum name</p>
+   * Case insensitive version of {@link Enum#valueOf} and does NOT throw an exception for an invalid or missing enum name
    *
    * @param enumClass Class of the enum for example: <code>CommonEnum.journey_name.class</code>
    * @param enumName  The enum name to return
