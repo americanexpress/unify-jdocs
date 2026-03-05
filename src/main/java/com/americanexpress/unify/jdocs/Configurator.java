@@ -14,7 +14,6 @@
 
 package com.americanexpress.unify.jdocs;
 
-import com.americanexpress.unify.base.UnifyException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
@@ -63,94 +62,28 @@ public class Configurator {
 
   void configure() {
     // set the static values and check as we go along
-    if (defaultValidationType == null) {
-      if (JDocument.defaultValidationType == null) {
-        // default value
-        JDocument.defaultValidationType = CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS;
-      }
-      else {
-        // leave the value as it is and so nothing to do
-      }
-    }
-    else {
+    if (defaultValidationType != null) {
       JDocument.defaultValidationType = defaultValidationType;
     }
 
-    if (docTypePrefixPolicy == null) {
-      if (JDocument.docTypePrefixPolicy == null) {
-        // default value
-        JDocument.docTypePrefixPolicy = new DocTypePrefixPolicyEnforceForAll();
-      }
-      else {
-        // leave the value as it is and so nothing to do
-      }
-    }
-    else {
+    if (docTypePrefixPolicy != null) {
       JDocument.docTypePrefixPolicy = docTypePrefixPolicy;
     }
 
-    {
-      if (lineFeed == null) {
-        if (JDocument.lineFeed == null) {
-          // default value
-          JDocument.lineFeed = "\n";
-        }
-        else {
-          // leave the value as it is and so nothing to do
-        }
-      }
-      else {
-        if (JDocument.lineFeed == null) {
-          JDocument.lineFeed = lineFeed;
-        }
-        else {
-          if (lineFeed.equals(JDocument.lineFeed) == false) {
-            throw new UnifyException("jdoc_err_82");
-          }
-          else {
-            // do nothing
-          }
-        }
-      }
+    if (lineFeed != null) {
+      JDocument.lineFeed = lineFeed;
       JDocument.objectWriter = JDocument.objectMapper.writer(new DefaultPrettyPrinter().withObjectIndenter(new DefaultIndenter().withLinefeed(JDocument.lineFeed)));
     }
 
-    if (ignoreDocTypePrefixForBaseDocs == null) {
-      if (JDocument.ignoreDocTypePrefixForBaseDocs == null) {
-        // default value
-        JDocument.ignoreDocTypePrefixForBaseDocs = false;
-      }
-      else {
-        // leave the value as it is and so nothing to do
-      }
-    }
-    else {
+    if (ignoreDocTypePrefixForBaseDocs != null) {
       JDocument.ignoreDocTypePrefixForBaseDocs = ignoreDocTypePrefixForBaseDocs;
     }
 
-    if (deleteEmptyObject == null) {
-      if (JDocument.deleteEmptyObject == null) {
-        // default value
-        JDocument.deleteEmptyObject = false;
-      }
-      else {
-        // leave the value as it is and so nothing to do
-      }
-    }
-    else {
+    if (deleteEmptyObject != null) {
       JDocument.deleteEmptyObject = deleteEmptyObject;
     }
 
-    if (deleteEmptyArray == null) {
-      if (JDocument.deleteEmptyArray == null) {
-        // default value
-        JDocument.deleteEmptyArray = false;
-      }
-      else {
-        // leave the value as it is and so nothing to do
-      }
-    }
-    else {
+    if (deleteEmptyArray != null) {
       JDocument.deleteEmptyArray = deleteEmptyArray;
     }
   }

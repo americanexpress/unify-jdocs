@@ -29,7 +29,7 @@ JDocs is available as a jar file in Maven central with the following latest Mave
 ```pom
 <groupId>com.americanexpress.unify.jdocs</groupId>
 <artifactId>unify-jdocs</artifactId>
-<version>2.0.1</version>
+<version>2.0.2</version>
 ```
 
 #### Version 2.x.x release alert
@@ -232,6 +232,9 @@ above values.
 Default is false. Note that empty arrays were being deleted in previous versions of JDocs (before 2.X).
 
 The remaining properties are set in the context of typed documents and are explained in the later section on the same.
+
+*Note that the default values for runtime properties are set up in the call to 'init' method itself. Hence, it is
+not required to call the `configure` method if the default values of runtime properties are acceptable.*
 
 ##### Reading and writing elements
 

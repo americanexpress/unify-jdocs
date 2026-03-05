@@ -29,6 +29,7 @@ public class TestTokenParsing {
   private static Logger logger = LoggerFactory.getLogger(JDocument.class);
 
   public static void main(String[] args) throws IOException, UnifyException {
+    JDocument.init(new Initializer());
     test1();
   }
 
