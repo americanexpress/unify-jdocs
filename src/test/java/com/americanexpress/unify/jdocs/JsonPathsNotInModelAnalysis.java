@@ -46,6 +46,8 @@ public class JsonPathsNotInModelAnalysis {
       System.exit(1);
     }
 
+    JDocument.init(new Initializer());
+
     // get the unique paths in the code base
     fileExtension = args[2];
     List<String> uniqueCodePathsList = getListOfUniquePaths(args[1], args[2]);

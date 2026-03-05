@@ -32,6 +32,8 @@ public class JsonPathAnalysisTest {
       System.exit(1);
     }
 
+    JDocument.init(new Initializer());
+
     // new JsonPathUtils().getUnusedPaths(args[0], args[1], args[2]);
     // new JsonPathUtils().getUsedPaths(args[0], args[1], args[2]);
     getUniquePaths(args[0]);

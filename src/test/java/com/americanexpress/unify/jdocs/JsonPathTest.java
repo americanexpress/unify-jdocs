@@ -30,6 +30,8 @@ import java.util.stream.Stream;
 public class JsonPathTest {
 
   public static void main(String[] args) throws IOException {
+    JDocument.init(new Initializer());
+
     // checkArrayKeys(args);
     flattenPaths(args);
   }

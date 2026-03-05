@@ -18,6 +18,8 @@ import com.americanexpress.unify.base.UnifyException;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 
@@ -79,7 +81,6 @@ public class Initializer {
     if (JDocument.objectMapper == null) {
       JDocument.objectMapper = new ObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, JDocument.allowComments)
               .configure(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES, JDocument.stripTrailingBigdecimalZeroes);
-      JDocument.objectWriter = JDocument.objectMapper.writer();
       JsonFactory jsonFactory = JDocument.objectMapper.getFactory();
       StreamReadConstraints src = StreamReadConstraints.builder().maxStringLength(JDocument.maxStringLength).build();
       jsonFactory.setStreamReadConstraints(src);
@@ -87,6 +88,15 @@ public class Initializer {
     else {
       throw new UnifyException("jdoc_err_83");
     }
+
+    // we need to initialize the runtime defaults
+    JDocument.defaultValidationType = CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS;
+    JDocument.docTypePrefixPolicy = new DocTypePrefixPolicyEnforceForAll();
+    JDocument.lineFeed = "\n";
+    JDocument.objectWriter = JDocument.objectMapper.writer(new DefaultPrettyPrinter().withObjectIndenter(new DefaultIndenter().withLinefeed(JDocument.lineFeed)));
+    JDocument.ignoreDocTypePrefixForBaseDocs = false;
+    JDocument.deleteEmptyObject = false;
+    JDocument.deleteEmptyArray = false;
 
     JDocument.isInitialized = true;
   }

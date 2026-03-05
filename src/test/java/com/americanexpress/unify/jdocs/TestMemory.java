@@ -38,6 +38,7 @@ public class TestMemory {
    * @throws UnifyException
    */
   public static void main(String[] args) throws IOException, UnifyException {
+    JDocument.init(new Initializer());
     setDocModel("application");
     testMemory();
   }
