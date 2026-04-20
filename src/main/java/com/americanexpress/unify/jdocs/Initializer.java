@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import static com.fasterxml.jackson.core.StreamReadConstraints.DEFAULT_MAX_STRING_LEN;
 
 public class Initializer {
+
   private Boolean allowComments = null;
   private Boolean stripTrailingBigdecimalZeroes = null;
   private Integer maxStringLength = null;

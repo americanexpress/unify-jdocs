@@ -29,7 +29,7 @@ JDocs is available as a jar file in Maven central with the following latest Mave
 ```pom
 <groupId>com.americanexpress.unify.jdocs</groupId>
 <artifactId>unify-jdocs</artifactId>
-<version>2.0.2</version>
+<version>2.0.3</version>
 ```
 
 #### Version 2.x.x release alert
@@ -235,6 +235,20 @@ The remaining properties are set in the context of typed documents and are expla
 
 *Note that the default values for runtime properties are set up in the call to 'init' method itself. Hence, it is
 not required to call the `configure` method if the default values of runtime properties are acceptable.*
+
+Please note that most of the examples in this readme file are using the following options unless otherwise stated:
+
+```java
+JDocument.init(new Initializer()
+                       .allowComments(true)
+                       .stripTrailingBigDecimalZeroes(false));
+JDocument.configure(new Configurator()
+                            .defaultValidationPolicy(CONSTS_JDOCS.VALIDATION_TYPE.ONLY_MODEL_PATHS)
+                            .docTypePrefixPolicy(new DocTypePrefixPolicyIgnoreForAll())
+                            .ignoreDocTypePrefixForBaseDocs(true)
+                            .lineFeed("\n"));
+
+```
 
 ##### Reading and writing elements
 

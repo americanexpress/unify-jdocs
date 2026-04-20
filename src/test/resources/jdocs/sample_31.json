@@ -12,11 +12,9 @@
             },
             {
               "name": "CB3",
-
               // empty object
               "model_info": {
               },
-
               // empty object
               "spec_info": {
                 "field": null
@@ -29,11 +27,9 @@
         }
       }
     ],
-
     // empty object
     "name": {
     },
-
     // empty array
     "emails": [
     ]

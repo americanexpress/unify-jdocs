@@ -14,7 +14,6 @@
 
 package com.americanexpress.unify.jdocs;
 
-
 import com.americanexpress.unify.base.UnifyException;
 
 import java.math.BigDecimal;
@@ -268,7 +267,7 @@ public class ReadOnlyDocument implements Document {
 
   @Override
   public CONSTS_JDOCS.VALIDATION_TYPE getValidationType() {
-    return null;
+    return d.getValidationType();
   }
 
   @Override

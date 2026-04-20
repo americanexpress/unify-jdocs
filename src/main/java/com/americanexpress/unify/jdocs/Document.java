@@ -561,4 +561,5 @@ public interface Document {
    * Remove null fields, empty objects and empty arrays as per passed options
    */
   public void removeNullsAndEmpty(boolean removeNullFields, boolean removeEmptyObjects, boolean removeEmptyArrays);
+
 }
