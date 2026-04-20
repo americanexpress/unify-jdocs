@@ -2244,17 +2244,19 @@ public class JDocument implements Document {
    */
   @Override
   public void deletePath(String path, String... vargs) {
-    path = getStaticPath(path, vargs);
-    List<Token> tokenList = validatePath(path, CONSTS_JDOCS.API.DELETE_PATH, PathAccessType.OBJECT);
+    String pathWithoutType = null;
+    pathWithoutType = getStaticPath(path, vargs);
+    List<Token> tokenList = validatePath(pathWithoutType, CONSTS_JDOCS.API.DELETE_PATH, PathAccessType.OBJECT);
     if (isTyped()) {
-      validateFilterNames(path, tokenList, docType);
-      checkPathExistsInModel(getModelPath(path), docType);
+      validateFilterNames(pathWithoutType, tokenList, docType);
+      checkPathExistsInModel(getModelPath(pathWithoutType), docType);
     }
 
     // we first check if the path exists in the document only then do we go ahead to delete it
     // we do this because pathExists handles out of bound indexes but deletePath does not
-    if (pathExists(path) == true) {
-      deletePath(path, tokenList);
+    // note we pass the full path i.e. along with the type
+    if (pathExists(path, vargs) == true) {
+      deletePath(pathWithoutType, tokenList);
     }
   }
 

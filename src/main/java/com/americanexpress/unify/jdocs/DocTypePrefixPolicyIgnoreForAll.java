@@ -15,6 +15,7 @@
 package com.americanexpress.unify.jdocs;
 
 public class DocTypePrefixPolicyIgnoreForAll extends DocTypePrefixPolicy {
+
   public DocTypePrefixPolicyIgnoreForAll() {
     // nothing to do
   }
@@ -22,4 +23,5 @@ public class DocTypePrefixPolicyIgnoreForAll extends DocTypePrefixPolicy {
   public PolicyType getPolicyType() {
     return PolicyType.IGNORE_FOR_ALL;
   }
+
 }

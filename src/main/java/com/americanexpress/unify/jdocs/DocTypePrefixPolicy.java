@@ -15,6 +15,7 @@
 package com.americanexpress.unify.jdocs;
 
 public abstract class DocTypePrefixPolicy {
+
   public enum PolicyType {
     ENFORCE_FOR_ALL,
     ENFORCE_FOR_SOME,
@@ -23,4 +24,5 @@ public abstract class DocTypePrefixPolicy {
   }
 
   public abstract PolicyType getPolicyType();
+
 }
